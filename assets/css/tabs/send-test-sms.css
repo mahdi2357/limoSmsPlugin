@@ -1,0 +1,115 @@
+.limosms-test-sms-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.limosms-card-title {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.limosms-card-subtitle {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #646970;
+    font-size: 13px;
+}
+
+.limosms-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.limosms-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.limosms-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.limosms-label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1d2327;
+    font-size: 13px;
+}
+
+.limosms-test-sms-form input[type="text"],
+.limosms-test-sms-form select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 6px;
+    background: #fff;
+    color: #2c3338;
+    font-size: 14px;
+    box-shadow: none;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.limosms-test-sms-form input[type="text"]:focus,
+.limosms-test-sms-form select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.limosms-test-sms-form .description {
+    margin: 4px 0 0;
+    color: #646970;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.limosms-field-error {
+    display: none;
+    color: #b32d2e;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.limosms-field-error.is-visible {
+    display: block;
+}
+
+.limosms-test-sms-form input.is-invalid,
+.limosms-test-sms-form select.is-invalid {
+    border-color: #b32d2e !important;
+}
+
+.limosms-form-actions {
+    margin-top: 24px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f1;
+}
+
+.limosms-form-actions .button {
+    height: 40px !important;
+    padding: 0 20px !important;
+    line-height: 38px !important;
+    font-size: 13px !important;
+}
+
+@media (max-width: 782px) {
+    .limosms-form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .limosms-form-group-full {
+        grid-column: auto;
+    }
+}

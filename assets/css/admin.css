@@ -1,0 +1,489 @@
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../fonts/Vazirmatn-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+*{
+  font-family: 'Vazirmatn';
+}
+
+.limosms-wrapper {
+  direction: rtl;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+  background: #f3f4f6;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.limosms-sidebar {
+  font-size: 16px;
+  width: 280px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 20px;
+}
+
+.limosms-sidebar h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.limosms-sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.limosms-sidebar li {
+  margin: 10px 0;
+}
+
+.limosms-sidebar a {
+  display: block;
+  text-decoration: none;
+  color: #6f72ff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.limosms-sidebar li.active a,
+.limosms-sidebar a:hover {
+  background: #e8e8ff;
+  color: #5557d9;
+  font-weight: 600;
+}
+
+.limosms-content {
+  flex: 1;
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+  min-height: 500px;
+  transition: opacity 0.3s ease;
+}
+
+.limosms-content h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.limosms-content form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.limosms-content input[type="text"] {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0 14px;
+  box-shadow: none;
+  background: #fff;
+}
+
+.limosms-content input[type="text"]:focus {
+  border-color: #5557d9;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.limosms-content .button-primary {
+  height: 42px;
+  border-radius: 10px;
+  padding: 0 18px;
+  margin: 20px;
+}
+
+.limosms-logo {
+  width: 100%;
+}
+
+.limosms-content-box {
+  position: relative;
+  min-height: 180px;
+}
+
+#limosms-tab-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1d2327;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.limosms-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #ddd;
+  border-top-color: #5557d9;
+  border-radius: 50%;
+  animation: limosms-spin 0.8s linear infinite;
+}
+
+@keyframes limosms-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.limosms-tab.is-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.limosms-settings-wrapper {
+  max-width: 900px;
+  margin-top: 20px;
+}
+
+.limosms-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccd0d4;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.limosms-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0 28px;
+}
+
+.limosms-stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 20px 24px;
+  min-height: 92px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.limosms-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.limosms-stat-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.limosms-stat-card__label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.limosms-stat-card__value {
+  color: #111827;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.limosms-stat-card__value--success {
+  color: #16a34a;
+}
+
+.limosms-stat-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #fff8db;
+  color: #eab308;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+@media (max-width: 1200px) {
+  .limosms-dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 782px) {
+  .limosms-dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.limosms-sidebar-links {
+  margin: 16px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.limosms-sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #5557d9;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.limosms-sidebar-link:hover {
+  background: #eaf2ff;
+}
+
+.limosms-sidebar-balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fff9e6;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.limosms-sidebar-balance__value {
+  color: #d97706;
+  font-weight: 700;
+}
+.limosms-test-sms-card {
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  max-width: 920px;
+}
+
+.limosms-test-sms-form {
+  margin: 0;
+}
+
+.limosms-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+  align-items: start;
+}
+
+.limosms-form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.limosms-form-group-full {
+  grid-column: 1 / -1;
+}
+
+.limosms-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1d2327;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.limosms-test-sms-form input[type="text"],
+.limosms-test-sms-form select {
+  width: 100%;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #8c8f94;
+  border-radius: 8px;
+  background: #fff;
+  color: #2c3338;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.limosms-test-sms-form input[type="text"]:focus,
+.limosms-test-sms-form select:focus {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+  outline: none;
+}
+
+.limosms-test-sms-form .description {
+  margin: 6px 0 0;
+  color: #646970;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.limosms-form-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.limosms-form-actions .button {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+}
+
+.limosms-test-sms-form .is-invalid {
+  border-color: #d63638 !important;
+  box-shadow: 0 0 0 1px rgba(214, 54, 56, 0.18) !important;
+}
+
+.limosms-field-error {
+  display: none;
+  margin-top: 6px;
+  color: #d63638;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.limosms-field-error.is-visible {
+  display: block;
+}
+
+@media (max-width: 782px) {
+  .limosms-test-sms-card {
+    padding: 16px;
+  }
+
+  .limosms-form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .limosms-form-group-full {
+    grid-column: auto;
+  }
+}
+
+.limosms-logo-link {
+  display: block;
+  width: 100%;
+  pointer-events: auto !important;
+  cursor: pointer;
+  position: relative;
+  z-index: 20;
+}
+
+.limosms-logo-link:hover,
+.limosms-logo-link:focus {
+  opacity: 0.95;
+}
+
+.limosms-logo {
+  display: block;
+  max-width: 95%;
+  height: auto;
+  pointer-events: auto !important;
+}
+
+
+/**/
+/* باکس اصلی مدیریت توکن‌های هر پارامتر */
+.limosms-token-selector-wrapper {
+  background: #fcfcfc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 15px;
+}
+
+/* فیلد جستجوی توکن‌ها */
+.limosms-token-search {
+  width: 100%;
+  max-width: 300px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+/* باکس دکمه‌های توکن با اسکرول محدود */
+.limosms-tokens-container {
+  max-height: 120px; /* نمایش حدود ۲ الی ۳ ردیف به صورت پیش‌فرض */
+  overflow-y: auto;
+  border: 1px dashed #e2e8f0;
+  padding: 10px;
+  border-radius: 6px;
+  background: #fff;
+  transition: max-height 0.3s ease;
+}
+
+/* حالت باز شده کامل با کلیک روی دکمه نمایش بیشتر */
+.limosms-tokens-container.expanded {
+  max-height: 400px;
+}
+
+/* دکمه‌های کنترل نمایش */
+.limosms-toggle-tokens-btn {
+  background: none;
+  border: none;
+  color: #007cba;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: underline;
+}
+.limosms-toggle-tokens-btn:hover {
+  color: #005a87;
+}
+
+/* زیباسازی اسکرول‌بار */
+.limosms-tokens-container::-webkit-scrollbar {
+  width: 6px;
+}
+.limosms-tokens-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.limosms-tokens-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.limosms-tokens-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

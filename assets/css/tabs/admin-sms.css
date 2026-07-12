@@ -1,0 +1,323 @@
+.limosms-pattern-wrapper {
+    margin-top: 16px;
+}
+
+.limosms-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.limosms-pattern-box:focus-within {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.limosms-pattern-box {
+    margin-top: 8px;
+}
+
+.limosms-pattern-text {
+    margin: 0;
+    min-height: 84px;
+    padding: 12px;
+    /*border: 1px solid #c3c4c7;*/
+    border-radius: 4px;
+    background: #f6f7f7;
+    color: #1d2327;
+    line-height: 1.7;
+    direction: rtl;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'IRANSans';
+    font-size: 15px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.limosms-pattern-help {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #555;
+    background: #f0f0f1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.limosms-pattern-mapping {
+    margin-top: 10px;
+}
+
+.limosms-mapping-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.limosms-mapping-table tr {
+    background: #fff;
+}
+
+.limosms-mapping-table td {
+    vertical-align: middle;
+}
+
+.limosms-mapping-table td:first-child {
+    width: 140px;
+    font-weight: 600;
+    color: #1d2327;
+    padding: 0 0 0 10px;
+    white-space: nowrap;
+}
+
+.limosms-mapping-table td:last-child {
+    width: 100%;
+}
+
+.limosms-mapping-row {
+    background: #fff;
+    /*border: 1px solid #e2e8f0;*/
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: all .2s ease;
+}
+
+.limosms-mapping-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.limosms-mapping-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.limosms-mapping-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.limosms-selected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+
+.limosms-selected-badge.is-empty {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.limosms-selected-badge.is-selected {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.limosms-selected-badge .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+.limosms-pattern-select {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0 12px !important;
+    box-shadow: none !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    direction: rtl;
+    text-align: right;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path fill='%23646970' d='M5.5 7.5l4.5 4 4.5-4' stroke='%23646970' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 18px;
+}
+
+.limosms-pattern-select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    outline: none;
+}
+
+.limosms-pattern-select option:disabled {
+    color: #94a3b8;
+}
+
+.limosms-pattern-empty {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    border: 1px dashed #c3c4c7;
+    border-radius: 8px;
+    background: #fcfcfc;
+    color: #646970;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.limosms-token-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.limosms-token-chip {
+    border: 1px solid #dbe3ec;
+    background: #fff;
+    color: #334155;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.limosms-token-chip:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.limosms-token-chip.is-active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.limosms-token-chip.is-active::before {
+    content: "✓";
+    margin-left: 6px;
+    font-weight: bold;
+}
+
+.limosms-token-chip.is-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    background: #f8fafc;
+    color: #94a3b8;
+}
+
+.limosms-token-chip.is-disabled:hover {
+    transform: none;
+    border-color: #dbe3ec;
+}
+
+.limosms-event-card .limosms-field {
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.limosms-event-card.is-active .limosms-field {
+    display: block;
+}
+
+.limosms-event-card .limosms-event-title,
+.limosms-event-card .limosms-event-toggle {
+    display: block !important;
+}
+
+@media (max-width: 782px) {
+    .limosms-mapping-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .limosms-mapping-label {
+        min-width: auto;
+    }
+
+    .limosms-pattern-select {
+        max-width: 100%;
+    }
+}
+
+/* --- LimoSMS Toast Notifications --- */
+.limosms-toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 24px; /* برای ساختار راست‌چین (RTL)، توست معمولاً در پایین سمت چپ قرار می‌گیرد */
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.limosms-toast {
+    pointer-events: auto;
+    min-width: 300px;
+    max-width: 400px;
+    background: #ffffff;
+    color: #1f2937;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    border-right: 5px solid #d1d5db; /* پیش‌فرض خاکستری */
+    transform: translateX(-120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+}
+
+.limosms-toast.is-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.limosms-toast.is-hide {
+    transform: translateX(-120%);
+    opacity: 0;
+}
+
+/* رنگ‌های وضعیت‌ها */
+.limosms-toast--success {
+    border-right-color: #10b981; /* سبز */
+}
+
+.limosms-toast--error {
+    border-right-color: #ef4444; /* قرمز */
+}
+
+.limosms-toast--info {
+    border-right-color: #3b82f6; /* آبی */
+}
+
+.limosms-toast__icon {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.limosms-toast--success .limosms-toast__icon {
+    color: #10b981;
+}
+
+.limosms-toast--error .limosms-toast__icon {
+    color: #ef4444;
+}
+
+.limosms-toast--info .limosms-toast__icon {
+    color: #3b82f6;
+}
