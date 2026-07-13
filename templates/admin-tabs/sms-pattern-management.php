@@ -13,6 +13,7 @@
             <tr>
                 <th><?php esc_html_e( 'ردیف', 'limosms' ); ?></th>
                 <th><?php esc_html_e( 'کد الگو', 'limosms' ); ?></th>
+                <th><?php esc_html_e( 'عنوان', 'limosms' ); ?></th>
                 <th><?php esc_html_e( 'متن پیام', 'limosms' ); ?></th>
                 <th><?php esc_html_e( 'عملیات', 'limosms' ); ?></th>
             </tr>
@@ -20,12 +21,13 @@
 
             <tbody id="limosms-patterns-table-body">
             <tr>
-                <td colspan="4" style="text-align: center; padding: 24px;">
+                <td colspan="5" style="text-align: center; padding: 24px;">
                     <?php esc_html_e( 'در حال دریافت الگوها...', 'limosms' ); ?>
                 </td>
             </tr>
             </tbody>
         </table>
+
 
         <div class="limosms-pagination-wrap" style="display: none;">
             <div class="limosms-pagination-info">

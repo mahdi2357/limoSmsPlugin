@@ -41,6 +41,7 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
 
         $enabled      = isset($event_settings['enabled']) ? $event_settings['enabled'] : 'no';
         $pattern_id   = isset($event_settings['otp_id']) ? $event_settings['otp_id'] : '';
+        $pattern_title = isset($event_settings['title']) ? $event_settings['title'] : '';
         $pattern_text = isset($event_settings['pattern_text']) ? $event_settings['pattern_text'] : '';
 
         $pattern_map = isset($event_settings['pattern_map']) && is_array($event_settings['pattern_map'])
@@ -89,8 +90,15 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
                             type="hidden"
                             class="limosms-event-otp-id"
                             data-event="<?php echo esc_attr($key); ?>"
-                            value="<?php echo esc_attr($pattern_id); ?>"
+                            value="<?php echo esc_attr($pattern_id) ; ?>"
                     >
+                    <input
+                            type="hidden"
+                            class="limosms-event-pattern-title"
+                            data-event="<?php echo esc_attr($key); ?>"
+                            value="<?php echo esc_attr($pattern_title); ?>"
+                    >
+
                 </div>
 
                 <div class="limosms-field limosms-field-pattern-text">

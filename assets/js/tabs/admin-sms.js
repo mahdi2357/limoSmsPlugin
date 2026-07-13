@@ -100,6 +100,29 @@
         window.alert(message);
     }
 
+    function getPatternCode(pattern) {
+        return pattern.id || pattern.pattern_id || '';
+    }
+
+    function getPatternTitle(pattern) {
+        return pattern.title || pattern.pattern_title || pattern.name || '';
+    }
+
+    function getPatternText(pattern) {
+        return pattern.message || pattern.text || pattern.content || '';
+    }
+
+    function buildPatternOptionLabel(pattern) {
+        const code = String(getPatternCode(pattern) || '');
+        const title = String(getPatternTitle(pattern) || '');
+
+        if (code && title) return code + ' | ' + title;
+        if (code) return code;
+        if (title) return title;
+        return 'بدون عنوان';
+    }
+
+
     function normalizeToken(token) {
         return String(token || '').replace(/[{}]/g, '');
     }
@@ -145,29 +168,36 @@
         $('.limosms-pattern-selector').each(function () {
             const select = $(this);
             const card = select.closest('.limosms-event-card');
-            const savedId = card.find('.limosms-event-otp-id').val();
+            const savedId = String(card.find('.limosms-event-otp-id').val() || '');
             let html = '<option value="">انتخاب الگو...</option>';
 
             patterns.forEach(function (pattern) {
-                const patternId = pattern.id || pattern.pattern_id || '';
-                const patternMessage = pattern.message || pattern.text || pattern.content || '';
-                const selected = String(patternId) === String(savedId) ? ' selected' : '';
+                const patternId = String(getPatternCode(pattern) || '');
+                const patternText = String(getPatternText(pattern) || '');
+                const patternTitle = String(getPatternTitle(pattern) || '');
+                const selected = patternId === savedId ? ' selected' : '';
 
-                html += '<option value="' + String(patternId) + '"' + selected + ' data-text="' + encodeURIComponent(patternMessage) + '">' +
-                    String(patternId) +
-                    '</option>';
+                if (!patternId) {
+                    return;
+                }
+
+                html += '<option value="' + patternId + '"' +
+                    selected +
+                    ' data-text="' + encodeURIComponent(patternText) + '"' +
+                    ' data-title="' + encodeURIComponent(patternTitle) + '"' +
+                    '>' + buildPatternOptionLabel(pattern) + '</option>';
             });
 
             select.html(html);
 
             if (savedId) {
-                // تاخیر ۵۰ میلی‌ثانیه‌ای برای اطمینان از اعمال تغییرات در DOM
-                setTimeout(function() {
+                setTimeout(function () {
                     select.trigger('change');
                 }, 50);
             }
         });
     }
+
 
 
     function loadAllPatterns(forceReload) {
@@ -431,21 +461,28 @@
     $(document).on('change', '.limosms-pattern-selector', function () {
         const select = $(this);
         const card = select.closest('.limosms-event-card');
-        const patternId = select.val();
-        const encodedText = select.find('option:selected').attr('data-text');
+        const patternId = String(select.val() || '');
+        const selectedOption = select.find('option:selected');
+        const encodedText = selectedOption.attr('data-text') || '';
+        const encodedTitle = selectedOption.attr('data-title') || '';
         const textBox = card.find('.limosms-pattern-text');
 
-        if (patternId && encodedText) {
+        if (patternId) {
             card.find('.limosms-event-otp-id').val(patternId);
-            textBox.text(decodeURIComponent(encodedText));
+            textBox.text(encodedText ? decodeURIComponent(encodedText) : '');
+            card.find('.limosms-event-pattern-title').val(
+                encodedTitle ? decodeURIComponent(encodedTitle) : ''
+            );
         } else {
             card.find('.limosms-event-otp-id').val('');
             textBox.text('');
+            card.find('.limosms-event-pattern-title').val('');
         }
 
         renderPatternMapping(card);
         enableSaveButton();
     });
+
 
     $(document).on('click', '.limosms-token-chip', function () {
         const chip = $(this);
@@ -509,6 +546,7 @@
 
             const enabled = card.find('.limosms-event-enabled').is(':checked');
             const otpId = card.find('.limosms-event-otp-id').val() || '';
+            const patternTitle = card.find('.limosms-event-pattern-title').val() || '';
             const patternText = card.find('.limosms-pattern-text').text() || '';
             const patternInputs = card.find('.limosms-pattern-select');
             const patternMap = {};
@@ -554,6 +592,7 @@
             smsEvents[eventKey] = {
                 enabled: enabled ? 'yes' : 'no',
                 otp_id: enabled ? otpId : '',
+                title: enabled ? patternTitle : '',
                 pattern_text: enabled ? patternText : '',
                 pattern_map: enabled ? patternMap : {}
             };

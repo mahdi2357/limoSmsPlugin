@@ -81,6 +81,11 @@
             '-';
     }
 
+    function getPatternTitle(pattern) {
+        return pattern.title ||
+            '-';
+    }
+
     function renderEmptyRow(message) {
         const elements = getElements();
 
@@ -90,7 +95,7 @@
 
         elements.tableBody.html(
             '<tr>' +
-            '<td colspan="4" style="text-align:center; padding:24px;">' +
+            '<td colspan="5" style="text-align:center; padding:24px;">' +
             escapeHtml(message) +
             '</td>' +
             '</tr>'
@@ -153,6 +158,7 @@
         paginatedPatterns.forEach(function (pattern, index) {
             const rowNumber = startIndex + index + 1;
             const rawCode = getPatternCode(pattern);
+            const titleValue = getPatternTitle(pattern);
             const textValue = getPatternText(pattern);
             const shortText = textValue.length > 90 ? textValue.substring(0, 90) + '...' : textValue;
 
@@ -160,6 +166,7 @@
                 '<tr>' +
                 '<td>' + rowNumber + '</td>' +
                 '<td><code class="limosms-pattern-code">' + escapeHtml(rawCode || '-') + '</code></td>' +
+                '<td class="limosms-pattern-text">' + escapeHtml(titleValue) + '</td>' +
                 '<td class="limosms-pattern-text">' + escapeHtml(shortText) + '</td>' +
                 '<td>' +
                 '<div class="limosms-actions">' +
@@ -171,6 +178,7 @@
                 '</tr>'
             );
         });
+
 
         renderPaginationControls();
     }
