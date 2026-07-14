@@ -101,27 +101,78 @@
     }
 
     function getPatternCode(pattern) {
-        return pattern.id || pattern.pattern_id || '';
+        return pattern.id || pattern.pattern_id || pattern.otp_id || '';
     }
 
     function getPatternTitle(pattern) {
-        return pattern.title || pattern.pattern_title || pattern.name || '';
+        return pattern.title || pattern.pattern_title || pattern.name || pattern.pattern_name || '';
     }
 
     function getPatternText(pattern) {
-        return pattern.message || pattern.text || pattern.content || '';
+        return (
+            pattern.pattern_text ||
+            pattern.pattern ||
+            pattern.message ||
+            pattern.text ||
+            pattern.content ||
+            pattern.body ||
+            pattern.sms ||
+            ''
+        );
+    }
+
+    function normalizePattern(pattern) {
+        if (!pattern || typeof pattern !== 'object') {
+            return null;
+        }
+
+        const id = String(getPatternCode(pattern) || '').trim();
+        if (!id) {
+            return null;
+        }
+
+        return {
+            raw: pattern,
+            id: id,
+            title: String(getPatternTitle(pattern) || '').trim(),
+            text: String(getPatternText(pattern) || '')
+        };
+    }
+
+    function findPatternById(patternId) {
+        patternId = String(patternId || '').trim();
+
+        if (!patternId) {
+            return null;
+        }
+
+        for (let index = 0; index < patternsCache.length; index++) {
+            if (String(patternsCache[index].id) === patternId) {
+                return patternsCache[index];
+            }
+        }
+
+        return null;
     }
 
     function buildPatternOptionLabel(pattern) {
-        const code = String(getPatternCode(pattern) || '');
-        const title = String(getPatternTitle(pattern) || '');
+        const code = String(pattern.id || '');
+        const title = String(pattern.title || '');
 
-        if (code && title) return code + ' | ' + title;
-        if (code) return code;
-        if (title) return title;
+        if (code && title) {
+            return code + ' | ' + title;
+        }
+
+        if (code) {
+            return code;
+        }
+
+        if (title) {
+            return title;
+        }
+
         return 'بدون عنوان';
     }
-
 
     function normalizeToken(token) {
         return String(token || '').replace(/[{}]/g, '');
@@ -172,20 +223,14 @@
             let html = '<option value="">انتخاب الگو...</option>';
 
             patterns.forEach(function (pattern) {
-                const patternId = String(getPatternCode(pattern) || '');
-                const patternText = String(getPatternText(pattern) || '');
-                const patternTitle = String(getPatternTitle(pattern) || '');
+                const patternId = String(pattern.id || '');
                 const selected = patternId === savedId ? ' selected' : '';
 
                 if (!patternId) {
                     return;
                 }
 
-                html += '<option value="' + patternId + '"' +
-                    selected +
-                    ' data-text="' + encodeURIComponent(patternText) + '"' +
-                    ' data-title="' + encodeURIComponent(patternTitle) + '"' +
-                    '>' + buildPatternOptionLabel(pattern) + '</option>';
+                html += '<option value="' + patternId + '"' + selected + '>' + buildPatternOptionLabel(pattern) + '</option>';
             });
 
             select.html(html);
@@ -197,8 +242,6 @@
             }
         });
     }
-
-
 
     function loadAllPatterns(forceReload) {
         if (isLoadingPatterns) {
@@ -221,6 +264,8 @@
                 nonce: limosms_ajax.nonce
             }
         }).done(function (response) {
+            let rawPatterns = [];
+
             if (!response || !response.success) {
                 showNotification(
                     response && response.data && response.data.message
@@ -232,14 +277,18 @@
             }
 
             if (response.data && Array.isArray(response.data.data)) {
-                patternsCache = response.data.data;
+                rawPatterns = response.data.data;
             } else if (Array.isArray(response.data)) {
-                patternsCache = response.data;
+                rawPatterns = response.data;
             } else if (response.data && Array.isArray(response.data.patterns)) {
-                patternsCache = response.data.patterns;
-            } else {
-                patternsCache = [];
+                rawPatterns = response.data.patterns;
             }
+
+            patternsCache = rawPatterns
+                .map(normalizePattern)
+                .filter(function (item) {
+                    return item && item.id;
+                });
 
             hasLoadedPatterns = true;
             populateAllSelectors(patternsCache);
@@ -315,7 +364,6 @@
         refreshUI(card);
     }
 
-
     function refreshUI(card) {
         const selected = card.find('.limosms-pattern-select').map(function () {
             return $(this).val();
@@ -349,6 +397,38 @@
                     .text('انتخاب نشده');
             }
         });
+    }
+
+    function updateSelectedPattern(card, patternId) {
+        const textBox = card.find('.limosms-pattern-text');
+        const titleInput = card.find('.limosms-event-pattern-title');
+        const otpInput = card.find('.limosms-event-otp-id');
+        const mappingContainer = card.find('.limosms-pattern-mapping');
+
+        if (!patternId) {
+            otpInput.val('');
+            titleInput.val('');
+            textBox.text('');
+            mappingContainer.attr('data-saved-map', '{}');
+            renderPatternMapping(card);
+            return;
+        }
+
+        const pattern = findPatternById(patternId);
+
+        if (!pattern) {
+            otpInput.val(patternId);
+            titleInput.val('');
+            textBox.text('');
+            mappingContainer.attr('data-saved-map', '{}');
+            renderPatternMapping(card);
+            return;
+        }
+
+        otpInput.val(pattern.id);
+        titleInput.val(pattern.title || '');
+        textBox.text(pattern.text || '');
+        renderPatternMapping(card);
     }
 
     function initAdminSMSTab() {
@@ -422,7 +502,6 @@
             button.text(container.hasClass('expanded') ? 'بستن لیست' : 'مشاهده همه');
         });
 
-
     $(document).on('input', '#limosms_admin_phones', function () {
         let value = this.value;
 
@@ -462,27 +541,10 @@
         const select = $(this);
         const card = select.closest('.limosms-event-card');
         const patternId = String(select.val() || '');
-        const selectedOption = select.find('option:selected');
-        const encodedText = selectedOption.attr('data-text') || '';
-        const encodedTitle = selectedOption.attr('data-title') || '';
-        const textBox = card.find('.limosms-pattern-text');
 
-        if (patternId) {
-            card.find('.limosms-event-otp-id').val(patternId);
-            textBox.text(encodedText ? decodeURIComponent(encodedText) : '');
-            card.find('.limosms-event-pattern-title').val(
-                encodedTitle ? decodeURIComponent(encodedTitle) : ''
-            );
-        } else {
-            card.find('.limosms-event-otp-id').val('');
-            textBox.text('');
-            card.find('.limosms-event-pattern-title').val('');
-        }
-
-        renderPatternMapping(card);
+        updateSelectedPattern(card, patternId);
         enableSaveButton();
     });
-
 
     $(document).on('click', '.limosms-token-chip', function () {
         const chip = $(this);
@@ -550,6 +612,7 @@
             const patternText = card.find('.limosms-pattern-text').text() || '';
             const patternInputs = card.find('.limosms-pattern-select');
             const patternMap = {};
+            const hasVariables = /\{(\d+)\}/g.test(patternText);
 
             if (enabled) {
                 if (!otpId) {
@@ -558,7 +621,7 @@
                     return false;
                 }
 
-                if (!patternInputs.length) {
+                if (hasVariables && !patternInputs.length) {
                     hasError = true;
                     errorMessage = 'برای رویداد "' + eventKey + '" هیچ پارامتری پیدا نشد.';
                     return false;
@@ -582,7 +645,7 @@
                     patternMap[paramIndex] = siteToken;
                 });
 
-                if (hasEmptyToken) {
+                if (hasVariables && hasEmptyToken) {
                     hasError = true;
                     errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventKey + '" تکمیل کنید.';
                     return false;

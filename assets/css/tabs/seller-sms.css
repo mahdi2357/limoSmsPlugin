@@ -1,0 +1,184 @@
+/* =========================
+   Seller SMS - Pattern UI
+   ========================= */
+
+.limosms-pattern-wrapper {
+    margin-top: 16px;
+}
+
+.limosms-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.limosms-pattern-box {
+    margin-top: 8px;
+}
+
+.limosms-pattern-box:focus-within {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.limosms-pattern-text {
+    margin: 0;
+    min-height: 84px;
+    padding: 12px;
+    border-radius: 4px;
+    background: #f6f7f7;
+    color: #1d2327;
+    line-height: 1.7;
+    direction: rtl;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'IRANSans';
+    font-size: 15px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.limosms-pattern-help {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #555;
+    background: #f0f0f1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.limosms-pattern-mapping {
+    margin-top: 12px;
+}
+
+/* empty state */
+.limosms-pattern-mapping .description,
+.limosms-pattern-empty {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    border: 1px dashed #c3c4c7;
+    border-radius: 8px;
+    background: #fcfcfc;
+    color: #646970;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* each param row */
+.limosms-pattern-map-row {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: all .2s ease;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    border: 1px solid #eef2f7;
+}
+
+.limosms-pattern-map-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+/* label section */
+.limosms-pattern-map-param {
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.limosms-pattern-map-param code {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    direction: ltr;
+}
+
+/* select wrapper */
+.limosms-pattern-map-token {
+    width: 100%;
+}
+
+/* select style نزدیک به admin */
+.limosms-pattern-map-select,
+.limosms-pattern-select {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0 12px !important;
+    box-shadow: none !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    direction: rtl;
+    text-align: right;
+    background-color: #fff !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path fill='%23646970' d='M5.5 7.5l4.5 4 4.5-4' stroke='%23646970' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 18px;
+}
+
+.limosms-pattern-map-select:focus,
+.limosms-pattern-select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    outline: none;
+}
+
+.limosms-pattern-map-select option:disabled,
+.limosms-pattern-select option:disabled {
+    color: #94a3b8;
+}
+
+/* اگر داخل کارت seller فاصله‌ها خوب نبود */
+.limosms-event-card .limosms-pattern-selector {
+    margin-top: 8px;
+}
+
+.limosms-event-card .limosms-pattern-text {
+    margin-top: 8px;
+}
+
+.limosms-event-card .limosms-pattern-mapping {
+    margin-top: 12px;
+}
+
+/* فیلدهای مخفی رویداد */
+.limosms-event-card .limosms-field {
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.limosms-event-card.is-active .limosms-field {
+    display: block;
+}
+
+.limosms-event-card .limosms-event-title,
+.limosms-event-card .limosms-event-toggle {
+    display: block !important;
+}
+
+@media (max-width: 782px) {
+    .limosms-pattern-map-row {
+        padding: 14px;
+    }
+
+    .limosms-pattern-map-param {
+        margin-bottom: 8px;
+    }
+
+    .limosms-pattern-map-select,
+    .limosms-pattern-select {
+        max-width: 100%;
+    }
+}
