@@ -8,11 +8,13 @@ $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general
 
 $tabs = [
     'connection-settings' => 'تنظیمات اتصال',
-    'sms-pattern-management' => 'الگوهای پیامک',
-    'send-test-sms' => ' ارسال پیامک تست',
     'admin-sms' => 'پیامک مدیر',
     'customer-sms' => 'پیامک مشتری',
-//    'seller-sms' => 'پیامک فروشنده',
+    'seller-sms' => 'پیامک فروشنده',
+    'sent-message' => 'پیام های ارسال شده',
+    'send-test-sms' => ' ارسال پیامک تست',
+    'sms-pattern-management' => 'الگوهای پیامک',
+
 ];
 
 $template_path = LIMOSMS_PATH . 'templates/admin-dashboard.php';

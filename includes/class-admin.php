@@ -249,10 +249,11 @@ class LimoSMS_Admin
 
         $allowed_tabs = array(
             'connection-settings',
-            'send-test-sms',
             'admin-sms',
-            'seller-sms',
             'customer-sms',
+            'seller-sms',
+            'sent-message',
+            'send-test-sms',
             'sms-pattern-management'
         );
 

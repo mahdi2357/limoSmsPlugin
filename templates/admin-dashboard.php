@@ -8,14 +8,6 @@ $menu_items = [
                 'label' => 'تنظیمات اتصال',
                 'icon' => 'admin-settings',
         ],
-        'sms-pattern-management' => [
-                'label' => 'الگوهای پیامک',
-                'icon' => 'text',
-        ],
-        'send-test-sms' => [
-                'label' => 'ارسال پیامک تست',
-                'icon' => 'email-alt',
-        ],
         'admin-sms' => [
                 'label' => 'پیامک مدیر',
                 'icon' => 'admin-users',
@@ -24,20 +16,35 @@ $menu_items = [
                 'label' => 'پیامک مشتری',
                 'icon' => 'businessperson',
         ],
-//        'seller-sms' => [
-//                'label' => 'پیامک فروشنده',
-//                'icon' => 'businessman',
-//        ],
+        'seller-sms' => [
+                'label' => 'پیامک فروشنده',
+                'icon' => 'businessman',
+        ],
+        'sent-message' => [
+                'label'  => 'پیام های ارسال شده',
+                'icon' => 'email-alt',
+        ],
+        'send-test-sms' => [
+                'label' => 'ارسال پیامک تست',
+                'icon' => 'email-alt',
+        ],
+        'sms-pattern-management' => [
+                'label' => 'الگوهای پیامک',
+                'icon' => 'text',
+        ],
 
 ];
 
 $tab_titles = [
         'connection-settings' => 'تنظیمات اتصال',
-        'sms-pattern-management' => 'الگوهای پیامک',
-        'send-test-sms' => 'ارسال پیامک تست',
         'admin-sms' => 'پیامک مدیر',
         'customer-sms' => 'پیامک مشتری',
-//        'seller-sms' => 'پیامک فروشنده',
+        'seller-sms' => 'پیامک فروشنده',
+        'sent-message' => 'پیام های ارسال شده',
+        'send-test-sms' => 'ارسال پیامک تست',
+        'sms-pattern-management' => 'الگوهای پیامک',
+
+
         ];
 
 $active_tab = isset($active_tab) && !empty($active_tab)

@@ -69,10 +69,13 @@ jQuery(document).ready(function ($) {
     */
     const tabTitles = {
         'connection-settings': 'تنظیمات اتصال',
-        'sms-pattern-management': 'الگوهای پیامک',
-        'send-test-sms': 'ارسال پیامک تست',
         'admin-sms': 'پیامک مدیر',
-        'customer-sms': 'پیامک مشتری'
+        'customer-sms': 'پیامک مشتری',
+        'seller-sms':'پیامک فروشنده',
+        'sent-message' : 'پیام های ارسال شده',
+        'send-test-sms': 'ارسال پیامک تست',
+        'sms-pattern-management': 'الگوهای پیامک',
+
     };
 
     function setActiveTab(tab, $link) {
