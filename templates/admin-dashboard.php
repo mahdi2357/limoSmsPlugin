@@ -120,4 +120,20 @@ $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '.php';
 
     </div>
 
+
+    <div class="advertising-area">
+        <a href="https://panel.limosms.com/bulk/Index" target="_blank" class="no-focus-outline">
+            <img class="advertising-img" src="https://limosms.com/wp-content/uploads/2025/05/300-x-250.gif" alt="" data-src="https://limosms.com/wp-content/uploads/2025/05/300-x-250.gif" data-ll-status="loaded">
+        </a>
+    </br>
+        <a href="https://panel.limosms.com/VoiceSms/SendVoiceMessage" target="_blank" class="no-focus-outline">
+            <img class="advertising-img" src="<?php echo plugins_url('../assets/images/banner.webp', __FILE__); ?>">
+        </a>
+    </div>
+
+    <a href="https://panel.limosms.com/Ticket/GetUserTicket" target="_blank" class="limosms-support-btn">
+        <span class="limosms-support-icon">💬</span>
+        ارتباط با کارشناسان
+    </a>
+
 </div>
