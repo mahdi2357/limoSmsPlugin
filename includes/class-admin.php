@@ -11,8 +11,18 @@ class LimoSMS_Admin {
      */
     private $admin_sms;
 
+    /**
+     * @var LimoSMS_Sent_SMS_Tab
+     */
+    private $sent_sms_tab;
+
     public function __construct() {
-        $this->admin_sms = new LimoSMS_Admin_SMS();
+        $this->admin_sms    = new LimoSMS_Admin_SMS();
+        $this->sent_sms_tab = new LimoSMS_Sent_SMS_Tab();
+
+        if ( method_exists( $this->sent_sms_tab, 'register_hooks' ) ) {
+            $this->sent_sms_tab->register_hooks();
+        }
 
         add_action( 'admin_menu', array( $this, 'register_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -108,6 +118,7 @@ class LimoSMS_Admin {
             return;
         }
 
+        // Base admin assets.
         wp_enqueue_style(
             'limosms-admin-css',
             LIMOSMS_URL . 'assets/css/admin.css',
@@ -123,6 +134,7 @@ class LimoSMS_Admin {
             true
         );
 
+        // Shared ajax data for generic tab loading/admin actions.
         $admin_ajax_data = array(
             'url'   => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'limosms_admin_nonce' ),
@@ -130,39 +142,47 @@ class LimoSMS_Admin {
 
         wp_localize_script( 'limosms-admin-js', 'limosms_ajax', $admin_ajax_data );
 
-        $tabs = array(
+        $tabs       = array(
             'connection-settings',
             'admin-sms',
             'customer-sms',
             'seller-sms',
-            'sent-message',
+            'sent-sms',
             'send-test-sms',
         );
-
         $all_tokens = self::get_available_sms_tokens();
 
         foreach ( $tabs as $tab ) {
             $js_handle  = 'limosms-' . $tab . '-js';
             $css_handle = 'limosms-' . $tab . '-css';
 
-            wp_enqueue_style(
-                $css_handle,
-                LIMOSMS_URL . 'assets/css/tabs/' . $tab . '.css',
-                array( 'limosms-admin-css' ),
-                LIMOSMS_VERSION
-            );
+            $css_file = LIMOSMS_PATH . 'assets/css/tabs/' . $tab . '.css';
+            $js_file  = LIMOSMS_PATH . 'assets/js/tabs/' . $tab . '.js';
 
-            wp_enqueue_script(
-                $js_handle,
-                LIMOSMS_URL . 'assets/js/tabs/' . $tab . '.js',
-                array( 'jquery', 'limosms-admin-js' ),
-                LIMOSMS_VERSION,
-                true
-            );
+            if ( file_exists( $css_file ) ) {
+                wp_enqueue_style(
+                    $css_handle,
+                    LIMOSMS_URL . 'assets/css/tabs/' . $tab . '.css',
+                    array( 'limosms-admin-css' ),
+                    LIMOSMS_VERSION
+                );
+            }
 
-            wp_localize_script( $js_handle, 'limosms_ajax', $admin_ajax_data );
+            if ( file_exists( $js_file ) ) {
+                wp_enqueue_script(
+                    $js_handle,
+                    LIMOSMS_URL . 'assets/js/tabs/' . $tab . '.js',
+                    array( 'jquery', 'limosms-admin-js' ),
+                    LIMOSMS_VERSION,
+                    true
+                );
 
-            if ( 'admin-sms' === $tab ) {
+                // Generic ajax object for tabs that use limosms_ajax.
+                wp_localize_script( $js_handle, 'limosms_ajax', $admin_ajax_data );
+            }
+
+            // Admin SMS tab data.
+            if ( 'admin-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
                 $events = LimoSMS_Admin_SMS_Events::get_events();
                 $tokens = array();
 
@@ -173,7 +193,8 @@ class LimoSMS_Admin {
                 wp_localize_script( $js_handle, 'limosmsTokens', $tokens );
             }
 
-            if ( 'customer-sms' === $tab ) {
+            // Customer SMS tab data.
+            if ( 'customer-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
                 wp_localize_script(
                     $js_handle,
                     'limosmsCustomerSmsData',
@@ -188,50 +209,60 @@ class LimoSMS_Admin {
                 );
             }
 
-            if ( 'sent-message' === $tab ) {
+            // Sent SMS tab data (important: dedicated nonce).
+            if ( 'sent-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
                 wp_localize_script(
                     $js_handle,
-                    'limosmsSentMessage',
+                    'limosmsSentSMS',
                     array(
                         'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-                        'nonce'         => wp_create_nonce( 'limosms_admin_nonce' ),
-                        'loadingText'   => 'در حال دریافت پیام‌ها...',
-                        'loadErrorText' => 'دریافت لیست پیام‌ها ناموفق بود.',
-                        'emptyText'     => 'پیامی یافت نشد.',
+                        'nonce'         => wp_create_nonce( 'limosms_sent_sms_nonce' ),
+                        'loadingText'   => __( 'در حال دریافت پیام ها...', 'limosms' ),
+                        'loadErrorText' => __( 'دریافت لیست پیام ها ناموفق بود.', 'limosms' ),
+                        'emptyText'     => __( 'پیامی یافت نشد.', 'limosms' ),
                     )
                 );
             }
         }
 
-        wp_enqueue_style(
-            'limosms-pattern-management',
-            LIMOSMS_URL . 'assets/css/tabs/pattern-management.css',
-            array( 'limosms-admin-css' ),
-            LIMOSMS_VERSION
-        );
+        // Pattern management (separate naming kept as-is for compatibility).
+        $pattern_css_file = LIMOSMS_PATH . 'assets/css/tabs/pattern-management.css';
+        $pattern_js_file  = LIMOSMS_PATH . 'assets/js/tabs/pattern-management.js';
 
-        wp_enqueue_script(
-            'limosms-pattern-management',
-            LIMOSMS_URL . 'assets/js/tabs/pattern-management.js',
-            array( 'jquery', 'limosms-admin-js' ),
-            LIMOSMS_VERSION,
-            true
-        );
+        if ( file_exists( $pattern_css_file ) ) {
+            wp_enqueue_style(
+                'limosms-pattern-management',
+                LIMOSMS_URL . 'assets/css/tabs/pattern-management.css',
+                array( 'limosms-admin-css' ),
+                LIMOSMS_VERSION
+            );
+        }
 
-        wp_localize_script(
-            'limosms-pattern-management',
-            'limosmsPatternManagement',
-            array(
-                'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
-                'nonce'             => wp_create_nonce( 'limosms_admin_nonce' ),
-                'loadingText'       => 'در حال دریافت پترن‌ها...',
-                'loadErrorText'     => 'دریافت لیست پترن‌ها ناموفق بود.',
-                'emptyText'         => 'هیچ پترنی یافت نشد.',
-                'copySuccessText'   => 'کد پترن کپی شد.',
-                'clipboardFailText' => 'کپی خودکار انجام نشد.',
-            )
-        );
+        if ( file_exists( $pattern_js_file ) ) {
+            wp_enqueue_script(
+                'limosms-pattern-management',
+                LIMOSMS_URL . 'assets/js/tabs/pattern-management.js',
+                array( 'jquery', 'limosms-admin-js' ),
+                LIMOSMS_VERSION,
+                true
+            );
+
+            wp_localize_script(
+                'limosms-pattern-management',
+                'limosmsPatternManagement',
+                array(
+                    'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
+                    'nonce'             => wp_create_nonce( 'limosms_patterns_nonce' ),
+                    'loadingText'       => __( 'در حال دریافت پترن ها...', 'limosms' ),
+                    'loadErrorText'     => __( 'دریافت لیست پترن ها ناموفق بود.', 'limosms' ),
+                    'emptyText'         => __( 'هیچ پترنی یافت نشد.', 'limosms' ),
+                    'copySuccessText'   => __( 'کد پترن کپی شد.', 'limosms' ),
+                    'clipboardFailText' => __( 'کپی خودکار انجام نشد.', 'limosms' ),
+                )
+            );
+        }
     }
+
 
     /**
      * Render dashboard page.
@@ -239,8 +270,24 @@ class LimoSMS_Admin {
      * @return void
      */
     public function render_dashboard() {
-        require LIMOSMS_PATH . 'admin/pages/dashboard.php';
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You do not have permission to access this page.', 'limosms' ) );
+        }
+
+        $active_tab = isset( $_GET['tab'] )
+            ? sanitize_key( wp_unslash( $_GET['tab'] ) )
+            : 'connection-settings';
+
+        $template_path = LIMOSMS_PATH . 'templates/admin-dashboard.php';
+
+        if ( file_exists( $template_path ) ) {
+            include $template_path;
+            return;
+        }
+
+        echo '<div class="wrap"><p>' . esc_html__( 'Dashboard template not found.', 'limosms' ) . '</p></div>';
     }
+
 
     /**
      * AJAX load tab content.
@@ -253,7 +300,7 @@ class LimoSMS_Admin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error(
                 array(
-                    'message' => 'دسترسی غیرمجاز.',
+                    'message' => __( 'دسترسی غیرمجاز.', 'limosms' ),
                 )
             );
         }
@@ -265,7 +312,7 @@ class LimoSMS_Admin {
             'admin-sms',
             'customer-sms',
             'seller-sms',
-            'sent-message',
+            'sent-sms',
             'send-test-sms',
             'sms-pattern-management',
         );
@@ -300,18 +347,18 @@ class LimoSMS_Admin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error(
                 array(
-                    'message' => 'شما دسترسی لازم را ندارید.',
+                    'message' => __( 'شما دسترسی لازم را ندارید.', 'limosms' ),
                 )
             );
         }
 
-        $number = isset( $_POST['reciverNumber'] ) ? sanitize_text_field( wp_unslash( $_POST['reciverNumber'] ) ) : '';
+        $number  = isset( $_POST['reciverNumber'] ) ? sanitize_text_field( wp_unslash( $_POST['reciverNumber'] ) ) : '';
         $message = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
 
         if ( empty( $number ) || empty( $message ) ) {
             wp_send_json_error(
                 array(
-                    'message' => 'شماره گیرنده و متن پیام الزامی هستند.',
+                    'message' => __( 'شماره گیرنده و متن پیام الزامی هستند.', 'limosms' ),
                 )
             );
         }
@@ -324,7 +371,7 @@ class LimoSMS_Admin {
         } else {
             wp_send_json_error(
                 array(
-                    'message' => 'سیستم ارسال پیامک در دسترس نیست.',
+                    'message' => __( 'سیستم ارسال پیامک در دسترس نیست.', 'limosms' ),
                 )
             );
         }
@@ -332,7 +379,7 @@ class LimoSMS_Admin {
         if ( ! empty( $result['success'] ) ) {
             wp_send_json_success(
                 array(
-                    'message' => isset( $result['message'] ) ? $result['message'] : 'پیامک با موفقیت ارسال شد.',
+                    'message' => isset( $result['message'] ) ? $result['message'] : __( 'پیامک با موفقیت ارسال شد.', 'limosms' ),
                     'result'  => $result,
                 )
             );
@@ -340,7 +387,7 @@ class LimoSMS_Admin {
 
         wp_send_json_error(
             array(
-                'message' => isset( $result['message'] ) ? $result['message'] : 'ارسال پیامک ناموفق بود.',
+                'message' => isset( $result['message'] ) ? $result['message'] : __( 'ارسال پیامک ناموفق بود.', 'limosms' ),
                 'result'  => $result,
             )
         );

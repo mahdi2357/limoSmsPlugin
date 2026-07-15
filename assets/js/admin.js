@@ -8,26 +8,21 @@ jQuery(document).ready(function ($) {
 
     window.LimoSMS = window.LimoSMS || {};
 
-    /*
-    =========================
-    ابزار عمومی رویداد تب‌ها
-    =========================
-    */
     window.LimoSMS.triggerTabLoaded = function (tab) {
         if (!tab) {
             return;
         }
+
         window.setTimeout(function () {
             $(document).trigger('limosms:tab-loaded', [tab]);
-        }, 50); // افزودن تاخیر کوچک جهت اطمینان از تزریق کامل DOM
+            $(document).trigger('limosms_tab_loaded', [tab]);
+        }, 30);
     };
 
-    /*
-    =========================
-    نمایش پیام توست
-    =========================
-    */
-    window.LimoSMS.showToast = function (message, type = 'success', duration = 4000) {
+    window.LimoSMS.showToast = function (message, type, duration) {
+        type = type || 'success';
+        duration = duration || 4000;
+
         let container = document.querySelector('.limosms-toast-container');
 
         if (!container) {
@@ -37,17 +32,20 @@ jQuery(document).ready(function ($) {
         }
 
         const toast = document.createElement('div');
-        toast.className = `limosms-toast limosms-toast--${type}`;
+        toast.className = 'limosms-toast limosms-toast--' + type;
 
         let icon = 'ℹ️';
-        if (type === 'success') icon = '✓';
-        if (type === 'error') icon = '✗';
+        if (type === 'success') {
+            icon = '✓';
+        } else if (type === 'error') {
+            icon = '✗';
+        }
 
-        toast.innerHTML = `
-            <span class="limosms-toast__icon">${icon}</span>
-            <span class="limosms-toast__message">${message}</span>
-        `;
+        toast.innerHTML =
+            '<span class="limosms-toast__icon">' + icon + '</span>' +
+            '<span class="limosms-toast__message"></span>';
 
+        toast.querySelector('.limosms-toast__message').textContent = message;
         container.appendChild(toast);
 
         window.setTimeout(function () {
@@ -55,27 +53,23 @@ jQuery(document).ready(function ($) {
         }, 10);
 
         window.setTimeout(function () {
-            toast.classList.replace('is-show', 'is-hide');
+            toast.classList.remove('is-show');
+            toast.classList.add('is-hide');
+
             toast.addEventListener('transitionend', function () {
                 toast.remove();
-            });
+            }, { once: true });
         }, duration);
     };
 
-    /*
-    =========================
-    عنوان تب‌ها
-    =========================
-    */
     const tabTitles = {
         'connection-settings': 'تنظیمات اتصال',
         'admin-sms': 'پیامک مدیر',
         'customer-sms': 'پیامک مشتری',
-        'seller-sms':'پیامک فروشنده',
-        'sent-message' : 'پیام های ارسال شده',
+        'seller-sms': 'پیامک فروشنده',
+        'sent-sms': 'پیام های ارسال شده',
         'send-test-sms': 'ارسال پیامک تست',
-        'sms-pattern-management': 'الگوهای پیامک',
-
+        'sms-pattern-management': 'الگوهای پیامک'
     };
 
     function setActiveTab(tab, $link) {
@@ -87,8 +81,7 @@ jQuery(document).ready(function ($) {
         }
 
         $('.limosms-tab-link').each(function () {
-            const href = $(this).attr('href') || '';
-            if (href.indexOf('tab=' + tab) !== -1) {
+            if ($(this).data('tab') === tab) {
                 $(this).parent().addClass('active');
                 return false;
             }
@@ -101,17 +94,8 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    /*
-    =========================
-    تابع کمکی لود محتوای تب با Ajax
-    =========================
-    */
-    function fetchTabContent(tab, href, callback) {
-        $('#limosms-tab-loading')
-            .css('display', 'flex')
-            .hide()
-            .fadeIn(150);
-
+    function fetchTabContent(tab, href, $link, callback) {
+        $('#limosms-tab-loading').css('display', 'flex').hide().fadeIn(150);
         $('.limosms-sidebar li').addClass('is-loading');
 
         $.ajax({
@@ -123,8 +107,15 @@ jQuery(document).ready(function ($) {
                 nonce: limosms_ajax.nonce
             },
             success: function (response) {
+                if (!response || response === '-1') {
+                    $('#limosms-tab-content').html(
+                        '<p style="padding:20px;color:red;">خطا در اعتبارسنجی درخواست. لطفاً صفحه را رفرش کنید.</p>'
+                    );
+                    return;
+                }
+
                 $('#limosms-tab-content').html(response);
-                setActiveTab(tab);
+                setActiveTab(tab, $link);
                 setPageTitle(tab);
 
                 if (href) {
@@ -147,37 +138,35 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    /*
-    =========================
-    تغییر تب‌های سایدبار (کلیک)
-    =========================
-    */
     $('.limosms-sidebar').on('click', '.limosms-tab-link', function (event) {
         event.preventDefault();
 
-        const href = $(this).attr('href') || '';
-        const url = new URL(href, window.location.origin);
-        const tab = url.searchParams.get('tab');
+        const $link = $(this);
+        const tab = $link.data('tab');
+        const href = $link.attr('href') || '';
 
         if (!tab) {
             return;
         }
 
-        fetchTabContent(tab, href, function () {
+        fetchTabContent(tab, href, $link, function () {
             window.LimoSMS.triggerTabLoaded(tab);
         });
     });
 
-    /*
-    =========================
-    تب پیشفرض هنگام لود صفحه (Refresh)
-    =========================
-    */
     const urlParams = new URLSearchParams(window.location.search);
     const currentTab = urlParams.get('tab') || 'connection-settings';
 
-    // در زمان رفرش اولیه صفحه، محتوا را با Ajax دریافت و سپس سیگنال آماده بودن صادر می‌کنیم
-    fetchTabContent(currentTab, null, function () {
-        window.LimoSMS.triggerTabLoaded(currentTab);
+    setActiveTab(currentTab);
+    setPageTitle(currentTab);
+    window.LimoSMS.triggerTabLoaded(currentTab);
+
+    window.addEventListener('popstate', function () {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab') || 'connection-settings';
+
+        fetchTabContent(tab, null, null, function () {
+            window.LimoSMS.triggerTabLoaded(tab);
+        });
     });
 });

@@ -1,0 +1,244 @@
+:root {
+    --limosms-primary: #5557d9;
+    --limosms-primary-dark: #4345c4;
+    --limosms-primary-soft: #f3f3ff;
+    --limosms-primary-border: #e3e4ff;
+    --limosms-text: #2f3142;
+    --limosms-muted: #6b7280;
+    --limosms-success-bg: #ecfdf3;
+    --limosms-success-text: #027a48;
+    --limosms-danger-bg: #fef3f2;
+    --limosms-danger-text: #d92d20;
+    --limosms-warning-bg: #fffaeb;
+    --limosms-warning-text: #b54708;
+    --limosms-info-bg: #eef2ff;
+    --limosms-info-text: #5557d9;
+    --limosms-surface: #ffffff;
+    --limosms-surface-soft: #fafaff;
+    --limosms-border: #ececff;
+}
+
+/* Sent SMS tab */
+.limosms-sent-sms-container {
+    margin-top: 18px;
+}
+
+.limosms-table-card {
+    background: var(--limosms-surface);
+    border: 1px solid var(--limosms-border);
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(85, 87, 217, 0.08);
+    overflow: hidden;
+}
+
+.limosms-custom-table {
+    width: 100%;
+    text-align: justify;
+    border-collapse: collapse;
+    background: var(--limosms-surface);
+}
+
+.limosms-custom-table thead th {
+    background: var(--limosms-primary-soft);
+    color: var(--limosms-primary);
+    padding: 16px 18px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 800;
+    border: 0;
+    white-space: nowrap;
+}
+
+.limosms-custom-table tbody td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--limosms-border);
+    color: var(--limosms-text);
+    font-size: 14px;
+    vertical-align: middle;
+    background: #fff;
+}
+
+.limosms-custom-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.limosms-custom-table tbody tr:hover td {
+    background: #f8f8ff;
+}
+
+.limosms-custom-table tbody td:first-child {
+    width: 70px;
+    color: var(--limosms-muted);
+    font-weight: 700;
+}
+
+.limosms-pattern-text {
+    color: var(--limosms-muted);
+    line-height: 1.9;
+    max-width: 520px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Status badge */
+.limosms-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.limosms-status-badge.success {
+    background: var(--limosms-success-bg);
+    color: var(--limosms-success-text);
+}
+
+.limosms-status-badge.error {
+    background: var(--limosms-danger-bg);
+    color: var(--limosms-danger-text);
+}
+
+.limosms-status-badge.pending {
+    background: var(--limosms-warning-bg);
+    color: var(--limosms-warning-text);
+}
+
+.limosms-status-badge.info {
+    background: var(--limosms-info-bg);
+    color: var(--limosms-info-text);
+}
+
+/* Pagination */
+.limosms-sent-sms-pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    border-top: 1px solid var(--limosms-border);
+    background: var(--limosms-surface-soft);
+}
+
+.limosms-sent-sms-pagination-info {
+    color: var(--limosms-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.limosms-pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.limosms-sent-sms-page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.limosms-sent-sms-page-btn,
+.sent-sms-page-number {
+    min-width: 36px;
+    height: 36px;
+    border: 1px solid var(--limosms-primary-border);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--limosms-primary);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    transition: all 0.18s ease;
+    box-shadow: none;
+}
+
+.limosms-sent-sms-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 13px;
+}
+
+.sent-sms-page-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+.sent-sms-page-number.active {
+    background: var(--limosms-primary);
+    border-color: var(--limosms-primary);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(85, 87, 217, 0.22);
+}
+
+.limosms-sent-sms-page-btn:hover,
+.sent-sms-page-number:hover {
+    border-color: var(--limosms-primary);
+    background: var(--limosms-primary-soft);
+    color: var(--limosms-primary);
+    transform: translateY(-1px);
+}
+
+.sent-sms-page-number.active:hover {
+    background: var(--limosms-primary-dark);
+    color: #fff;
+}
+
+.limosms-sent-sms-page-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    background: #fff;
+}
+
+/* Empty/loading row */
+#limosms-sent-sms-table-body td[colspan="5"] {
+    color: var(--limosms-muted);
+    font-size: 14px;
+    font-weight: 600;
+    background: #fff;
+}
+
+/* Mobile */
+@media (max-width: 782px) {
+    .limosms-table-card {
+        overflow-x: auto;
+    }
+
+    .limosms-custom-table {
+        min-width: 760px;
+    }
+
+    .limosms-sent-sms-pagination-wrap {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .limosms-sent-sms-pagination-info {
+        text-align: center;
+    }
+
+    .limosms-pagination-buttons {
+        justify-content: center;
+    }
+}
+.sent-sms-page-dots{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:32px;
+    padding:0 6px;
+    color:#6b7280;
+}

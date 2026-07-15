@@ -24,7 +24,7 @@ if (file_exists(LIMOSMS_PATH . 'includes/libs/plugin-update-checker/plugin-updat
     require_once LIMOSMS_PATH . 'includes/libs/plugin-update-checker/plugin-update-checker.php';
 
     $limoSmsUpdater = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-        'https://limosms.com/updates/limoSmsPlugin.json', // آدرس جدید روی دامنه اصلی
+        'https://limosms.com/updates/limoSmsPlugin.json',
         __FILE__,
         'limoSmsPlugin'
     );
