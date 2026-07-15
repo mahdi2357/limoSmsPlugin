@@ -76,7 +76,7 @@ class LimoSMS {
         // Customer SMS
         require_once LIMOSMS_PATH . 'includes/admin/class-limosms-customer-sms-events.php';
         require_once LIMOSMS_PATH . 'includes/admin/class-limosms-customer-sms-settings.php';
-        require_once LIMOSMS_PATH . 'includes/admin/class-limosms-customer-sms.php';
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-customer-sms-tab.php';
         require_once LIMOSMS_PATH . 'includes/woocommerce/class-limosms-woocommerce-customer-sms.php';
 
         // Seller SMS
