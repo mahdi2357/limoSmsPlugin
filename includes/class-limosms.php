@@ -64,6 +64,7 @@ class LimoSMS {
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-admin-sms-tab.php';
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-send-test-sms-tab.php';
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-sent-sms-tab.php';
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-pattern-management-tab.php';
 
         // WooCommerce base
         require_once LIMOSMS_PATH . 'includes/woocommerce/class-woocommerce-sms.php';
@@ -78,27 +79,10 @@ class LimoSMS {
         require_once LIMOSMS_PATH . 'includes/admin/class-limosms-customer-sms.php';
         require_once LIMOSMS_PATH . 'includes/woocommerce/class-limosms-woocommerce-customer-sms.php';
 
-        // Seller SMS (Dokan)
-        $seller_events_file   = LIMOSMS_PATH . 'includes/admin/class-seller-sms-events.php';
-        $seller_settings_file = LIMOSMS_PATH . 'includes/admin/class-seller-sms-settings.php';
-        $seller_tab_file      = LIMOSMS_PATH . 'includes/admin/tabs/class-seller-sms-tab.php';
-        $dokan_sms_file       = LIMOSMS_PATH . 'includes/woocommerce/class-limosms-dokan-sms.php';
-
-        if ( file_exists( $seller_events_file ) ) {
-            require_once $seller_events_file;
-        }
-
-        if ( file_exists( $seller_settings_file ) ) {
-            require_once $seller_settings_file;
-        }
-
-        if ( file_exists( $seller_tab_file ) ) {
-            require_once $seller_tab_file;
-        }
-
-        if ( file_exists( $dokan_sms_file ) ) {
-            require_once $dokan_sms_file;
-        }
+        // Seller SMS
+        require_once LIMOSMS_PATH . 'includes/admin/class-seller-sms-events.php';
+        require_once LIMOSMS_PATH . 'includes/admin/class-seller-sms-settings.php';
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-seller-sms-tab.php';
 
         if ( is_admin() ) {
             new LimoSMS_Admin_SMS_Settings();
