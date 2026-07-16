@@ -228,7 +228,6 @@
         };
     }
 
-
     function getTokensFromEventObject(eventObject) {
         if (!eventObject || typeof eventObject !== 'object') {
             return {};
@@ -270,7 +269,6 @@
         // در نهایت استفاده از Fallback محلی جاوااسکریپت
         return getFallbackOrderTokens();
     }
-
 
     function updateSelectedBadge(row) {
         const badge = row.find('.limosms-selected-badge');
@@ -382,7 +380,6 @@
         mappingContainer.html(html);
         refreshUI(card);
     }
-
 
     function rebuildAllPatternMappings() {
         $('.limosms-event-card').each(function () {

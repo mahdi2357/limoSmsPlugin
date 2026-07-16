@@ -4,10 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class LimoSMS_Customer_SMS {
-
-    /**
-     * @var LimoSMS_API
-     */
     private $api;
 
     public function __construct() {
@@ -123,7 +119,6 @@ class LimoSMS_Customer_SMS {
     public function handle_failed_order( $order_id, $order = false ) {
         $this->send_customer_order_sms_by_event( 'order_failed', $order_id, $order );
     }
-
 
     private function send_customer_order_sms_by_event( $event_key, $order_id, $order = false ) {
 
