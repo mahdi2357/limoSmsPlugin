@@ -117,59 +117,6 @@ class LimoSMS {
             'wp_ajax_limosms_save_connection_settings',
             array( $this->connection_setting, 'save_connection_settings' )
         );
-
-        // Seller SMS settings save
-        add_action(
-            'wp_ajax_limosms_save_seller_sms_settings',
-            array( $this, 'save_seller_sms_settings_ajax' )
-        );
     }
 
-    public function save_seller_sms_settings_ajax() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error(
-                array(
-                    'message' => __( 'دسترسی غیرمجاز.', 'limosms' ),
-                ),
-                403
-            );
-        }
-
-        check_ajax_referer( 'limosms_ajax_nonce', 'nonce' );
-
-        if ( ! class_exists( 'LimoSMS_Seller_SMS_Settings' ) ) {
-            wp_send_json_error(
-                array(
-                    'message' => __( 'کلاس تنظیمات فروشنده یافت نشد.', 'limosms' ),
-                )
-            );
-        }
-
-        $raw      = isset( $_POST['smsEvents'] ) ? wp_unslash( $_POST['smsEvents'] ) : '';
-        $settings = json_decode( $raw, true );
-
-        if ( ! is_array( $settings ) ) {
-            wp_send_json_error(
-                array(
-                    'message' => __( 'داده تنظیمات نامعتبر است.', 'limosms' ),
-                )
-            );
-        }
-
-        $saved = LimoSMS_Seller_SMS_Settings::save_events_settings( $settings );
-
-        if ( $saved ) {
-            wp_send_json_success(
-                array(
-                    'message' => __( 'تنظیمات پیامک فروشنده ذخیره شد.', 'limosms' ),
-                )
-            );
-        }
-
-        wp_send_json_error(
-            array(
-                'message' => __( 'خطا در ذخیره تنظیمات پیامک فروشنده.', 'limosms' ),
-            )
-        );
-    }
 }

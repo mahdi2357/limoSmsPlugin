@@ -22,7 +22,6 @@ class LimoSMS_API
         );
     }
 
-
     private function request($method, $endpoint, $payload = array())
     {
         $api_key = $this->get_api_key();
@@ -94,7 +93,6 @@ class LimoSMS_API
 
         return $data;
     }
-
 
     public function get_pattern($pattern_code)
     {
