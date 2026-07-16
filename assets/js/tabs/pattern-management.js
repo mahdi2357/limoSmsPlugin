@@ -10,7 +10,6 @@
     function getElements() {
         return {
             tableBody: $('#limosms-patterns-table-body'),
-            refreshButton: $('#limosms-refresh-patterns'),
             paginationWrap: $('.limosms-pagination-wrap'),
             paginationInfo: $('.limosms-pagination-info'),
             pageNumbersWrap: $('.limosms-page-numbers'),
@@ -202,10 +201,6 @@
         isLoadingPatterns = true;
         renderEmptyRow('در حال دریافت الگوها...');
 
-        if (elements.refreshButton.length) {
-            elements.refreshButton.prop('disabled', true);
-        }
-
         $.ajax({
             url: limosmsPatternManagement.ajaxUrl,
             type: 'POST',
@@ -235,9 +230,6 @@
         }).always(function () {
             isLoadingPatterns = false;
 
-            if (elements.refreshButton.length) {
-                elements.refreshButton.prop('disabled', false);
-            }
         });
     }
 
@@ -251,9 +243,6 @@
         loadPatterns(false);
     }
 
-    $(document).on('click', '#limosms-refresh-patterns', function () {
-        loadPatterns(true);
-    });
 
     $(document).on('click', '.limosms-copy-pattern-code', function () {
         const code = $(this).data('code');

@@ -5,15 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class LimoSMS_Admin {
-
-    /**
-     * @var LimoSMS_Admin_SMS
-     */
     private $admin_sms;
-
-    /**
-     * @var LimoSMS_Sent_SMS_Tab
-     */
     private $sent_sms_tab;
 
     public function __construct() {
@@ -31,70 +23,6 @@ class LimoSMS_Admin {
         add_action( 'wp_ajax_limosms_send_sms', array( $this, 'send_sms_handler' ) );
     }
 
-    /**
-     * دریافت لیست کامل توکن‌های پیامک ووکامرس
-     *
-     * @return array
-     */
-    public static function get_available_sms_tokens() {
-        return array(
-            'order_id'               => 'شناسه سفارش',
-            'order_number'           => 'شماره سفارش',
-            'order_parent_id'        => 'شماره سفارش اصلی',
-            'order_status'           => 'وضعیت سفارش',
-            'order_total'            => 'مبلغ سفارش',
-            'order_date'             => 'تاریخ سفارش',
-            'transaction_id'         => 'شماره تراکنش',
-            'customer_note'          => 'توضیحات مشتری',
-            'payment_method'         => 'روش پرداخت',
-            'shipping_method'        => 'روش ارسال',
-            'payment_url'            => 'لینک پرداخت سفارش',
-
-            'billing_first_name'     => 'نام مشتری',
-            'billing_last_name'      => 'نام خانوادگی مشتری',
-            'billing_phone'          => 'شماره تلفن مشتری',
-            'billing_mobile'         => 'شماره موبایل مشتری',
-            'billing_email'          => 'ایمیل مشتری',
-            'billing_company'        => 'نام شرکت',
-            'billing_country'        => 'کشور',
-            'billing_state'          => 'ایالت/استان',
-            'billing_city'           => 'شهر',
-            'billing_address_1'      => 'آدرس 1',
-            'billing_address_2'      => 'آدرس 2',
-            'billing_postcode'       => 'کد پستی',
-
-            'shipping_first_name'    => 'نام مشتری (حمل و نقل)',
-            'shipping_last_name'     => 'نام خانوادگی مشتری (حمل و نقل)',
-            'shipping_company'       => 'نام شرکت (حمل و نقل)',
-            'shipping_country'       => 'کشور (حمل و نقل)',
-            'shipping_state'         => 'ایالت/استان (حمل و نقل)',
-            'shipping_city'          => 'شهر (حمل و نقل)',
-            'shipping_address_1'     => 'آدرس 1 (حمل و نقل)',
-            'shipping_address_2'     => 'آدرس 2 (حمل و نقل)',
-            'shipping_postcode'      => 'کد پستی (حمل و نقل)',
-
-            'order_items'            => 'محصولات سفارش',
-            'order_items_full'       => 'محصولات سفارش با نام کامل متغیر',
-            'order_items_with_qty'   => 'محصولات سفارش بهمراه تعداد',
-            'order_items_count'      => 'تعداد محصولات سفارش',
-
-            'product_id'             => 'آیدی محصول',
-            'product_url'            => 'لینک محصول',
-            'product_sku'            => 'شناسه محصول',
-            'product_name'           => 'عنوان محصول',
-            'product_name_with_attr' => 'عنوان محصول با متغیر',
-            'product_stock_quantity' => 'موجودی انبار',
-
-            'tracking_code'          => 'کد رهگیری پستی',
-            'tracking_url'           => 'آدرس اینترنتی رهگیری پستی',
-        );
-    }
-
-    /**
-     * Register admin menu.
-     *
-     * @return void
-     */
     public function register_menu() {
         add_menu_page(
             'لیمو اس ام اس',
@@ -107,12 +35,6 @@ class LimoSMS_Admin {
         );
     }
 
-    /**
-     * Load admin assets.
-     *
-     * @param string $hook Current admin hook.
-     * @return void
-     */
     public function enqueue_assets( $hook ) {
         if ( false === strpos( $hook, 'limosms' ) ) {
             return;
@@ -138,6 +60,7 @@ class LimoSMS_Admin {
         $admin_ajax_data = array(
             'url'   => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'limosms_admin_nonce' ),
+
         );
 
         wp_localize_script( 'limosms-admin-js', 'limosms_ajax', $admin_ajax_data );
@@ -149,6 +72,7 @@ class LimoSMS_Admin {
             'seller-sms',
             'sent-sms',
             'send-test-sms',
+            'pattern-management'
         );
         $all_tokens = self::get_available_sms_tokens();
 
@@ -252,7 +176,8 @@ class LimoSMS_Admin {
                 'limosmsPatternManagement',
                 array(
                     'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
-                    'nonce'             => wp_create_nonce( 'limosms_patterns_nonce' ),
+//                    'nonce'             => wp_create_nonce( 'limosms_patterns_nonce' ),
+                    'nonce' => wp_create_nonce( 'limosms_admin_nonce' ),
                     'loadingText'       => __( 'در حال دریافت پترن ها...', 'limosms' ),
                     'loadErrorText'     => __( 'دریافت لیست پترن ها ناموفق بود.', 'limosms' ),
                     'emptyText'         => __( 'هیچ پترنی یافت نشد.', 'limosms' ),
@@ -263,12 +188,6 @@ class LimoSMS_Admin {
         }
     }
 
-
-    /**
-     * Render dashboard page.
-     *
-     * @return void
-     */
     public function render_dashboard() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'You do not have permission to access this page.', 'limosms' ) );
@@ -288,12 +207,6 @@ class LimoSMS_Admin {
         echo '<div class="wrap"><p>' . esc_html__( 'Dashboard template not found.', 'limosms' ) . '</p></div>';
     }
 
-
-    /**
-     * AJAX load tab content.
-     *
-     * @return void
-     */
     public function ajax_load_tab() {
         check_ajax_referer( 'limosms_admin_nonce', 'nonce' );
 
@@ -336,11 +249,6 @@ class LimoSMS_Admin {
         wp_die();
     }
 
-    /**
-     * Send test SMS handler.
-     *
-     * @return void
-     */
     public function send_sms_handler() {
         check_ajax_referer( 'limosms_admin_nonce', 'nonce' );
 
@@ -392,4 +300,59 @@ class LimoSMS_Admin {
             )
         );
     }
+
+    public static function get_available_sms_tokens() {
+        return array(
+            'order_id'               => 'شناسه سفارش',
+            'order_number'           => 'شماره سفارش',
+            'order_parent_id'        => 'شماره سفارش اصلی',
+            'order_status'           => 'وضعیت سفارش',
+            'order_total'            => 'مبلغ سفارش',
+            'order_date'             => 'تاریخ سفارش',
+            'transaction_id'         => 'شماره تراکنش',
+            'customer_note'          => 'توضیحات مشتری',
+            'payment_method'         => 'روش پرداخت',
+            'shipping_method'        => 'روش ارسال',
+            'payment_url'            => 'لینک پرداخت سفارش',
+
+            'billing_first_name'     => 'نام مشتری',
+            'billing_last_name'      => 'نام خانوادگی مشتری',
+            'billing_phone'          => 'شماره تلفن مشتری',
+            'billing_mobile'         => 'شماره موبایل مشتری',
+            'billing_email'          => 'ایمیل مشتری',
+            'billing_company'        => 'نام شرکت',
+            'billing_country'        => 'کشور',
+            'billing_state'          => 'ایالت/استان',
+            'billing_city'           => 'شهر',
+            'billing_address_1'      => 'آدرس 1',
+            'billing_address_2'      => 'آدرس 2',
+            'billing_postcode'       => 'کد پستی',
+
+            'shipping_first_name'    => 'نام مشتری (حمل و نقل)',
+            'shipping_last_name'     => 'نام خانوادگی مشتری (حمل و نقل)',
+            'shipping_company'       => 'نام شرکت (حمل و نقل)',
+            'shipping_country'       => 'کشور (حمل و نقل)',
+            'shipping_state'         => 'ایالت/استان (حمل و نقل)',
+            'shipping_city'          => 'شهر (حمل و نقل)',
+            'shipping_address_1'     => 'آدرس 1 (حمل و نقل)',
+            'shipping_address_2'     => 'آدرس 2 (حمل و نقل)',
+            'shipping_postcode'      => 'کد پستی (حمل و نقل)',
+
+            'order_items'            => 'محصولات سفارش',
+            'order_items_full'       => 'محصولات سفارش با نام کامل متغیر',
+            'order_items_with_qty'   => 'محصولات سفارش بهمراه تعداد',
+            'order_items_count'      => 'تعداد محصولات سفارش',
+
+            'product_id'             => 'آیدی محصول',
+            'product_url'            => 'لینک محصول',
+            'product_sku'            => 'شناسه محصول',
+            'product_name'           => 'عنوان محصول',
+            'product_name_with_attr' => 'عنوان محصول با متغیر',
+            'product_stock_quantity' => 'موجودی انبار',
+
+            'tracking_code'          => 'کد رهگیری پستی',
+            'tracking_url'           => 'آدرس اینترنتی رهگیری پستی',
+        );
+    }
+
 }

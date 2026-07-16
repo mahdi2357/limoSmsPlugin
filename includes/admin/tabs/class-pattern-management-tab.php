@@ -19,7 +19,7 @@ class LimoSMS_Pattern_Management_Tab {
      * @return void
      */
     public function render() {
-        $template_path = LIMOSMS_PLUGIN_DIR . 'templates/admin-tabs/pattern-management.php';
+        $template_path = LIMOSMS_PATH . 'templates/admin-tabs/sms-pattern-management.php';
 
         if ( file_exists( $template_path ) ) {
             include $template_path;
@@ -42,14 +42,14 @@ class LimoSMS_Pattern_Management_Tab {
 
         wp_enqueue_style(
             'limosms-pattern-management',
-            LIMOSMS_PLUGIN_URL . 'assets/css/admin/pattern-management.css',
+            LIMOSMS_URL  . 'assets/css/tabs/pattern-management.css',
             array(),
             defined( 'LIMOSMS_VERSION' ) ? LIMOSMS_VERSION : '1.0.0'
         );
 
         wp_enqueue_script(
             'limosms-pattern-management',
-            LIMOSMS_PLUGIN_URL . 'assets/js/admin/pattern-management.js',
+            LIMOSMS_URL  . 'assets/js/tabs/pattern-management.js',
             array( 'jquery' ),
             defined( 'LIMOSMS_VERSION' ) ? LIMOSMS_VERSION : '1.0.0',
             true
@@ -60,7 +60,7 @@ class LimoSMS_Pattern_Management_Tab {
             'limosmsPatternManagement',
             array(
                 'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
-                'nonce'             => wp_create_nonce( 'limosms_admin_nonce' ),
+                'nonce' => wp_create_nonce( 'limosms_patterns_nonce' ),
                 'loadingText'       => 'در حال دریافت پترن‌ها...',
                 'loadErrorText'     => 'دریافت لیست پترن‌ها ناموفق بود.',
                 'emptyText'         => 'هیچ پترنی یافت نشد.',
@@ -77,6 +77,7 @@ class LimoSMS_Pattern_Management_Tab {
      */
     public function ajax_get_patterns() {
         check_ajax_referer( 'limosms_admin_nonce', 'nonce' );
+
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error(
