@@ -11,7 +11,7 @@ class LimoSMS_Seller_SMS_Events
 
         return array(
             'seller_new_order' => array(
-                'label' => 'ثبت سفارش جدید برای فروشنده',
+                'label' => 'ثبت سفارش جدید',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
@@ -21,7 +21,7 @@ class LimoSMS_Seller_SMS_Events
                 ),
             ),
             'seller_order_processing' => array(
-                'label' => 'پردازش سفارش فروشنده',
+                'label' => 'پردازش سفارش',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
@@ -31,7 +31,7 @@ class LimoSMS_Seller_SMS_Events
                 ),
             ),
             'seller_order_completed' => array(
-                'label' => 'تکمیل سفارش فروشنده',
+                'label' => 'تکمیل سفارش',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
@@ -41,7 +41,7 @@ class LimoSMS_Seller_SMS_Events
                 ),
             ),
             'seller_order_cancelled' => array(
-                'label' => 'لغو سفارش فروشنده',
+                'label' => 'لغو سفارش',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
@@ -51,7 +51,7 @@ class LimoSMS_Seller_SMS_Events
                 ),
             ),
             'seller_order_refunded' => array(
-                'label' => 'مرجوع/مسترد سفارش فروشنده',
+                'label' => 'مرجوع/مسترد سفارش ',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
@@ -61,7 +61,7 @@ class LimoSMS_Seller_SMS_Events
                 ),
             ),
             'seller_order_failed' => array(
-                'label' => 'ناموفق شدن سفارش فروشنده',
+                'label' => 'ناموفق شدن سفارش',
                 'type'  => 'order',
                 'tokens' => $order_tokens,
                 'default_pattern_map' => array(
