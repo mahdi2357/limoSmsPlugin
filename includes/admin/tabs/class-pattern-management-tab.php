@@ -19,7 +19,7 @@ class LimoSMS_Pattern_Management_Tab {
      * @return void
      */
     public function render() {
-        $template_path = LIMOSMS_PATH . 'templates/admin-tabs/sms-pattern-management.php';
+        $template_path = LIMOSMS_PATH . 'templates/admin-tabs/sms-pattern-management-view.php';
 
         if ( file_exists( $template_path ) ) {
             include $template_path;

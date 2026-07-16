@@ -197,7 +197,7 @@ class LimoSMS_Admin {
             ? sanitize_key( wp_unslash( $_GET['tab'] ) )
             : 'connection-settings';
 
-        $template_path = LIMOSMS_PATH . 'templates/admin-dashboard.php';
+        $template_path = LIMOSMS_PATH . 'templates/admin-dashboard-view.php';
 
         if ( file_exists( $template_path ) ) {
             include $template_path;
@@ -234,7 +234,7 @@ class LimoSMS_Admin {
             $tab = 'connection-settings';
         }
 
-        $file_path = LIMOSMS_PATH . 'templates/admin-tabs/' . $tab . '.php';
+        $file_path = LIMOSMS_PATH . 'templates/admin-tabs/' . $tab . '-view.php';
 
         if ( file_exists( $file_path ) ) {
             if ( 'connection-settings' === $tab ) {
