@@ -52,7 +52,7 @@ if ( ! array_key_exists( $active_tab, $menu_items ) ) {
     $active_tab = 'connection-settings';
 }
 
-$tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '.php';
+$tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
 ?>
 
 <div class="limosms-wrapper">

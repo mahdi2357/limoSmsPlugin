@@ -741,6 +741,7 @@
             bootstrapSellerSMS();
         }
     });
+
     $(document).on('click', '.limosms-seller-sms-settings .limosms-token-chip', function (event) {
         event.preventDefault();
         const chip = $(this);
