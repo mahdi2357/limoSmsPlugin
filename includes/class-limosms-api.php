@@ -84,7 +84,7 @@ class LimoSMS_API {
 
     public function check_verification_code( $mobile, $code ) {
         $mobile = $this->normalize_mobile( $mobile );
-        $code   = sanitize_text_field( $code );
+        $code   = $this->normalize_code( $code );
 
         if ( '' === $mobile || '' === $code ) {
             return new WP_Error( 'invalid_data', 'اطلاعات نامعتبر است.' );
@@ -100,52 +100,12 @@ class LimoSMS_API {
         );
     }
 
+    public function is_send_successful( $response ) {
+        return $this->is_success_response( $response );
+    }
+
     public function is_verification_successful( $response ) {
-        if ( ! is_array( $response ) || empty( $response ) ) {
-            return false;
-        }
-
-        if ( isset( $response['success'] ) ) {
-            return true === $response['success'] || 'true' === $response['success'] || 1 === (int) $response['success'];
-        }
-
-        if ( isset( $response['Success'] ) ) {
-            return true === $response['Success'] || 'true' === $response['Success'] || 1 === (int) $response['Success'];
-        }
-
-        if ( isset( $response['isSuccess'] ) ) {
-            return true === $response['isSuccess'] || 'true' === $response['isSuccess'] || 1 === (int) $response['isSuccess'];
-        }
-
-        if ( isset( $response['IsSuccess'] ) ) {
-            return true === $response['IsSuccess'] || 'true' === $response['IsSuccess'] || 1 === (int) $response['IsSuccess'];
-        }
-
-        if ( isset( $response['status'] ) ) {
-            return in_array( $response['status'], array( 'success', 'ok', 'Success', 'OK', 1, '1' ), true );
-        }
-
-        if ( isset( $response['Status'] ) ) {
-            return in_array( $response['Status'], array( 'success', 'ok', 'Success', 'OK', 1, '1' ), true );
-        }
-
-        if ( isset( $response['result'] ) ) {
-            return true === $response['result'] || 'true' === $response['result'] || 1 === (int) $response['result'];
-        }
-
-        if ( isset( $response['Result'] ) ) {
-            return true === $response['Result'] || 'true' === $response['Result'] || 1 === (int) $response['Result'];
-        }
-
-        if ( isset( $response['code'] ) ) {
-            return in_array( $response['code'], array( 200, '200', 1, '1' ), true );
-        }
-
-        if ( isset( $response['Code'] ) ) {
-            return in_array( $response['Code'], array( 200, '200', 1, '1' ), true );
-        }
-
-        return false;
+        return $this->is_success_response( $response );
     }
 
     public function get_response_message( $response, $default = 'عملیات ناموفق بود.' ) {
@@ -165,8 +125,8 @@ class LimoSMS_API {
         );
 
         foreach ( $keys as $key ) {
-            if ( isset( $response[ $key ] ) && '' !== (string) $response[ $key ] ) {
-                return (string) $response[ $key ];
+            if ( isset( $response[ $key ] ) && '' !== trim( (string) $response[ $key ] ) ) {
+                return sanitize_text_field( wp_unslash( (string) $response[ $key ] ) );
             }
         }
 
@@ -185,5 +145,53 @@ class LimoSMS_API {
         }
 
         return preg_match( '/^09\d{9}$/', $mobile ) ? $mobile : '';
+    }
+
+    public function normalize_code( $code ) {
+        $code = preg_replace( '/[^0-9]/', '', (string) $code );
+        return preg_match( '/^\d{6}$/', $code ) ? $code : '';
+    }
+
+    private function is_success_response( $response ) {
+        if ( ! is_array( $response ) || empty( $response ) ) {
+            return false;
+        }
+
+        $truthy_keys = array(
+            'success',
+            'Success',
+            'isSuccess',
+            'IsSuccess',
+            'result',
+            'Result',
+        );
+
+        foreach ( $truthy_keys as $key ) {
+            if ( isset( $response[ $key ] ) ) {
+                return $this->is_truthy_flag( $response[ $key ] );
+            }
+        }
+
+        $status_keys = array( 'status', 'Status' );
+
+        foreach ( $status_keys as $key ) {
+            if ( isset( $response[ $key ] ) ) {
+                return in_array( $response[ $key ], array( 'success', 'Success', 'ok', 'OK', 1, '1', 200, '200' ), true );
+            }
+        }
+
+        $code_keys = array( 'code', 'Code' );
+
+        foreach ( $code_keys as $key ) {
+            if ( isset( $response[ $key ] ) ) {
+                return in_array( $response[ $key ], array( 1, '1', 200, '200' ), true );
+            }
+        }
+
+        return false;
+    }
+
+    private function is_truthy_flag( $value ) {
+        return true === $value || 'true' === $value || 1 === (int) $value;
     }
 }

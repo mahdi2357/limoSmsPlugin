@@ -1,20 +1,23 @@
 (function () {
     function initMobileAuth() {
-        const authBox = document.querySelector('.limosms-mobile-auth');
+        var authBox = document.querySelector(".limosms-mobile-auth");
 
         if (!authBox || !window.limosmsMobileAuth) {
             return;
         }
 
-        const mobileStep = authBox.querySelector('[data-step="mobile"]');
-        const codeStep = authBox.querySelector('[data-step="code"]');
-        const mobileInput = authBox.querySelector('#limosms_mobile');
-        const mobileConfirmInput = authBox.querySelector('#limosms_mobile_confirm');
-        const codeInput = authBox.querySelector('#limosms_code');
-        const sendCodeButton = authBox.querySelector('#limosms-send-code');
-        const verifyCodeButton = authBox.querySelector('#limosms-verify-code');
-        const editMobileButton = authBox.querySelector('#limosms-edit-mobile');
-        const messageBox = authBox.querySelector('.limosms-mobile-auth__message');
+        var mobileStep = authBox.querySelector('[data-step="mobile"]');
+        var codeStep = authBox.querySelector('[data-step="code"]');
+        var mobileInput = authBox.querySelector("#limosms_mobile");
+        var mobileConfirmInput = authBox.querySelector("#limosms_mobile_confirm");
+        var codeInput = authBox.querySelector("#limosms_code");
+        var sendCodeButton = authBox.querySelector("#limosms-send-code");
+        var verifyCodeButton = authBox.querySelector("#limosms-verify-code");
+        var editMobileButton = authBox.querySelector("#limosms-edit-mobile");
+        var messageBox = authBox.querySelector(".limosms-mobile-auth__message");
+
+        var challengeToken = "";
+        var sendCooldownTimer = null;
 
         if (
             !mobileStep ||
@@ -31,150 +34,303 @@
         }
 
         function setMessage(message, type) {
-            messageBox.textContent = message || '';
-            messageBox.classList.remove('is-error', 'is-success', 'is-info');
+            messageBox.textContent = message || "";
+            messageBox.classList.remove("is-error", "is-success", "is-info");
 
             if (type) {
                 messageBox.classList.add(type);
             }
         }
 
-        function setButtonLoading(button, isLoading, defaultText, loadingText) {
+        function setButtonState(button, disabled, text) {
             if (!button) {
                 return;
             }
 
-            button.disabled = isLoading;
-            button.textContent = isLoading ? loadingText : defaultText;
+            button.disabled = disabled;
+
+            if (typeof text === "string") {
+                button.textContent = text;
+            }
+        }
+
+        function normalizeDigits(value) {
+            var map = {
+                "۰": "0",
+                "۱": "1",
+                "۲": "2",
+                "۳": "3",
+                "۴": "4",
+                "۵": "5",
+                "۶": "6",
+                "۷": "7",
+                "۸": "8",
+                "۹": "9",
+                "٠": "0",
+                "١": "1",
+                "٢": "2",
+                "٣": "3",
+                "٤": "4",
+                "٥": "5",
+                "٦": "6",
+                "٧": "7",
+                "٨": "8",
+                "٩": "9"
+            };
+
+            return String(value || "").replace(/[۰-۹٠-٩]/g, function (char) {
+                return map[char] || char;
+            });
+        }
+
+        function normalizeMobile(value) {
+            var mobile = normalizeDigits(value).replace(/[^\d]/g, "");
+
+            if (mobile.indexOf("98") === 0) {
+                mobile = "0" + mobile.substring(2);
+            }
+
+            if (mobile.length === 10 && mobile.charAt(0) === "9") {
+                mobile = "0" + mobile;
+            }
+
+            return mobile;
+        }
+
+        function isValidMobile(value) {
+            return /^09\d{9}$/.test(normalizeMobile(value));
+        }
+
+        function normalizeCode(value) {
+            return normalizeDigits(value).replace(/[^\d]/g, "");
+        }
+
+        function isValidCode(value) {
+            var otpLength = Number(limosmsMobileAuth.otpLength || 6);
+            var code = normalizeCode(value);
+            var pattern = new RegExp("^\\d{" + otpLength + "}$");
+            return pattern.test(code);
         }
 
         function goToCodeStep(mobile) {
             mobileConfirmInput.value = mobile;
             mobileStep.hidden = true;
             codeStep.hidden = false;
+            codeInput.value = "";
             codeInput.focus();
         }
 
         function goToMobileStep() {
             codeStep.hidden = true;
             mobileStep.hidden = false;
-            codeInput.value = '';
-            messageBox.textContent = '';
+            codeInput.value = "";
+            challengeToken = "";
+            setMessage("", "");
             mobileInput.focus();
         }
 
-        sendCodeButton.addEventListener('click', function (event) {
+        function startSendCooldown(seconds) {
+            var remaining = Number(seconds || limosmsMobileAuth.sendCooldown || 60);
+
+            if (sendCooldownTimer) {
+                window.clearInterval(sendCooldownTimer);
+                sendCooldownTimer = null;
+            }
+
+            setButtonState(sendCodeButton, true, "ارسال مجدد (" + remaining + ")");
+
+            sendCooldownTimer = window.setInterval(function () {
+                remaining -= 1;
+
+                if (remaining <= 0) {
+                    window.clearInterval(sendCooldownTimer);
+                    sendCooldownTimer = null;
+                    setButtonState(sendCodeButton, false, "دریافت کد");
+                    return;
+                }
+
+                setButtonState(sendCodeButton, true, "ارسال مجدد (" + remaining + ")");
+            }, 1000);
+        }
+
+        function parseJsonResponse(response) {
+            return response.text().then(function (text) {
+                try {
+                    return JSON.parse(text);
+                } catch (error) {
+                    return {
+                        success: false,
+                        data: {
+                            message: "پاسخ سرور معتبر نیست."
+                        }
+                    };
+                }
+            });
+        }
+
+        function postAjax(data) {
+            return fetch(limosmsMobileAuth.ajaxUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: new URLSearchParams(data).toString(),
+                credentials: "same-origin"
+            }).then(parseJsonResponse);
+        }
+
+        mobileInput.addEventListener("input", function () {
+            this.value = normalizeMobile(this.value).slice(0, 11);
+        });
+
+        mobileConfirmInput.addEventListener("input", function () {
+            this.value = normalizeMobile(this.value).slice(0, 11);
+        });
+
+        codeInput.addEventListener("input", function () {
+            var otpLength = Number(limosmsMobileAuth.otpLength || 6);
+            this.value = normalizeCode(this.value).slice(0, otpLength);
+        });
+
+        sendCodeButton.addEventListener("click", function (event) {
             event.preventDefault();
 
-            const mobile = mobileInput.value.trim();
+            var mobile = normalizeMobile(mobileInput.value);
+            mobileInput.value = mobile;
 
-            if (!mobile) {
-                setMessage('شماره موبایل را وارد کنید.', 'is-error');
+            if (!isValidMobile(mobile)) {
+                setMessage("شماره موبایل باید با 09 شروع شود و 11 رقم باشد.", "is-error");
+                mobileInput.focus();
                 return;
             }
 
-            setMessage('در حال ارسال...', 'is-info');
-            setButtonLoading(sendCodeButton, true, 'دریافت کد', 'در حال ارسال...');
+            setMessage("در حال ارسال کد...", "is-info");
+            setButtonState(sendCodeButton, true, "در حال ارسال...");
 
-            fetch(limosmsMobileAuth.ajaxUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: new URLSearchParams({
-                    action: 'limosms_send_otp',
-                    nonce: limosmsMobileAuth.nonce,
-                    mobile: mobile
-                })
+            postAjax({
+                action: "limosms_send_otp",
+                nonce: limosmsMobileAuth.nonce,
+                mobile: mobile
             })
-                .then(function (response) {
-                    return response.json();
-                })
                 .then(function (data) {
-                    if (!data.success) {
-                        const message = data.data && data.data.message ? data.data.message : 'خطا در ارسال کد.';
-                        setMessage(message, 'is-error');
+                    if (!data || !data.success) {
+                        var errorMessage =
+                            data &&
+                            data.data &&
+                            data.data.message
+                                ? data.data.message
+                                : "ارسال کد انجام نشد.";
+                        setMessage(errorMessage, "is-error");
+                        setButtonState(sendCodeButton, false, "دریافت کد");
                         return;
                     }
 
-                    setMessage('کد ارسال شد.', 'is-success');
+                    challengeToken =
+                        data.data && data.data.challengeToken
+                            ? data.data.challengeToken
+                            : "";
+
+                    if (!challengeToken) {
+                        setMessage("پاسخ سرور نامعتبر است. دوباره تلاش کنید.", "is-error");
+                        setButtonState(sendCodeButton, false, "دریافت کد");
+                        return;
+                    }
+
+                    setMessage("کد تایید ارسال شد.", "is-success");
                     goToCodeStep(mobile);
+                    startSendCooldown(
+                        data.data && data.data.expiresIn
+                            ? limosmsMobileAuth.sendCooldown
+                            : limosmsMobileAuth.sendCooldown
+                    );
                 })
                 .catch(function () {
-                    setMessage('خطا در ارتباط با سرور.', 'is-error');
-                })
-                .finally(function () {
-                    setButtonLoading(sendCodeButton, false, 'دریافت کد', 'در حال ارسال...');
+                    setMessage("خطا در ارتباط با سرور.", "is-error");
+                    setButtonState(sendCodeButton, false, "دریافت کد");
                 });
         });
 
-        verifyCodeButton.addEventListener('click', function (event) {
+        verifyCodeButton.addEventListener("click", function (event) {
             event.preventDefault();
 
-            const mobile = mobileConfirmInput.value.trim();
-            const code = codeInput.value.trim();
+            var mobile = normalizeMobile(mobileConfirmInput.value);
+            var code = normalizeCode(codeInput.value);
 
-            if (!mobile) {
-                setMessage('شماره موبایل نامعتبر است.', 'is-error');
+            mobileConfirmInput.value = mobile;
+            codeInput.value = code;
+
+            if (!challengeToken) {
+                setMessage("ابتدا کد تایید دریافت کنید.", "is-error");
                 goToMobileStep();
                 return;
             }
 
-            if (!code) {
-                setMessage('کد تایید را وارد کنید.', 'is-error');
+            if (!isValidMobile(mobile)) {
+                setMessage("شماره موبایل معتبر نیست.", "is-error");
+                goToMobileStep();
                 return;
             }
 
-            setMessage('در حال تایید...', 'is-info');
-            setButtonLoading(verifyCodeButton, true, 'تایید کد', 'در حال تایید...');
+            if (!isValidCode(code)) {
+                setMessage("کد تایید باید 6 رقم باشد.", "is-error");
+                codeInput.focus();
+                return;
+            }
 
-            fetch(limosmsMobileAuth.ajaxUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: new URLSearchParams({
-                    action: 'limosms_verify_otp',
-                    nonce: limosmsMobileAuth.nonce,
-                    mobile: mobile,
-                    code: code
-                })
+            setMessage("در حال بررسی کد...", "is-info");
+            setButtonState(verifyCodeButton, true, "در حال بررسی...");
+
+            postAjax({
+                action: "limosms_verify_otp",
+                nonce: limosmsMobileAuth.nonce,
+                mobile: mobile,
+                code: code,
+                challenge_token: challengeToken
             })
-                .then(function (response) {
-                    return response.json();
-                })
                 .then(function (data) {
-                    if (!data.success) {
-                        const message = data.data && data.data.message ? data.data.message : 'کد تایید نامعتبر است.';
-                        setMessage(message, 'is-error');
+                    if (!data || !data.success) {
+                        var errorMessage =
+                            data &&
+                            data.data &&
+                            data.data.message
+                                ? data.data.message
+                                : "کد تایید صحیح نیست.";
+                        setMessage(errorMessage, "is-error");
+                        setButtonState(verifyCodeButton, false, "تایید کد");
                         return;
                     }
 
-                    const message = data.data && data.data.message ? data.data.message : 'ورود با موفقیت انجام شد.';
-                    const redirectUrl = data.data && data.data.redirectUrl ? data.data.redirectUrl : '';
+                    var successMessage =
+                        data.data && data.data.message
+                            ? data.data.message
+                            : "ورود با موفقیت انجام شد.";
 
-                    setMessage(message, 'is-success');
+                    var redirectUrl =
+                        data.data && data.data.redirectUrl
+                            ? data.data.redirectUrl
+                            : limosmsMobileAuth.redirectUrl;
+
+                    setMessage(successMessage, "is-success");
+                    setButtonState(verifyCodeButton, false, "تایید کد");
 
                     if (redirectUrl) {
                         window.location.href = redirectUrl;
                     }
                 })
                 .catch(function () {
-                    setMessage('خطا در ارتباط با سرور.', 'is-error');
-                })
-                .finally(function () {
-                    setButtonLoading(verifyCodeButton, false, 'تایید کد', 'در حال تایید...');
+                    setMessage("خطا در ارتباط با سرور.", "is-error");
+                    setButtonState(verifyCodeButton, false, "تایید کد");
                 });
         });
 
-        editMobileButton.addEventListener('click', function (event) {
+        editMobileButton.addEventListener("click", function (event) {
             event.preventDefault();
             goToMobileStep();
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMobileAuth);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initMobileAuth);
     } else {
         initMobileAuth();
     }
