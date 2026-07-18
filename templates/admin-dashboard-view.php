@@ -32,6 +32,10 @@ $menu_items = array(
                 'label' => 'الگوهای پیامک',
                 'icon'  => 'text',
         ),
+        'login-register' => array(
+                'label' => 'ورود و عضویت',
+                'icon'  => 'unlock',
+        ),
 );
 
 $tab_titles = array(
@@ -42,6 +46,7 @@ $tab_titles = array(
         'sent-sms'               => 'پیام های ارسال شده',
         'send-test-sms'          => 'ارسال پیامک تست',
         'sms-pattern-management' => 'الگوهای پیامک',
+        'login-register'         => 'ورود و عضویت',
 );
 
 $active_tab = isset( $active_tab ) && ! empty( $active_tab )

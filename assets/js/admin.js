@@ -69,7 +69,8 @@ jQuery(document).ready(function ($) {
         'seller-sms': 'پیامک فروشنده',
         'sent-sms': 'پیام های ارسال شده',
         'send-test-sms': 'ارسال پیامک تست',
-        'sms-pattern-management': 'الگوهای پیامک'
+        'sms-pattern-management': 'الگوهای پیامک',
+        'login-register': 'ورود و عضویت'
     };
 
     function setActiveTab(tab, $link) {

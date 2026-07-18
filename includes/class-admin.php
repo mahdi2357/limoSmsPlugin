@@ -72,7 +72,8 @@ class LimoSMS_Admin {
             'seller-sms',
             'sent-sms',
             'send-test-sms',
-            'pattern-management'
+            'pattern-management',
+            'login-register'
         );
         $all_tokens = self::get_available_sms_tokens();
 
@@ -228,6 +229,7 @@ class LimoSMS_Admin {
             'sent-sms',
             'send-test-sms',
             'sms-pattern-management',
+            'login-register'
         );
 
         if ( ! in_array( $tab, $allowed_tabs, true ) ) {
