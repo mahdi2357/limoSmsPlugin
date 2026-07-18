@@ -16,6 +16,9 @@ class LimoSMS {
     private $seller_sms;
     private $dokan_sms;
 
+    private $mobile_auth;
+
+
     public function run() {
         $this->load_dependencies();
 
@@ -84,6 +87,9 @@ class LimoSMS {
         require_once LIMOSMS_PATH . 'includes/admin/class-seller-sms-settings.php';
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-seller-sms-tab.php';
 
+        require_once LIMOSMS_PATH . 'includes/class-limosms-mobile-auth.php';
+
+
         if ( is_admin() ) {
             new LimoSMS_Admin_SMS_Settings();
             new LimoSMS_Customer_SMS_Settings();
@@ -109,6 +115,8 @@ class LimoSMS {
         $this->admin_sms          = new LimoSMS_Admin_SMS();
         $this->test_sms           = new LimoSMS_Send_Test_SMS();
         $this->woocommerce        = new LimoSMS_WooCommerce_SMS();
+        $this->mobile_auth = new LimoSMS_Mobile_Auth();
+
     }
 
     private function register_hooks() {
