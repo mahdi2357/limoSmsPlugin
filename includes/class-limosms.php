@@ -88,6 +88,8 @@ class LimoSMS {
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-seller-sms-tab.php';
 
         require_once LIMOSMS_PATH . 'includes/class-limosms-mobile-auth.php';
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-login-register-tab.php';
+
 
 
         if ( is_admin() ) {

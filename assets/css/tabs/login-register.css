@@ -1,0 +1,176 @@
+.limoo-login-register-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+    max-width: 760px;
+}
+
+.limoo-login-register-card__header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.limoo-login-register-card__title {
+    margin: 0 0 8px;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #111827;
+}
+
+.limoo-login-register-card__subtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #6b7280;
+}
+
+.limoo-login-register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.limoo-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.limoo-setting-row__content {
+    flex: 1;
+}
+
+.limoo-setting-row__label {
+    display: inline-block;
+    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    cursor: pointer;
+}
+
+.limoo-setting-row__description {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #6b7280;
+}
+
+.limoo-login-register-form__actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+#limoo-login-register-save {
+    min-width: 140px;
+    height: 40px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.limoo-switch {
+    position: relative;
+    display: inline-flex;
+    width: 54px;
+    height: 30px;
+    flex: 0 0 auto;
+}
+
+.limoo-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.limoo-switch__slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #d1d5db;
+    border-radius: 999px;
+    transition: all 0.25s ease;
+}
+
+.limoo-switch__slider::before {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 4px;
+    top: 4px;
+    background: #fff;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.limoo-switch input:checked + .limoo-switch__slider {
+    background: #2271b1;
+}
+
+.limoo-switch input:checked + .limoo-switch__slider::before {
+    transform: translateX(24px);
+}
+
+.limoo-switch input:focus + .limoo-switch__slider {
+    box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.18);
+}
+
+.limosms-toast {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 99999;
+    min-width: 260px;
+    max-width: 360px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.7;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.limosms-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.limosms-toast-success {
+    background: #1d7f4e;
+}
+
+.limosms-toast-error {
+    background: #c0392b;
+}
+
+@media (max-width: 782px) {
+    .limoo-login-register-card {
+        padding: 18px;
+    }
+
+    .limoo-setting-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .limoo-login-register-form__actions {
+        justify-content: stretch;
+    }
+
+    #limoo-login-register-save {
+        width: 100%;
+    }
+}

@@ -7,13 +7,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class LimoSMS_Admin {
     private $admin_sms;
     private $sent_sms_tab;
+    private $login_register_tab;
+
 
     public function __construct() {
-        $this->admin_sms    = new LimoSMS_Admin_SMS();
-        $this->sent_sms_tab = new LimoSMS_Sent_SMS_Tab();
+        $this->admin_sms          = new LimoSMS_Admin_SMS();
+        $this->sent_sms_tab       = new LimoSMS_Sent_SMS_Tab();
+        $this->login_register_tab = new LimoSMS_Login_Register_Tab();
 
         if ( method_exists( $this->sent_sms_tab, 'register_hooks' ) ) {
             $this->sent_sms_tab->register_hooks();
+        }
+
+        if ( method_exists( $this->login_register_tab, 'register_hooks' ) ) {
+            $this->login_register_tab->register_hooks();
         }
 
         add_action( 'admin_menu', array( $this, 'register_menu' ) );
