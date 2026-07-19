@@ -1,23 +1,28 @@
 jQuery(function ($) {
-    const otpToggle = document.getElementById('limoo-login-register-otp-enabled');
-    const otpNotice = document.getElementById('limoo-otp-shortcode-notice');
-    const shortcodeElement = document.getElementById('limoo-otp-shortcode-value');
+    function getOtpElements() {
+        return {
+            toggle: document.getElementById('limoo-login-register-otp-enabled'),
+            notice: document.getElementById('limoo-otp-shortcode-notice')
+        };
+    }
 
-    const syncOtpNotice = function (enabled) {
-        if (!otpNotice) {
+    function syncOtpNotice(enabled) {
+        var elements = getOtpElements();
+
+        if (!elements.notice) {
             return;
         }
 
-        otpNotice.hidden = !enabled;
-        otpNotice.classList.toggle('is-visible', enabled);
-    };
+        elements.notice.hidden = !enabled;
+        elements.notice.classList.toggle('is-visible', enabled);
+    }
 
     $(document).on('submit', '#limoo-login-register-form', function (e) {
         e.preventDefault();
 
         var $form = $(this);
         var $button = $form.find('#limoo-login-register-save');
-        var enabled = $('#limoo-login-register-otp-enabled').is(':checked');
+        var enabled = $form.find('#limoo-login-register-otp-enabled').is(':checked');
 
         $button.prop('disabled', true).addClass('is-busy');
 
@@ -100,46 +105,44 @@ jQuery(function ($) {
         });
     }
 
-    if (shortcodeElement) {
-        var copyShortcode = function () {
-            var shortcodeText = $.trim(shortcodeElement.textContent);
-            var originalText = shortcodeElement.getAttribute('data-shortcode-original') || shortcodeElement.textContent;
-            var copiedText = shortcodeElement.getAttribute('data-copied-text') || 'کپی شد';
+    $(document).on('click', '#limoo-otp-shortcode-value', function () {
+        var shortcodeElement = this;
+        var shortcodeText = shortcodeElement.getAttribute('data-shortcode') || $.trim(shortcodeElement.textContent);
+        var originalText = shortcodeElement.getAttribute('data-shortcode-original') || shortcodeElement.textContent;
+        var copiedText = shortcodeElement.getAttribute('data-copied-text') || 'کپی شد';
 
-            if (!shortcodeText) {
-                return;
-            }
+        if (!shortcodeText) {
+            return;
+        }
 
-            shortcodeElement.setAttribute('data-shortcode-original', originalText);
+        shortcodeElement.setAttribute('data-shortcode-original', originalText);
 
-            copyTextToClipboard(shortcodeText)
-                .then(function () {
-                    shortcodeElement.classList.add('is-copied');
-                    shortcodeElement.textContent = copiedText;
+        copyTextToClipboard(shortcodeText)
+            .then(function () {
+                shortcodeElement.classList.add('is-copied');
+                shortcodeElement.textContent = copiedText;
 
-                    showToast('شورت‌کد کپی شد.', 'success');
+                showToast('شورت‌کد کپی شد.', 'success');
 
-                    window.setTimeout(function () {
-                        shortcodeElement.textContent = originalText;
-                        shortcodeElement.classList.remove('is-copied');
-                    }, 1400);
-                })
-                .catch(function () {
-                    showToast('کپی شورت‌کد ناموفق بود.', 'error');
-                });
-        };
+                window.setTimeout(function () {
+                    shortcodeElement.textContent = originalText;
+                    shortcodeElement.classList.remove('is-copied');
+                }, 1400);
+            })
+            .catch(function () {
+                showToast('کپی شورت‌کد ناموفق بود.', 'error');
+            });
+    });
 
-        shortcodeElement.addEventListener('click', copyShortcode);
+    $(document).on('keydown', '#limoo-otp-shortcode-value', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            $(this).trigger('click');
+        }
+    });
 
-        shortcodeElement.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                copyShortcode();
-            }
-        });
-    }
-
-    if (otpToggle) {
-        syncOtpNotice(otpToggle.checked);
+    var initialElements = getOtpElements();
+    if (initialElements.toggle) {
+        syncOtpNotice(initialElements.toggle.checked);
     }
 });
