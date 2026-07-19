@@ -69,23 +69,32 @@ class LimoSMS_Mobile_Auth {
             return '';
         }
 
-        wp_enqueue_style( 'limosms-mobile-auth' );
-        wp_enqueue_script( 'limosms-mobile-auth' );
-
         $atts = shortcode_atts(
             array(
                 'title' => '',
             ),
             $atts,
-            'limoo_sms_auth'
+            'limo_sms_auth'
         );
 
         $title = sanitize_text_field( $atts['title'] );
+
+        if ( is_user_logged_in() ) {
+            $current_user = wp_get_current_user();
+
+            ob_start();
+            include LIMOSMS_PATH . 'templates/mobile-auth-logged-in.php';
+            return ob_get_clean();
+        }
+
+        wp_enqueue_style( 'limosms-mobile-auth' );
+        wp_enqueue_script( 'limosms-mobile-auth' );
 
         ob_start();
         include LIMOSMS_PATH . 'templates/mobile-auth-form.php';
         return ob_get_clean();
     }
+
 
     public function ajax_send_otp() {
         check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
