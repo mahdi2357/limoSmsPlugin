@@ -19,7 +19,7 @@ class LimoSMS_Mobile_Auth {
         $this->api = new LimoSMS_API();
 
         add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
-        add_shortcode( 'limoo_sms_auth', array( $this, 'render_shortcode' ) );
+        add_shortcode( 'limo_sms_auth', array( $this, 'render_shortcode' ) );
 
         add_action( 'wp_ajax_nopriv_limosms_send_otp', array( $this, 'ajax_send_otp' ) );
         add_action( 'wp_ajax_limosms_send_otp', array( $this, 'ajax_send_otp' ) );

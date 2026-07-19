@@ -85,10 +85,10 @@
 }
 
 .limoo-switch input {
-    opacity: 0;
+    position: absolute;
     width: 0;
     height: 0;
-    position: absolute;
+    opacity: 0;
 }
 
 .limoo-switch__slider {
@@ -103,14 +103,14 @@
 .limoo-switch__slider::before {
     content: "";
     position: absolute;
+    top: 4px;
+    left: 4px;
     width: 22px;
     height: 22px;
-    left: 4px;
-    top: 4px;
     background: #fff;
     border-radius: 50%;
-    transition: all 0.25s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transition: all 0.25s ease;
 }
 
 .limoo-switch input:checked + .limoo-switch__slider {
@@ -156,25 +156,6 @@
     background: #c0392b;
 }
 
-@media (max-width: 782px) {
-    .limoo-login-register-card {
-        padding: 18px;
-    }
-
-    .limoo-setting-row {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .limoo-login-register-form__actions {
-        justify-content: stretch;
-    }
-
-    #limoo-login-register-save {
-        width: 100%;
-    }
-}
-
 .limoo-otp-shortcode-notice {
     display: none;
     align-items: flex-start;
@@ -197,6 +178,7 @@
     align-items: center;
     justify-content: center;
     min-width: 32px;
+    width: 32px;
     height: 32px;
     border-radius: 50%;
     background: #16a34a;
@@ -205,28 +187,104 @@
     font-weight: 700;
 }
 
+.limoo-otp-shortcode-notice__content {
+    flex: 1;
+    min-width: 0;
+}
+
 .limoo-otp-shortcode-notice__content strong {
     display: block;
     margin-bottom: 6px;
     font-size: 14px;
+    line-height: 1.7;
 }
 
-.limoo-otp-shortcode-notice__content p {
-    margin: 0 0 6px;
+.limoo-otp-shortcode-notice__description {
+    margin: 0 0 10px;
     font-size: 13px;
     line-height: 1.8;
 }
 
-.limoo-otp-shortcode-notice__content p:last-child {
-    margin-bottom: 0;
+.limoo-otp-shortcode-notice__shortcode-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
 }
 
-.limoo-otp-shortcode-notice__content code {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 8px;
-    background: rgba(22, 101, 52, 0.08);
+.limoo-otp-shortcode-notice__shortcode {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(22, 101, 52, 0.18);
     color: #14532d;
+    font-size: 13px;
+    line-height: 1;
     font-weight: 700;
     direction: ltr;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.limoo-otp-shortcode-notice__shortcode:hover,
+.limoo-otp-shortcode-notice__shortcode:focus {
+    background: #fff;
+    border-color: #16a34a;
+    color: #166534;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(21, 128, 61, 0.12);
+    outline: none;
+}
+
+.limoo-otp-shortcode-notice__shortcode:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(21, 128, 61, 0.10);
+}
+
+.limoo-otp-shortcode-notice__shortcode.is-copied {
+    background: #dcfce7;
+    border-color: #16a34a;
+    color: #166534;
+}
+
+@media (max-width: 782px) {
+    .limoo-login-register-card {
+        padding: 18px;
+    }
+
+    .limoo-setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .limoo-login-register-form__actions {
+        justify-content: stretch;
+    }
+
+    #limoo-login-register-save {
+        width: 100%;
+    }
+
+    .limoo-otp-shortcode-notice {
+        padding: 14px;
+    }
+
+    .limoo-otp-shortcode-notice__shortcode {
+        justify-content: center;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .limoo-otp-shortcode-notice__shortcode-row {
+        flex-direction: column;
+        align-items: center;
+    }
 }
