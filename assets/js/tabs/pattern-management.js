@@ -159,7 +159,7 @@
             const rawCode = getPatternCode(pattern);
             const titleValue = getPatternTitle(pattern);
             const textValue = getPatternText(pattern);
-            const shortText = textValue.length > 90 ? textValue.substring(0, 90) + '...' : textValue;
+            const shortText = textValue.length > 60 ? textValue.substring(0, 60) + '...' : textValue;
 
             elements.tableBody.append(
                 '<tr>' +

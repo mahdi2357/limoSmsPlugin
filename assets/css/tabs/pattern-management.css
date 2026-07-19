@@ -28,7 +28,9 @@
     width: 100%;
     border-collapse: collapse;
     background: var(--limosms-surface);
+    table-layout: fixed;
 }
+
 
 .limosms-custom-table thead th {
     background: var(--limosms-primary-soft);
@@ -100,9 +102,11 @@
 .limosms-actions {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     flex-wrap: nowrap;
 }
+
 
 .limosms-action-btn {
     width: 34px;
@@ -352,3 +356,47 @@ body.rtl #limosms-refresh-patterns {
     margin-left: 0;
     margin-right: 16px;
 }
+#limosms-pattern-management-tab .limosms-custom-table th,
+#limosms-pattern-management-tab .limosms-custom-table td {
+    box-sizing: border-box;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table th:nth-child(1),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(1) {
+    width: 72px;
+    min-width: 72px;
+    white-space: nowrap;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table th:nth-child(2),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(2) {
+    width: 170px;
+    min-width: 140px;
+    white-space: nowrap;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table th:nth-child(3),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(3) {
+    width: 22%;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table th:nth-child(4),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(4) {
+    width: 38%;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table th:nth-child(5),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(5) {
+    width: 96px;
+    min-width: 96px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(3),
+#limosms-pattern-management-tab .limosms-custom-table td:nth-child(4) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
