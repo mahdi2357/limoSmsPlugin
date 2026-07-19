@@ -38,6 +38,24 @@ $is_enabled = ! empty( $settings['login_register_otp_enabled'] ) && '1' === (str
             </label>
         </div>
 
+        <div
+                id="limoo-otp-shortcode-notice"
+                class="limoo-otp-shortcode-notice <?php echo $is_enabled ? 'is-visible' : ''; ?>"
+        >
+            <div class="limoo-otp-shortcode-notice__icon">✓</div>
+
+            <div class="limoo-otp-shortcode-notice__content">
+                <strong><?php esc_html_e( 'ورود و ثبت‌نام با پیامک فعال است.', 'limoo-sms' ); ?></strong>
+                <p>
+                    <?php esc_html_e( 'شورت‌کد فرم احراز هویت شما:', 'limoo-sms' ); ?>
+                    <code>[limoo_sms_auth]</code>
+                </p>
+                <p>
+                    <?php esc_html_e( 'این شورت‌کد را داخل برگه ورود، عضویت یا هر برگه دلخواه قرار دهید.', 'limoo-sms' ); ?>
+                </p>
+            </div>
+        </div>
+
         <div class="limoo-login-register-form__actions">
             <button type="submit" class="button button-primary" id="limoo-login-register-save">
                 <?php esc_html_e( 'ذخیره تنظیمات', 'limoo-sms' ); ?>

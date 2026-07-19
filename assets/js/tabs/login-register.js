@@ -1,4 +1,15 @@
 jQuery(function ($) {
+    const otpToggle = document.getElementById('limoo-login-register-otp-enabled');
+    const otpNotice = document.getElementById('limoo-otp-shortcode-notice');
+
+    const syncOtpNotice = function () {
+        if (!otpToggle || !otpNotice) {
+            return;
+        }
+
+        otpNotice.classList.toggle('is-visible', otpToggle.checked);
+    };
+
     function showToast(message, type) {
         $('.limosms-toast').remove();
 
@@ -40,6 +51,8 @@ jQuery(function ($) {
         })
             .done(function (response) {
                 if (response && response.success) {
+                    syncOtpNotice();
+
                     showToast(
                         response.data && response.data.message ? response.data.message : 'تنظیمات با موفقیت ذخیره شد.',
                         'success'
