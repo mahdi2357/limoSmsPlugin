@@ -1,16 +1,17 @@
 <?php
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
 class LimoSMS_Mobile_Auth {
 
-    const SEND_COOLDOWN_SECONDS      = 60;
-    const SEND_MAX_PER_HOUR_MOBILE   = 5;
-    const SEND_MAX_PER_HOUR_IP       = 20;
-    const VERIFY_MAX_ATTEMPTS        = 5;
-    const VERIFY_LOCKOUT_SECONDS     = 15 * MINUTE_IN_SECONDS;
-    const CHALLENGE_TTL_SECONDS      = 10 * MINUTE_IN_SECONDS;
+    const SEND_COOLDOWN_SECONDS    = 60;
+    const SEND_MAX_PER_HOUR_MOBILE = 5;
+    const SEND_MAX_PER_HOUR_IP     = 20;
+    const VERIFY_MAX_ATTEMPTS      = 5;
+    const VERIFY_LOCKOUT_SECONDS   = 15 * MINUTE_IN_SECONDS;
+    const CHALLENGE_TTL_SECONDS    = 10 * MINUTE_IN_SECONDS;
 
     private $api;
 
@@ -27,6 +28,12 @@ class LimoSMS_Mobile_Auth {
         add_action( 'wp_ajax_limosms_verify_otp', array( $this, 'ajax_verify_otp' ) );
     }
 
+    private function is_login_register_enabled() {
+        $settings = get_option( 'limoo_sms_settings', array() );
+
+        return ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
+    }
+
     public function register_assets() {
         wp_register_style(
             'limosms-mobile-auth',
@@ -38,7 +45,7 @@ class LimoSMS_Mobile_Auth {
         wp_register_script(
             'limosms-mobile-auth',
             LIMOSMS_URL . 'assets/js/mobile-auth.js',
-            array(),
+            array( 'jquery' ),
             LIMOSMS_VERSION,
             true
         );
@@ -58,8 +65,22 @@ class LimoSMS_Mobile_Auth {
     }
 
     public function render_shortcode( $atts ) {
+        if ( ! $this->is_login_register_enabled() ) {
+            return '';
+        }
+
         wp_enqueue_style( 'limosms-mobile-auth' );
         wp_enqueue_script( 'limosms-mobile-auth' );
+
+        $atts = shortcode_atts(
+            array(
+                'title' => '',
+            ),
+            $atts,
+            'limoo_sms_auth'
+        );
+
+        $title = sanitize_text_field( $atts['title'] );
 
         ob_start();
         include LIMOSMS_PATH . 'templates/mobile-auth-form.php';
@@ -68,6 +89,15 @@ class LimoSMS_Mobile_Auth {
 
     public function ajax_send_otp() {
         check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
+
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
 
         $mobile = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
 
@@ -146,9 +176,18 @@ class LimoSMS_Mobile_Auth {
     public function ajax_verify_otp() {
         check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
 
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
+
         $mobile          = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
         $code            = $this->api->normalize_code( wp_unslash( $_POST['code'] ?? '' ) );
-        $challenge_token = sanitize_text_field( wp_unslash( $_POST['challenge_token'] ?? '' ) );
+        $challenge_token  = sanitize_text_field( wp_unslash( $_POST['challenge_token'] ?? '' ) );
 
         if ( '' === $mobile ) {
             wp_send_json_error(
@@ -244,6 +283,7 @@ class LimoSMS_Mobile_Auth {
 
         if ( ! $this->api->is_verification_successful( $response ) ) {
             $challenge['attempts'] = $attempts + 1;
+
             set_transient(
                 $this->get_challenge_key( $challenge_token ),
                 $challenge,
