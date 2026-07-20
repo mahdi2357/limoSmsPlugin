@@ -4,8 +4,15 @@ if (!defined('ABSPATH')) {
 }
 class LimoSMS_Admin_SMS_Settings
 {
+    /**
+     * @var LimoSMS_API
+     */
+    private $api;
+
     public function __construct()
     {
+        $this->api = new LimoSMS_API();
+
         add_action('wp_ajax_limosms_get_patterns', array($this, 'ajax_get_patterns'));
         add_action('wp_ajax_limosms_get_pattern_detail', array($this, 'ajax_get_pattern_detail'));
     }
@@ -40,42 +47,21 @@ class LimoSMS_Admin_SMS_Settings
             ],403);
         }
 
-        $api_key = get_option('limosms_api_key');
+        $response = $this->api->get_patterns();
 
-        if(empty($api_key)){
+        if (is_wp_error($response)) {
             wp_send_json_error([
-                'message'=>'API Key تنظیم نشده است'
+                'message' => $response->get_error_message(),
+            ], 500);
+        }
+
+        if (!is_array($response)) {
+            wp_send_json_error([
+                'message' => 'پاسخ نامعتبر از API',
             ]);
         }
 
-        $response = wp_remote_post(
-            'https://api.limosms.com/api/getpatterns',
-            [
-                'timeout'=>10,
-                'headers'=>[
-                    'Content-Type'=>'application/json',
-                    'ApiKey'=>$api_key
-                ]
-            ]
-        );
-
-        if(is_wp_error($response)){
-            wp_send_json_error([
-                'message'=>$response->get_error_message()
-            ],500);
-        }
-
-        $body = wp_remote_retrieve_body($response);
-
-        $data = json_decode($body,true);
-
-        if(!is_array($data)){
-            wp_send_json_error([
-                'message'=>'پاسخ نامعتبر از API'
-            ]);
-        }
-
-        wp_send_json_success($data);
+        wp_send_json_success($response);
     }
 
 
@@ -102,29 +88,7 @@ class LimoSMS_Admin_SMS_Settings
             ), 400);
         }
 
-        $api_key = get_option('limosms_api_key', '');
-
-        if (empty($api_key)) {
-            wp_send_json_error(array(
-                'message' => 'API Key تنظیم نشده است.',
-            ), 400);
-        }
-
-        $response = wp_remote_post(
-            'https://api.limosms.com/api/getpattern',
-            array(
-                'timeout' => 20,
-                'headers' => array(
-                    'Content-Type' => 'application/json',
-                    'Accept'       => 'application/json',
-                    'ApiKey'       => $api_key,
-                ),
-                'body' => wp_json_encode(array(
-                    'patterncode' => $pattern_code,
-                )),
-            )
-        );
-
+        $response = $this->api->get_pattern_detail($pattern_code);
 
         if (is_wp_error($response)) {
             wp_send_json_error(array(
@@ -132,26 +96,13 @@ class LimoSMS_Admin_SMS_Settings
             ), 500);
         }
 
-        $status_code = wp_remote_retrieve_response_code($response);
-        $body        = wp_remote_retrieve_body($response);
-        $data        = json_decode($body, true);
-
-        if ($status_code < 200 || $status_code >= 300) {
-            wp_send_json_error(array(
-                'message' => 'خطا در دریافت جزئیات Pattern از سرویس لیمو پیامک.',
-                'status'  => $status_code,
-                'raw'     => $body,
-            ), $status_code);
-        }
-
-        if (!is_array($data)) {
+        if (!is_array($response)) {
             wp_send_json_error(array(
                 'message' => 'پاسخ دریافتی از سرویس لیمو پیامک نامعتبر است.',
-                'raw'     => $body,
             ), 500);
         }
 
-        wp_send_json_success($data);
+        wp_send_json_success($response);
     }
 
 }

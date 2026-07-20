@@ -5,8 +5,15 @@ if (!defined('ABSPATH')) {
 
 class LimoSMS_Connection_Settings
 {
+    /**
+     * @var LimoSMS_API
+     */
+    private $api;
+
     public function __construct()
     {
+        $this->api = new LimoSMS_API();
+
         // ثبت اکشن AJAX ذخیره تنظیمات اتصال
         add_action('wp_ajax_limosms_save_connection_settings', array($this, 'save_connection_settings'));
     }
@@ -63,24 +70,7 @@ class LimoSMS_Connection_Settings
             return $cached;
         }
 
-        $api_key = get_option('limosms_api_key', '');
-
-        if (empty($api_key)) {
-            return array(
-                'success' => false
-            );
-        }
-
-        $response = wp_remote_post(
-            'https://api.limosms.com/api/getcurrentcredit',
-            array(
-                'timeout' => 20,
-                'headers' => array(
-                    'Content-Type' => 'application/json',
-                    'ApiKey'       => $api_key,
-                ),
-            )
-        );
+        $response = $this->api->get_current_credit();
 
         if (is_wp_error($response)) {
             return array(
@@ -89,18 +79,15 @@ class LimoSMS_Connection_Settings
             );
         }
 
-        $body = wp_remote_retrieve_body($response);
-        $result = json_decode($body, true);
-
-        if (!is_array($result)) {
+        if (!is_array($response)) {
             return array(
                 'success' => false
             );
         }
 
         // کش برای ۵ دقیقه
-        set_transient('limosms_connection_status', $result, 300);
+        set_transient('limosms_connection_status', $response, 300);
 
-        return $result;
+        return $response;
     }
 }

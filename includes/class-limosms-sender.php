@@ -48,12 +48,8 @@ class LimoSMS_Sender
             'MobileNumber' => $number,
         );
 
-//        delete_transient('limosms_connection_status');
-
         return self::request('/api/sendpatternmessage', $api_key, $body);
     }
-
-
 
     /**
      * متد سازگار با کدهای قبلی
@@ -76,7 +72,21 @@ class LimoSMS_Sender
                 'message' => 'شناسه الگوی پیامک تنظیم نشده است.',
             );
         }
+
         return self::send_pattern_sms($number, $otp_id, $message_data);
+    }
+
+    /**
+     * متد سازگار با کدهای قدیمی که روی نمونه‌ی کلاس فراخوانی می‌شوند.
+     *
+     * @param string           $number
+     * @param string|array     $message_data
+     * @param string|int|null  $otp_id
+     * @return array
+     */
+    public function send($number, $message_data, $otp_id = null)
+    {
+        return self::send_sms($number, $message_data, $otp_id);
     }
 
     /**
@@ -95,7 +105,7 @@ class LimoSMS_Sender
      * @param string $number
      * @return string
      */
-    public  static function normalize_mobile_number($number)
+    public static function normalize_mobile_number($number)
     {
         $number = wp_unslash((string) $number);
         $number = preg_replace('/[^0-9]/', '', $number);
@@ -158,58 +168,32 @@ class LimoSMS_Sender
      */
     private static function request($endpoint, $api_key, $body)
     {
-        $url = 'https://api.limosms.com/' . ltrim($endpoint, '/');
+        unset($endpoint, $api_key);
 
+        if (empty($body['MobileNumber']) || empty($body['OtpId'])) {
+            return array(
+                'success' => false,
+                'message' => 'اطلاعات ارسال پیامک ناقص است.',
+            );
+        }
 
-        $response = wp_remote_post(
-            $url,
-            array(
-                'timeout' => 30,
-                'headers' => array(
-                    'Content-Type' => 'application/json; charset=utf-8',
-                    'ApiKey'       => $api_key,
-                ),
-                'body'    => wp_json_encode($body),
-            )
-        );
+        $api = new LimoSMS_API();
+        $response = $api->send_pattern_message($body['MobileNumber'], $body['OtpId'], $body['ReplaceToken'] ?? array());
 
         if (is_wp_error($response)) {
             return array(
                 'success' => false,
                 'message' => $response->get_error_message(),
+                'status_code' => isset($response->get_error_data()['status']) ? (int) $response->get_error_data()['status'] : 0,
+                'body' => $response->get_error_data(),
             );
-        }
-
-        $status_code  = wp_remote_retrieve_response_code($response);
-        $raw_body     = wp_remote_retrieve_body($response);
-        $decoded_body = json_decode($raw_body, true);
-
-        if ($status_code >= 200 && $status_code < 300) {
-            return array(
-                'success'     => true,
-                'message'     => 'پیامک با موفقیت ارسال شد.',
-                'status_code' => $status_code,
-                'body'        => is_array($decoded_body) ? $decoded_body : $raw_body,
-            );
-        }
-
-        $error_message = 'ارسال پیامک ناموفق بود.';
-
-        if (is_array($decoded_body)) {
-            if (!empty($decoded_body['message'])) {
-                $error_message = $decoded_body['message'];
-            } elseif (!empty($decoded_body['Message'])) {
-                $error_message = $decoded_body['Message'];
-            } elseif (!empty($decoded_body['error'])) {
-                $error_message = $decoded_body['error'];
-            }
         }
 
         return array(
-            'success'     => false,
-            'message'     => $error_message,
-            'status_code' => $status_code,
-            'body'        => is_array($decoded_body) ? $decoded_body : $raw_body,
+            'success' => true,
+            'message' => 'پیامک با موفقیت ارسال شد.',
+            'status_code' => 200,
+            'body' => $response,
         );
     }
 }

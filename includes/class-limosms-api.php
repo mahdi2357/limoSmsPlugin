@@ -53,16 +53,48 @@ class LimoSMS_API {
         if ( $status < 200 || $status >= 300 ) {
             error_log( 'LimoSMS API Error => URL: ' . $url . ' | Status: ' . $status . ' | Body: ' . $body );
 
-            $message = is_array( $json ) ? ( $json['message'] ?? $json['Message'] ?? $json['error'] ?? 'API Error' ) : 'API Error';
+            $message = is_array( $json ) ? ( $json['message'] ?? $json['Message'] ?? $json['error'] ?? $json['Error'] ?? 'API Error' ) : 'API Error';
 
             return new WP_Error(
                 'limosms_api_error',
                 $message,
-                array( 'status' => $status )
+                array( 'status' => $status, 'raw' => $body )
             );
         }
 
         return is_array( $json ) ? $json : array();
+    }
+
+    public function send_pattern_message( $number, $otp_id, $tokens = array() ) {
+        $body = array(
+            'OtpId'        => sanitize_text_field( (string) $otp_id ),
+            'ReplaceToken' => array_values( array_map( 'strval', (array) $tokens ) ),
+            'MobileNumber' => sanitize_text_field( (string) $number ),
+        );
+
+        return $this->request( 'POST', 'sendpatternmessage', $body );
+    }
+
+    public function get_patterns() {
+        return $this->request( 'POST', 'getpatterns', array() );
+    }
+
+    public function get_pattern_detail( $pattern_code ) {
+        return $this->request(
+            'POST',
+            'getpattern',
+            array(
+                'patterncode' => sanitize_text_field( (string) $pattern_code ),
+            )
+        );
+    }
+
+    public function get_sent_sms() {
+        return $this->request( 'POST', 'getsinglesms', array() );
+    }
+
+    public function get_current_credit() {
+        return $this->request( 'POST', 'getcurrentcredit', array() );
     }
 
     public function send_verification_code( $mobile, $footer = '' ) {

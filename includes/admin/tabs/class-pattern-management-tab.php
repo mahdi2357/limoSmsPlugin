@@ -6,9 +6,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class LimoSMS_Pattern_Management_Tab {
 
     /**
+     * @var LimoSMS_API
+     */
+    private $api;
+
+    /**
      * Constructor.
      */
     public function __construct() {
+        $this->api = new LimoSMS_API();
+
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'wp_ajax_limosms_get_patterns', array( $this, 'ajax_get_patterns' ) );
     }
@@ -88,29 +95,7 @@ class LimoSMS_Pattern_Management_Tab {
             );
         }
 
-        $api_key = get_option( 'limosms_api_key', '' );
-        $api_key = is_string( $api_key ) ? trim( $api_key ) : '';
-
-        if ( '' === $api_key ) {
-            wp_send_json_error(
-                array(
-                    'message' => 'API Key تنظیم نشده است.',
-                ),
-                400
-            );
-        }
-
-        $response = wp_remote_post(
-            'https://api.limosms.com/api/getpatterns',
-            array(
-                'timeout' => 20,
-                'headers' => array(
-                    'Content-Type' => 'application/json; charset=utf-8',
-                    'ApiKey'       => $api_key,
-                ),
-                'body'    => wp_json_encode( array() ),
-            )
-        );
+        $response = $this->api->get_patterns();
 
         if ( is_wp_error( $response ) ) {
             wp_send_json_error(
@@ -121,41 +106,25 @@ class LimoSMS_Pattern_Management_Tab {
             );
         }
 
-        $status_code = wp_remote_retrieve_response_code( $response );
-        $body        = wp_remote_retrieve_body( $response );
-        $data        = json_decode( $body, true );
-
-        if ( $status_code < 200 || $status_code >= 300 ) {
-            wp_send_json_error(
-                array(
-                    'message' => 'خطا در دریافت لیست پترن‌ها از سرویس.',
-                    'status'  => $status_code,
-                    'raw'     => $body,
-                ),
-                $status_code
-            );
-        }
-
-        if ( ! is_array( $data ) ) {
+        if ( ! is_array( $response ) ) {
             wp_send_json_error(
                 array(
                     'message' => 'پاسخ دریافتی از سرویس نامعتبر است.',
-                    'raw'     => $body,
                 ),
                 500
             );
         }
 
-        if ( isset( $data['data'] ) && is_array( $data['data'] ) ) {
-            wp_send_json_success( $data['data'] );
+        if ( isset( $response['data'] ) && is_array( $response['data'] ) ) {
+            wp_send_json_success( $response['data'] );
         }
 
-        if ( isset( $data['patterns'] ) && is_array( $data['patterns'] ) ) {
-            wp_send_json_success( $data['patterns'] );
+        if ( isset( $response['patterns'] ) && is_array( $response['patterns'] ) ) {
+            wp_send_json_success( $response['patterns'] );
         }
 
-        if ( ! empty( $data ) && array_keys( $data ) === range( 0, count( $data ) - 1 ) ) {
-            wp_send_json_success( $data );
+        if ( ! empty( $response ) && array_keys( $response ) === range( 0, count( $response ) - 1 ) ) {
+            wp_send_json_success( $response );
         }
 
         wp_send_json_success( array() );

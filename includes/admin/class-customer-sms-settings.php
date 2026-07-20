@@ -43,35 +43,23 @@ class LimoSMS_Customer_SMS_Settings
             wp_send_json_error(array('message' => 'دسترسی غیرمجاز'), 403);
         }
 
-        $response = wp_remote_post('https://api.limosms.com/api/getpatterns', array(
-            'timeout' => 20,
-            'headers' => array(
-                'ApiKey'       => get_option('limosms_api_key', ''),
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json',
-            ),
-            'body' => wp_json_encode(array()),
-        ));
+        $response = $this->api->get_patterns();
 
         if (is_wp_error($response)) {
             wp_send_json_error(array('message' => $response->get_error_message()), 500);
         }
 
-        $code = wp_remote_retrieve_response_code($response);
-        $body = wp_remote_retrieve_body($response);
-        $json = json_decode($body, true);
-
-        if ($code !== 200 || !is_array($json)) {
+        if (!is_array($response)) {
             wp_send_json_error(array('message' => 'پاسخ نامعتبر از API'), 500);
         }
 
         $items = array();
-        if (isset($json['data']['data']) && is_array($json['data']['data'])) {
-            $items = $json['data']['data'];
-        } elseif (isset($json['data']) && is_array($json['data'])) {
-            $items = $json['data'];
-        } elseif (is_array($json)) {
-            $items = $json;
+        if (isset($response['data']['data']) && is_array($response['data']['data'])) {
+            $items = $response['data']['data'];
+        } elseif (isset($response['data']) && is_array($response['data'])) {
+            $items = $response['data'];
+        } elseif (is_array($response)) {
+            $items = $response;
         }
 
         $normalized = array();
@@ -139,34 +127,21 @@ class LimoSMS_Customer_SMS_Settings
             wp_send_json_error(array('message' => 'کد پترن ارسال نشده'), 400);
         }
 
-        $response = wp_remote_post(
-            'https://api.limosms.com/api/getpattern',
-            array(
-                'timeout' => 20,
-                'headers' => array(
-                    'ApiKey'       => get_option('limosms_api_key', ''),
-                    'Content-Type' => 'application/json',
-                    'Accept'       => 'application/json',
-                ),
-                'body' => wp_json_encode(array(
-                    'patterncode' => $pattern_code,
-                )),
-            )
-        );
-
+        $response = $this->api->get_pattern_detail($pattern_code);
 
         if (is_wp_error($response)) {
             wp_send_json_error(array('message' => $response->get_error_message()), 500);
         }
 
-        $body = wp_remote_retrieve_body($response);
-        $json = json_decode($body, true);
+        if (!is_array($response)) {
+            wp_send_json_error(array('message' => 'پترن یافت نشد'), 404);
+        }
 
         $items = array();
-        if (isset($json['data']['data']) && is_array($json['data']['data'])) {
-            $items = $json['data']['data'];
-        } elseif (isset($json['data']) && is_array($json['data'])) {
-            $items = $json['data'];
+        if (isset($response['data']['data']) && is_array($response['data']['data'])) {
+            $items = $response['data']['data'];
+        } elseif (isset($response['data']) && is_array($response['data'])) {
+            $items = $response['data'];
         }
 
         foreach ($items as $item) {

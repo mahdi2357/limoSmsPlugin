@@ -293,11 +293,8 @@ class LimoSMS_Admin {
             );
         }
 
-        if ( method_exists( $this, 'send_sms' ) ) {
-            $result = $this->send_sms( $number, $message );
-        } elseif ( class_exists( 'LimoSMS_Sender' ) ) {
-            $sender = new LimoSMS_Sender();
-            $result = $sender->send( $number, $message );
+        if ( class_exists( 'LimoSMS_Sender' ) ) {
+            $result = LimoSMS_Sender::send_sms( $number, $message );
         } else {
             wp_send_json_error(
                 array(
