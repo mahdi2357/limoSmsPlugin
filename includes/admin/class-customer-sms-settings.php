@@ -82,6 +82,9 @@ class LimoSMS_Customer_SMS_Settings
             }
 
             $pattern_code = isset($item['patternCode']) ? (string) $item['patternCode'] : '';
+            if ($pattern_code === '' && isset($item['pattern_id'])) {
+                $pattern_code = (string) $item['pattern_id'];
+            }
             if ($pattern_code === '' && isset($item['id'])) {
                 $pattern_code = (string) $item['id'];
             }
@@ -89,10 +92,32 @@ class LimoSMS_Customer_SMS_Settings
                 continue;
             }
 
+            $pattern_title = '';
+            if (isset($item['patternName'])) {
+                $pattern_title = (string) $item['patternName'];
+            } elseif (isset($item['title'])) {
+                $pattern_title = (string) $item['title'];
+            } elseif (isset($item['pattern_title'])) {
+                $pattern_title = (string) $item['pattern_title'];
+            } elseif (isset($item['name'])) {
+                $pattern_title = (string) $item['name'];
+            } elseif (isset($item['pattern_name'])) {
+                $pattern_title = (string) $item['pattern_name'];
+            }
+
+            $pattern_text = '';
+            if (isset($item['message'])) {
+                $pattern_text = (string) $item['message'];
+            } elseif (isset($item['text'])) {
+                $pattern_text = (string) $item['text'];
+            } elseif (isset($item['pattern'])) {
+                $pattern_text = (string) $item['pattern'];
+            }
+
             $normalized[] = array(
-                'patternCode' => $pattern_code,
-                'patternName' => isset($item['patternName']) ? (string) $item['patternName'] : '',
-                'message'     => isset($item['message']) ? (string) $item['message'] : '',
+                'patternCode'  => $pattern_code,
+                'patternTitle' => $pattern_title,
+                'message'      => $pattern_text,
             );
         }
 

@@ -312,14 +312,32 @@
         }
         const rawCode = pattern.patternCode ?? pattern.pattern_code ?? pattern.patternId ?? pattern.pattern_id ?? pattern.code ?? pattern.id ?? '';
         const rawMessage = pattern.message ?? pattern.text ?? pattern.pattern ?? pattern.body ?? '';
+        const rawTitle = pattern.title ?? pattern.pattern_title ?? pattern.patternTitle ?? pattern.patternName ?? pattern.name ?? pattern.pattern_name ?? '';
 
         if (rawCode === '' || rawCode === null || typeof rawCode === 'undefined') {
             return null;
         }
         return {
             patternCode: String(rawCode).trim(),
-            message: String(rawMessage || '').trim()
+            message: String(rawMessage || '').trim(),
+            patternTitle: String(rawTitle || '').trim()
         };
+    }
+
+    function buildPatternOptionLabel(pattern) {
+        const code = String(pattern.patternCode || '');
+        const title = String(pattern.patternTitle || '');
+
+        if (code && title) {
+            return code + ' | ' + title;
+        }
+        if (code) {
+            return code;
+        }
+        if (title) {
+            return title;
+        }
+        return 'بدون عنوان';
     }
 
     function renderPatternMapping(card) {
@@ -406,10 +424,12 @@
             }
             const code = normalized.patternCode;
             const message = normalized.message;
+            const title = normalized.patternTitle;
+            const label = buildPatternOptionLabel(normalized);
             const selected = String(selectedValue || '') === String(code) ? ' selected="selected"' : '';
 
-            html += '<option value="' + code.replace(/"/g, '&quot;') + '" data-text="' + encodeURIComponent(message) + '"' + selected + '>';
-            html += code;
+            html += '<option value="' + code.replace(/"/g, '&quot;') + '" data-text="' + encodeURIComponent(message) + '" data-title="' + title.replace(/"/g, '&quot;') + '"' + selected + '>';
+            html += label;
             html += '</option>';
         });
         return html;
@@ -420,7 +440,12 @@
         if (!$.fn.select2) {
             return;
         }
-        container.find('.limosms-customer-pattern-selector').each(function () {
+
+        const selects = $(container)
+            .filter('.limosms-customer-pattern-selector')
+            .add($(container).find('.limosms-customer-pattern-selector'));
+
+        selects.each(function () {
             const select = $(this);
             if (select.hasClass('select2-hidden-accessible')) {
                 return;
@@ -429,7 +454,32 @@
                 width: '100%',
                 dir: 'rtl',
                 placeholder: 'انتخاب الگو...',
-                allowClear: true
+                allowClear: true,
+                templateResult: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    const element = item.element ? $(item.element) : null;
+                    const title = element ? element.data('title') || '' : '';
+                    if (title) {
+                        return item.id + ' | ' + title;
+                    }
+                    return item.text;
+                },
+                templateSelection: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    const element = item.element ? $(item.element) : null;
+                    const title = element ? element.data('title') || '' : '';
+                    if (title) {
+                        return item.id + ' | ' + title;
+                    }
+                    return item.text;
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
             });
         });
     }
@@ -474,7 +524,12 @@
                     ).trim();
                     const optionsHtml = buildPatternOptions(response.data || [], savedPatternCode);
 
+                    if ($.fn.select2 && select.hasClass('select2-hidden-accessible')) {
+                        select.select2('destroy');
+                    }
+
                     select.html(optionsHtml).val(savedPatternCode);
+                    maybeInitSelect2(select);
 
                     if (select.hasClass('select2-hidden-accessible')) {
                         select.trigger('change.select2');
