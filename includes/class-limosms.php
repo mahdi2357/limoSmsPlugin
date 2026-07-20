@@ -29,7 +29,6 @@ class LimoSMS {
         add_action( 'plugins_loaded', array( $this, 'init_dokan_seller_sms' ), 21 );
 
         $this->init_classes();
-        $this->register_hooks();
     }
 
     public function init_woocommerce_customer_sms() {
@@ -115,19 +114,9 @@ class LimoSMS {
     private function init_classes() {
         $this->admin              = new LimoSMS_Admin();
         $this->connection_setting = new LimoSMS_Connection_Settings();
-        $this->admin_sms          = new LimoSMS_Admin_SMS();
         $this->test_sms           = new LimoSMS_Send_Test_SMS();
         $this->woocommerce        = new LimoSMS_WooCommerce_SMS();
-        $this->mobile_auth = new LimoSMS_Mobile_Auth();
-
-    }
-
-    private function register_hooks() {
-        // Connection settings
-        add_action(
-            'wp_ajax_limosms_save_connection_settings',
-            array( $this->connection_setting, 'save_connection_settings' )
-        );
+        $this->mobile_auth        = new LimoSMS_Mobile_Auth();
     }
 
 }

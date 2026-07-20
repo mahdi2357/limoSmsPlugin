@@ -13,8 +13,10 @@ class LimoSMS_Connection_Settings
     public function __construct()
     {
         $this->api = new LimoSMS_API();
+    }
 
-        // ثبت اکشن AJAX ذخیره تنظیمات اتصال
+    public function register_hooks()
+    {
         add_action('wp_ajax_limosms_save_connection_settings', array($this, 'save_connection_settings'));
     }
 

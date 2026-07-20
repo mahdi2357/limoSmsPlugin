@@ -164,7 +164,7 @@ class LimoSMS_Customer_SMS {
 //            error_log( 'LIMOSMS CUSTOMER: tokens empty for order ' . $order_id );
         }
 
-        $response = $this->api->send_pattern( $mobile, $otp_id, $tokens );
+        $response = LimoSMS_Sender::send_pattern_sms( $mobile, $otp_id, $tokens );
     }
 
     private function build_customer_pattern_tokens( WC_Order $order, $pattern_map ) {

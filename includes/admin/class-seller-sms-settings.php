@@ -13,9 +13,6 @@ class LimoSMS_Seller_SMS_Settings
     public function __construct()
     {
         $this->api = new LimoSMS_API();
-
-        add_action('wp_ajax_limosms_get_patterns', array($this, 'ajax_get_patterns'));
-        add_action('wp_ajax_limosms_get_pattern_detail', array($this, 'ajax_get_pattern_detail'));
     }
 
     public static function get_events_settings($event_key = '')

@@ -15,7 +15,9 @@ class LimoSMS_Pattern_Management_Tab {
      */
     public function __construct() {
         $this->api = new LimoSMS_API();
+    }
 
+    public function register_hooks() {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'wp_ajax_limosms_get_patterns', array( $this, 'ajax_get_patterns' ) );
     }
