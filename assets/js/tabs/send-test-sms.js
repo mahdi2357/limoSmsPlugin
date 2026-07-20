@@ -235,7 +235,7 @@
 
             const $select = $form.find('[name="patternId"]');
             $select.html('<option value="">در حال بارگذاری الگوها...</option>');
-            $select.prop("disabled", true);
+            // $select.prop("disabled", true);
 
             $.ajax({
                 url: limosms_ajax.url,
