@@ -83,9 +83,7 @@ class LimoSMS_Admin_SMS
             }
 
             $clean_map = array();
-
             foreach ($pattern_map as $param => $token) {
-
                 $param = absint($param);
                 $token = sanitize_text_field($token);
 
@@ -94,11 +92,14 @@ class LimoSMS_Admin_SMS
                 }
             }
 
+            $has_variables = preg_match('/\{(\d+)\}/', $pattern_text) === 1;
+
             // اگر رویداد فعال و پترن انتخاب شده باشد
-            // تمام پارامترها باید مقدار داشته باشند
+            // فقط زمانی که Pattern متغیر دارد، اتصال پارامترها اجباری است
             if (
                 $enabled === 'yes' &&
-                !empty($otp_id)
+                !empty($otp_id) &&
+                $has_variables
             ) {
 
                 if (empty($clean_map)) {
