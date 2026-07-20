@@ -9,11 +9,6 @@ class LimoSMS_Seller_SMS_Settings
     {
         add_action('wp_ajax_limosms_get_patterns', array($this, 'ajax_get_patterns'));
         add_action('wp_ajax_limosms_get_pattern_detail', array($this, 'ajax_get_pattern_detail'));
-        // Seller SMS settings save
-        add_action(
-            'wp_ajax_limosms_save_seller_sms_settings',
-            array( $this, 'save_seller_sms_settings_ajax' )
-        );
     }
 
     public static function get_events_settings($event_key = '')
@@ -31,6 +26,58 @@ class LimoSMS_Seller_SMS_Settings
         return isset($options[$event_key]) && is_array($options[$event_key])
             ? $options[$event_key]
             : array();
+    }
+
+    public static function save_events_settings(array $settings)
+    {
+        if (!is_array($settings)) {
+            return false;
+        }
+
+        $events_settings = array();
+
+        foreach ($settings as $event_key => $event_data) {
+            $event_key = sanitize_key($event_key);
+
+            if ($event_key === '' || !is_array($event_data)) {
+                continue;
+            }
+
+            $enabled = (isset($event_data['enabled']) && $event_data['enabled'] === 'yes') ? 'yes' : 'no';
+            $otp_id = isset($event_data['otp_id']) ? sanitize_text_field($event_data['otp_id']) : '';
+            $pattern_text = isset($event_data['pattern_text']) ? sanitize_textarea_field($event_data['pattern_text']) : '';
+            $title = isset($event_data['title']) ? sanitize_text_field($event_data['title']) : '';
+
+            $pattern_map = (isset($event_data['pattern_map']) && is_array($event_data['pattern_map']))
+                ? $event_data['pattern_map']
+                : array();
+
+            $clean_map = array();
+            foreach ($pattern_map as $param => $token) {
+                $param = absint($param);
+                $token = sanitize_text_field($token);
+                if ($token !== '') {
+                    $clean_map[$param] = $token;
+                }
+            }
+
+            if ($enabled === 'yes' && !empty($pattern_text) && preg_match('/\{(\d+)\}/', $pattern_text) === 1 && empty($clean_map)) {
+                // If a pattern has variables but no tokens are mapped, do not save this event.
+                continue;
+            }
+
+            $events_settings[$event_key] = array(
+                'enabled'      => $enabled,
+                'otp_id'       => $otp_id,
+                'title'        => $title,
+                'pattern_text' => $pattern_text,
+                'pattern_map'  => $clean_map,
+            );
+        }
+
+        update_option('limosms_seller_sms_events', $events_settings);
+
+        return true;
     }
 
     public function ajax_get_patterns()

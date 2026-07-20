@@ -71,6 +71,7 @@ class LimoSMS {
 
         // WooCommerce base
         require_once LIMOSMS_PATH . 'includes/woocommerce/class-woocommerce-sms.php';
+        require_once LIMOSMS_PATH . 'includes/woocommerce/class-limosms-dokan-sms.php';
 
         // Admin SMS
         require_once LIMOSMS_PATH . 'includes/admin/class-admin-sms-events.php';

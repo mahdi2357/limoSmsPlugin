@@ -58,11 +58,27 @@
 
     function getEventTokens(eventKey) {
         if (
+            typeof window.limosmsSellerTokens !== 'undefined' &&
+            window.limosmsSellerTokens &&
+            typeof window.limosmsSellerTokens[eventKey] !== 'undefined'
+        ) {
+            return window.limosmsSellerTokens[eventKey];
+        }
+
+        if (
+            typeof window.limosmsSellerTokens !== 'undefined' &&
+            window.limosmsSellerTokens &&
+            typeof window.limosmsSellerTokens.common !== 'undefined'
+        ) {
+            return window.limosmsSellerTokens.common;
+        }
+
+        if (
             typeof window.limosmsTokens !== 'undefined' &&
             window.limosmsTokens &&
-            typeof window.limosmsTokens[eventKey] !== 'undefined'
+            typeof window.limosmsTokens.common !== 'undefined'
         ) {
-            return window.limosmsTokens[eventKey];
+            return window.limosmsTokens.common;
         }
 
         return {};
@@ -83,16 +99,25 @@
     }
 
     function getPatternCode(pattern) {
-        return pattern.id || pattern.otp_id || pattern.pattern_id || '';
+        return pattern.id || pattern.pattern_id || pattern.patternCode || pattern.otp_id || '';
     }
 
     function getPatternTitle(pattern) {
-        return pattern.title || pattern.name || pattern.pattern_title || pattern.pattern_name || '';
+        return (
+            pattern.title ||
+            pattern.patternName ||
+            pattern.pattern_title ||
+            pattern.name ||
+            pattern.pattern_name ||
+            pattern.patternCode ||
+            ''
+        );
     }
 
     function getPatternText(pattern) {
         return (
             pattern.pattern_text ||
+            pattern.patternText ||
             pattern.pattern ||
             pattern.message ||
             pattern.text ||
@@ -154,8 +179,9 @@
         }
 
         for (let index = 0; index < sellerPatterns.length; index++) {
-            if (String(sellerPatterns[index].id) === patternId) {
-                return sellerPatterns[index];
+            const pattern = sellerPatterns[index];
+            if (String(pattern.id) === patternId || String(pattern.pattern_id) === patternId || String(pattern.patternCode) === patternId || String(pattern.otp_id) === patternId) {
+                return pattern;
             }
         }
 
@@ -179,6 +205,68 @@
         }
 
         return 'بدون عنوان';
+    }
+
+    function buildPatternOptions(patterns, selectedValue) {
+        let html = '<option value="">انتخاب الگو...</option>';
+
+        patterns.forEach(function (pattern) {
+            if (!pattern || typeof pattern !== 'object') {
+                return;
+            }
+
+            const patternId = String(pattern.id || '').trim();
+            const label = buildPatternOptionLabel(pattern);
+            const selected = patternId && String(selectedValue || '') === patternId ? ' selected="selected"' : '';
+
+            if (!patternId) {
+                return;
+            }
+
+            html += '<option value="' + patternId.replace(/"/g, '&quot;') + '"' + selected + '>' + label + '</option>';
+        });
+
+        return html;
+    }
+
+    function maybeInitSelect2(context) {
+        const container = context || $(document);
+        if (!$.fn.select2) {
+            return;
+        }
+
+        const selects = $(container)
+            .filter('.limosms-pattern-selector')
+            .add($(container).find('.limosms-pattern-selector'));
+
+        selects.each(function () {
+            const select = $(this);
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            select.select2({
+                width: '100%',
+                dir: 'rtl',
+                placeholder: 'انتخاب الگو...',
+                allowClear: true,
+                templateResult: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    return item.text;
+                },
+                templateSelection: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    return item.text;
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
+            });
+        });
     }
 
     function getSavedToken(savedMap, index) {
@@ -343,13 +431,14 @@
             const card = $(this);
             const selector = card.find('.limosms-pattern-selector');
             const savedPatternId = String(card.find('.limosms-event-otp-id').val() || '');
-            let html = '<option value="">انتخاب الگو...</option>';
+            const optionsHtml = buildPatternOptions(sellerPatterns, savedPatternId);
 
-            sellerPatterns.forEach(function (pattern) {
-                html += '<option value="' + escapeHtml(pattern.id) + '">' + escapeHtml(buildPatternOptionLabel(pattern)) + '</option>';
-            });
+            if ($.fn.select2 && selector.hasClass('select2-hidden-accessible')) {
+                selector.select2('destroy');
+            }
 
-            selector.html(html);
+            selector.html(optionsHtml);
+            maybeInitSelect2(selector);
 
             if (savedPatternId) {
                 selector.val(savedPatternId);
@@ -416,6 +505,7 @@
 
             sellerHasLoadedPatterns = true;
             populatePatternSelectors();
+            maybeInitSelect2($(document));
 
             if (typeof callback === 'function') {
                 callback();
@@ -735,7 +825,7 @@
         bootstrapSellerSMS();
     });
 
-    $(document).on('limosms:tab-loaded', function (event, activeTab) {
+    $(document).on('limosms:tab-loaded limosms_tab_loaded', function (event, activeTab) {
         if (!activeTab || activeTab === 'seller-sms') {
             sellerInitialized = false;
             bootstrapSellerSMS();

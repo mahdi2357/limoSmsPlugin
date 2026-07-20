@@ -141,6 +141,19 @@ class LimoSMS_Admin {
                 );
             }
 
+            // Seller SMS tab data.
+            if ( 'seller-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
+                $seller_events = LimoSMS_Seller_SMS_Events::get_events();
+                $seller_tokens = array();
+
+                foreach ( $seller_events as $key => $event ) {
+                    $seller_tokens[ $key ] = isset( $event['tokens'] ) ? $event['tokens'] : array();
+                }
+                $seller_tokens['common'] = $all_tokens;
+
+                wp_localize_script( $js_handle, 'limosmsSellerTokens', $seller_tokens );
+            }
+
             // Sent SMS tab data (important: dedicated nonce).
             if ( 'sent-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
                 wp_localize_script(

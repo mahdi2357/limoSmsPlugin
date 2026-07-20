@@ -174,6 +174,68 @@
         return 'بدون عنوان';
     }
 
+    function buildPatternOptions(patterns, selectedValue) {
+        let html = '<option value="">انتخاب الگو...</option>';
+
+        patterns.forEach(function (pattern) {
+            if (!pattern || typeof pattern !== 'object') {
+                return;
+            }
+
+            const patternId = String(pattern.id || '').trim();
+            const label = buildPatternOptionLabel(pattern);
+            const selected = patternId && String(selectedValue || '') === patternId ? ' selected="selected"' : '';
+
+            if (!patternId) {
+                return;
+            }
+
+            html += '<option value="' + patternId.replace(/"/g, '&quot;') + '"' + selected + '>' + label + '</option>';
+        });
+
+        return html;
+    }
+
+    function maybeInitSelect2(context) {
+        const container = context || $(document);
+        if (!$.fn.select2) {
+            return;
+        }
+
+        const selects = $(container)
+            .filter('.limosms-pattern-selector')
+            .add($(container).find('.limosms-pattern-selector'));
+
+        selects.each(function () {
+            const select = $(this);
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            select.select2({
+                width: '100%',
+                dir: 'rtl',
+                placeholder: 'انتخاب الگو...',
+                allowClear: true,
+                templateResult: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    return item.text;
+                },
+                templateSelection: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    return item.text;
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
+            });
+        });
+    }
+
     function normalizeToken(token) {
         return String(token || '').replace(/[{}]/g, '');
     }
@@ -220,20 +282,14 @@
             const select = $(this);
             const card = select.closest('.limosms-event-card');
             const savedId = String(card.find('.limosms-event-otp-id').val() || '');
-            let html = '<option value="">انتخاب الگو...</option>';
+            const optionsHtml = buildPatternOptions(patterns, savedId);
 
-            patterns.forEach(function (pattern) {
-                const patternId = String(pattern.id || '');
-                const selected = patternId === savedId ? ' selected' : '';
+            if ($.fn.select2 && select.hasClass('select2-hidden-accessible')) {
+                select.select2('destroy');
+            }
 
-                if (!patternId) {
-                    return;
-                }
-
-                html += '<option value="' + patternId + '"' + selected + '>' + buildPatternOptionLabel(pattern) + '</option>';
-            });
-
-            select.html(html);
+            select.html(optionsHtml);
+            maybeInitSelect2(select);
 
             if (savedId) {
                 setTimeout(function () {
@@ -292,6 +348,7 @@
 
             hasLoadedPatterns = true;
             populateAllSelectors(patternsCache);
+            maybeInitSelect2($(document));
         }).fail(function () {
             showNotification('خطا در ارتباط با سرور هنگام دریافت الگوها.', 'error');
         }).always(function () {
