@@ -19,9 +19,44 @@ jQuery(document).ready(function ($) {
         }, 30);
     };
 
+    function normalizeToastMessage(message, fallback) {
+        if (message === null || message === undefined || message === '') {
+            return fallback;
+        }
+
+        if (typeof message === 'string') {
+            const trimmed = message.trim();
+            return trimmed || fallback;
+        }
+
+        if (typeof message === 'object') {
+            if (typeof message.message === 'string' && message.message.trim()) {
+                return message.message.trim();
+            }
+
+            if (typeof message.error === 'string' && message.error.trim()) {
+                return message.error.trim();
+            }
+
+            if (Array.isArray(message)) {
+                return message.join(' ');
+            }
+
+            try {
+                return JSON.stringify(message);
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        return String(message);
+    }
+
     window.LimoSMS.showToast = function (message, type, duration) {
         type = type || 'success';
         duration = duration || 4000;
+        const fallbackMessage = type === 'error' ? 'عملیات با خطا مواجه شد.' : 'عملیات با موفقیت انجام شد.';
+        const safeMessage = normalizeToastMessage(message, fallbackMessage);
 
         let container = document.querySelector('.limosms-toast-container');
 
@@ -45,7 +80,11 @@ jQuery(document).ready(function ($) {
             '<span class="limosms-toast__icon">' + icon + '</span>' +
             '<span class="limosms-toast__message"></span>';
 
-        toast.querySelector('.limosms-toast__message').textContent = message;
+        const messageNode = toast.querySelector('.limosms-toast__message');
+        if (messageNode) {
+            messageNode.textContent = safeMessage;
+            messageNode.setAttribute('title', safeMessage);
+        }
         container.appendChild(toast);
 
         window.setTimeout(function () {

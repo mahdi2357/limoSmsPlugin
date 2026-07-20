@@ -91,13 +91,49 @@
         };
     }
 
+    function extractToastMessage(payload, fallback) {
+        if (payload === null || payload === undefined || payload === '') {
+            return fallback;
+        }
+
+        if (typeof payload === 'string') {
+            const trimmed = payload.trim();
+            return trimmed || fallback;
+        }
+
+        if (typeof payload === 'object') {
+            if (typeof payload.message === 'string' && payload.message.trim()) {
+                return payload.message.trim();
+            }
+
+            if (typeof payload.error === 'string' && payload.error.trim()) {
+                return payload.error.trim();
+            }
+
+            if (payload.data) {
+                return extractToastMessage(payload.data, fallback);
+            }
+
+            if (Array.isArray(payload)) {
+                return payload.join(' ') || fallback;
+            }
+        }
+
+        return String(payload) || fallback;
+    }
+
     function showNotification(message, type) {
+        const fallbackMessage = type === 'success'
+            ? 'تنظیمات با موفقیت ذخیره شد.'
+            : 'عملیات با خطا مواجه شد.';
+        const safeMessage = extractToastMessage(message, fallbackMessage);
+
         if (window.LimoSMS && typeof window.LimoSMS.showToast === 'function') {
-            window.LimoSMS.showToast(message, type || 'error');
+            window.LimoSMS.showToast(safeMessage, type || 'error');
             return;
         }
 
-        window.alert(message);
+        window.alert(safeMessage);
     }
 
     function getPatternCode(pattern) {

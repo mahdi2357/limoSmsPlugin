@@ -264,7 +264,7 @@
     min-width: 300px;
     max-width: 400px;
     background: #ffffff;
-    color: #1f2937;
+    color: #111827;
     padding: 16px 20px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.04);
@@ -275,9 +275,20 @@
     font-size: 14px;
     font-weight: 600;
     border-right: 5px solid #d1d5db; /* پیش‌فرض خاکستری */
+    direction: rtl;
+    text-align: right;
     transform: translateX(-120%);
     opacity: 0;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+}
+
+.limosms-toast__message {
+    flex: 1;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: #111827;
+    font-weight: 600;
 }
 
 .limosms-toast.is-show {
@@ -293,14 +304,17 @@
 /* رنگ‌های وضعیت‌ها */
 .limosms-toast--success {
     border-right-color: #10b981; /* سبز */
+    background: #f0fdf4;
 }
 
 .limosms-toast--error {
     border-right-color: #ef4444; /* قرمز */
+    background: #fef2f2;
 }
 
 .limosms-toast--info {
     border-right-color: #3b82f6; /* آبی */
+    background: #eff6ff;
 }
 
 .limosms-toast__icon {

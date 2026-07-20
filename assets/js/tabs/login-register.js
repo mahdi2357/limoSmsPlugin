@@ -64,9 +64,28 @@ jQuery(function ($) {
         $('.limosms-toast').remove();
 
         var toastType = type || 'success';
+        var fallbackMessage = toastType === 'error' ? 'عملیات با خطا مواجه شد.' : 'عملیات با موفقیت انجام شد.';
+        var safeMessage = message;
+
+        if (safeMessage === null || safeMessage === undefined || safeMessage === '') {
+            safeMessage = fallbackMessage;
+        } else if (typeof safeMessage === 'object') {
+            if (safeMessage.message && typeof safeMessage.message === 'string' && safeMessage.message.trim()) {
+                safeMessage = safeMessage.message.trim();
+            } else if (safeMessage.error && typeof safeMessage.error === 'string' && safeMessage.error.trim()) {
+                safeMessage = safeMessage.error.trim();
+            } else {
+                safeMessage = fallbackMessage;
+            }
+        } else if (typeof safeMessage === 'string') {
+            safeMessage = safeMessage.trim() || fallbackMessage;
+        } else {
+            safeMessage = String(safeMessage);
+        }
+
         var $toast = $('<div class="limosms-toast limosms-toast-' + toastType + '"></div>');
 
-        $toast.text(message).appendTo('body');
+        $toast.text(safeMessage).appendTo('body');
 
         setTimeout(function () {
             $toast.addClass('is-visible');
