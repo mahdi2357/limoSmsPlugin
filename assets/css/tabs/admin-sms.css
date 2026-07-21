@@ -35,6 +35,59 @@
     overflow-wrap: anywhere;
 }
 
+/* Admin phones tag UI */
+.limosms-admin-phones-wrap {
+    margin-top: 12px;
+}
+
+.limosms-admin-phone-entry {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.limosms-admin-phone-entry .limosms-admin-phone-entry {
+    flex: 1;
+}
+
+.limosms-admin-phones-tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.limosms-admin-phone-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.limosms-admin-phone-chip .limosms-remove-admin-phone {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 6px;
+    line-height: 1;
+}
+
+.limosms-admin-phone-chip .limosms-remove-admin-phone:hover {
+    color: #ef4444;
+}
+
+.limosms-input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 1px rgba(239,68,68,0.15) !important;
+}
+
 .limosms-pattern-help {
     margin-top: 8px;
     font-size: 12px;

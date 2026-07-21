@@ -660,6 +660,40 @@
         }
     });
 
+    // restrict entry input to digits only for the single-phone entry field
+    $(document).on('keypress', '#limosms_admin_phone_entry', function (event) {
+        const charCode = event.which ? event.which : event.keyCode;
+        const charStr = String.fromCharCode(charCode);
+
+        if (charCode === 8 || charCode === 0) {
+            return;
+        }
+
+        if (!/[0-9۰-۹٠-٩]/.test(charStr)) {
+            event.preventDefault();
+        }
+    });
+
+    $(document).on('input', '#limosms_admin_phone_entry', function () {
+        let value = this.value;
+
+        value = value
+            .replace(/[۰-۹]/g, function (digit) {
+                return '۰۱۲۳۴۵۶۷۸۹'.indexOf(digit);
+            })
+            .replace(/[٠-٩]/g, function (digit) {
+                return '٠١٢٣٤٥٦٧٨٩'.indexOf(digit);
+            });
+
+        if (/[^0-9]/.test(value)) {
+            value = value.replace(/[^0-9]/g, '');
+        }
+
+        if (this.value !== value) {
+            this.value = value;
+        }
+    });
+
     $(document).on('input', '.limosms-token-search', function () {
         const query = $(this).val().toLowerCase().trim();
         const container = $(this).next('.limosms-tokens-container');
