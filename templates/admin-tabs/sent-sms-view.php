@@ -9,11 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
         <table class="limosms-custom-table">
             <thead>
             <tr>
-                <th><?php esc_html_e( 'ردیف', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'شماره گیرنده', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'متن پیامک', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'وضعیت', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'تاریخ ارسال', 'limosms' ); ?></th>
+                <th class="col-row"><?php esc_html_e( 'ردیف', 'limosms' ); ?></th>
+                <th class="col-mobile"><?php esc_html_e( 'شماره گیرنده', 'limosms' ); ?></th>
+                <th class="col-message"><?php esc_html_e( 'متن پیامک', 'limosms' ); ?></th>
+                <th class="col-status"><?php esc_html_e( 'وضعیت', 'limosms' ); ?></th>
+                <th class="col-date"><?php esc_html_e( 'تاریخ ارسال', 'limosms' ); ?></th>
             </tr>
             </thead>
 
@@ -46,12 +46,12 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </div>
     </div>
-    <h4 style="text-align: center">
-        جهت مشاهده تمامی پیامک های ارسال شده به
-    <a style="text-decoration: none" target="_blank" href="https://panel.limosms.com/sms/getuseronemessage">
-        پنل لیمو اس ام اس
-    </a>
-        مراجعه بفرمایید
-    </h4>
 
+    <h4 style="text-align: center;">
+        <?php esc_html_e( 'جهت مشاهده تمامی پیامک های ارسال شده به', 'limosms' ); ?>
+        <a style="text-decoration: none;" target="_blank" rel="noopener noreferrer" href="https://panel.limosms.com/sms/getuseronemessage">
+            <?php esc_html_e( 'پنل لیمو اس ام اس', 'limosms' ); ?>
+        </a>
+        <?php esc_html_e( 'مراجعه بفرمایید', 'limosms' ); ?>
+    </h4>
 </div>

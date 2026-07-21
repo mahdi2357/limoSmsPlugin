@@ -125,7 +125,6 @@
     function getStatusClass(status) {
         const s = String(status || '').toLowerCase().trim();
 
-        // 1) زرد
         if (
             s.includes('نرسیده به گوشی') ||
             s.includes('pending') ||
@@ -135,7 +134,6 @@
             return 'pending';
         }
 
-        // 2) قرمز
         if (
             s.includes('مسدود شده اپراتور') ||
             s.includes('مسدود') ||
@@ -147,7 +145,6 @@
             return 'error';
         }
 
-        // 3) سبز
         if (
             s.includes('رسیده به گوشی') ||
             s.includes('delivered') ||
@@ -171,10 +168,39 @@
     }
 
     function faText(value) {
-        // اول safe string فعلی خودت اعمال میشه، بعد اعداد فارسی می‌شن
         return toPersianDigits(toSafeString(value));
     }
 
+    function pad2(value) {
+        return String(value).padStart(2, '0');
+    }
+
+    function formatSentDate(value) {
+        const rawValue = toSafeString(value);
+
+        if (rawValue === '-') {
+            return '-';
+        }
+
+        const normalizedValue = String(rawValue)
+            .replace('T', ' ')
+            .replace(/\.\d{1,6}(?=\s|Z|$)/, '')
+            .replace(/Z$/, '');
+
+        const date = new Date(normalizedValue);
+
+        if (isNaN(date.getTime())) {
+            return toPersianDigits(normalizedValue);
+        }
+
+        const year = date.getFullYear();
+        const month = pad2(date.getMonth() + 1);
+        const day = pad2(date.getDate());
+        const hours = pad2(date.getHours());
+        const minutes = pad2(date.getMinutes());
+
+        return toPersianDigits(hours + ':' + minutes + ' - ' + year + '/' + month + '/' + day);
+    }
 
     function renderEmptyRow(message) {
         const elements = getElements();
@@ -200,7 +226,9 @@
         const elements = getElements();
         const totalPages = Math.ceil(allSentSms.length / itemsPerPage);
 
-        if (!elements.paginationWrap.length) return;
+        if (!elements.paginationWrap.length) {
+            return;
+        }
 
         if (totalPages <= 1) {
             elements.paginationWrap.hide();
@@ -212,14 +240,11 @@
 
         let html = '';
 
-        // همیشه صفحه 1
         html += '<button type="button" class="sent-sms-page-number ' + (currentPage === 1 ? 'active' : '') + '" data-page="1">' + faText(1) + '</button>';
 
-        // بازه خیلی محدود: فقط current-1 تا current+1
         let start = Math.max(2, currentPage - 1);
         let end = Math.min(totalPages - 1, currentPage + 1);
 
-        // اگر بین 1 و start فاصله هست
         if (start > 2) {
             html += '<span class="sent-sms-page-dots">…</span>';
         }
@@ -228,12 +253,10 @@
             html += '<button type="button" class="sent-sms-page-number ' + (p === currentPage ? 'active' : '') + '" data-page="' + p + '">' + faText(p) + '</button>';
         }
 
-        // اگر بین end و last فاصله هست
         if (end < totalPages - 1) {
             html += '<span class="sent-sms-page-dots">…</span>';
         }
 
-        // همیشه صفحه آخر (اگر بیشتر از 1 صفحه داریم)
         if (totalPages > 1) {
             html += '<button type="button" class="sent-sms-page-number ' + (currentPage === totalPages ? 'active' : '') + '" data-page="' + totalPages + '">' + faText(totalPages) + '</button>';
         }
@@ -242,8 +265,6 @@
         elements.prevButton.prop('disabled', currentPage === 1);
         elements.nextButton.prop('disabled', currentPage === totalPages);
     }
-
-
 
     function renderTableRows() {
         const elements = getElements();
@@ -269,17 +290,17 @@
             const shortMessage = message.length > 120 ? message.substring(0, 120) + '...' : message;
             const status = faText(getStatus(item));
             const statusClass = getStatusClass(status);
+            const formattedDate = formatSentDate(getDate(item));
 
             elements.tableBody.append(
                 '<tr>' +
-                '<td>' + faText(rowNumber) + '</td>' +
-                '<td>' + escapeHtml(faText(getMobile(item))) + '</td>' +
-                '<td class="limosms-pattern-text" title="' + escapeHtml(message) + '">' + escapeHtml(shortMessage) + '</td>' +
-                '<td><span class="limosms-status-badge ' + statusClass + '">' + escapeHtml(status) + '</span></td>' +
-                '<td>' + escapeHtml(faText(getDate(item))) + '</td>' +
+                '<td class="col-row">' + faText(rowNumber) + '</td>' +
+                '<td class="col-mobile">' + escapeHtml(faText(getMobile(item))) + '</td>' +
+                '<td class="col-message limosms-pattern-text" title="' + escapeHtml(message) + '">' + escapeHtml(shortMessage) + '</td>' +
+                '<td class="col-status"><span class="limosms-status-badge ' + statusClass + '">' + escapeHtml(status) + '</span></td>' +
+                '<td class="col-date">' + escapeHtml(formattedDate) + '</td>' +
                 '</tr>'
             );
-
         });
 
         renderPaginationControls();

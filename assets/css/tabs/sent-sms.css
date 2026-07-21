@@ -33,9 +33,15 @@
 
 .limosms-custom-table {
     width: 100%;
-    text-align: justify;
     border-collapse: collapse;
     background: var(--limosms-surface);
+    table-layout: fixed;
+    text-align: right;
+}
+
+.limosms-custom-table th,
+.limosms-custom-table td {
+    box-sizing: border-box;
 }
 
 .limosms-custom-table thead th {
@@ -47,6 +53,7 @@
     font-weight: 800;
     border: 0;
     white-space: nowrap;
+    vertical-align: middle;
 }
 
 .limosms-custom-table tbody td {
@@ -66,16 +73,45 @@
     background: #f8f8ff;
 }
 
-.limosms-custom-table tbody td:first-child {
-    width: 70px;
+/* Column sizing */
+.limosms-custom-table th.col-row,
+.limosms-custom-table td.col-row {
+    width: 64px;
+    text-align: center;
     color: var(--limosms-muted);
     font-weight: 700;
+}
+
+.limosms-custom-table th.col-mobile,
+.limosms-custom-table td.col-mobile {
+    width: 170px;
+    direction: ltr;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.limosms-custom-table th.col-status,
+.limosms-custom-table td.col-status {
+    width: 110px;
+    text-align: center;
+}
+
+.limosms-custom-table th.col-date,
+.limosms-custom-table td.col-date {
+    width: 170px;
+    white-space: nowrap;
+}
+
+.limosms-custom-table th.col-message,
+.limosms-custom-table td.col-message {
+    width: auto;
 }
 
 .limosms-pattern-text {
     color: var(--limosms-muted);
     line-height: 1.9;
     max-width: 100%;
+    display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -209,6 +245,7 @@
     font-size: 14px;
     font-weight: 600;
     background: #fff;
+    text-align: center;
 }
 
 /* Mobile */
@@ -234,11 +271,12 @@
         justify-content: center;
     }
 }
-.sent-sms-page-dots{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:32px;
-    padding:0 6px;
-    color:#6b7280;
+
+.sent-sms-page-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 0 6px;
+    color: #6b7280;
 }
