@@ -663,3 +663,36 @@ body.folded .limosms-support-btn {
     font-size: 13px;
   }
 }
+.limosms-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.limosms-slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 190px;
+}
+
+.limosms-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    pointer-events: none;
+}
+
+.limosms-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+.limosms-slide img.advertising-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}

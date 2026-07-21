@@ -63,25 +63,19 @@ $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
 <div class="limosms-wrapper">
     <div class="limosms-sidebar">
         <a class="limosms-logo-link" target="_blank" href="https://panel.limosms.com/" rel="noopener noreferrer">
-            <img
-                    class="limosms-logo"
-                    src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/logo.png' ); ?>"
-                    alt="<?php echo esc_attr__( 'LimoSMS Logo', 'limosms' ); ?>"
-            >
+            <img class="limosms-logo" src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/logo.png' ); ?>"
+                alt="<?php echo esc_attr__( 'LimoSMS Logo', 'limosms' ); ?>">
         </a>
 
         <ul>
             <?php foreach ( $menu_items as $key => $item ) : ?>
-                <li class="<?php echo esc_attr( $active_tab === $key ? 'active' : '' ); ?>">
-                    <a
-                            href="<?php echo esc_url( admin_url( 'admin.php?page=limosms&tab=' . $key ) ); ?>"
-                            class="limosms-tab-link"
-                            data-tab="<?php echo esc_attr( $key ); ?>"
-                    >
-                        <span class="dashicons dashicons-<?php echo esc_attr( $item['icon'] ); ?>"></span>
-                        <?php echo esc_html( $item['label'] ); ?>
-                    </a>
-                </li>
+            <li class="<?php echo esc_attr( $active_tab === $key ? 'active' : '' ); ?>">
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=limosms&tab=' . $key ) ); ?>"
+                    class="limosms-tab-link" data-tab="<?php echo esc_attr( $key ); ?>">
+                    <span class="dashicons dashicons-<?php echo esc_attr( $item['icon'] ); ?>"></span>
+                    <?php echo esc_html( $item['label'] ); ?>
+                </a>
+            </li>
             <?php endforeach; ?>
         </ul>
     </div>
@@ -113,24 +107,43 @@ $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
     </div>
 
     <div class="advertising-area">
-        <a href="https://panel.limosms.com/bulk/Index" target="_blank" class="no-focus-outline" rel="noopener noreferrer">
-            <img
-                    class="advertising-img"
-                    src="https://limosms.com/wp-content/uploads/2025/05/300-x-250.gif"
-                    alt="<?php echo esc_attr__( 'LimoSMS Banner', 'limosms' ); ?>"
-            >
+        <a href="https://panel.limosms.com/bulk/Index" target="_blank" class="no-focus-outline"
+            rel="noopener noreferrer">
+            <img class="advertising-img" src="https://limosms.com/wp-content/uploads/2025/05/300-x-250.gif"
+                alt="<?php echo esc_attr__( 'LimoSMS Banner', 'limosms' ); ?>">
         </a>
         <br>
-        <a href="https://panel.limosms.com/VoiceSms/SendVoiceMessage" target="_blank" class="no-focus-outline" rel="noopener noreferrer">
-            <img
-                    class="advertising-img"
-                    src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/banner.webp' ); ?>"
-                    alt="<?php echo esc_attr__( 'LimoSMS Voice Banner', 'limosms' ); ?>"
-            >
-        </a>
+
+        <div class="limosms-slider-container">
+            <div class="limosms-slider-wrapper">
+                <a href="https://panel.limosms.com/VoiceSms/SendVoiceMessage" target="_blank"
+                    class="limosms-slide active" rel="noopener noreferrer">
+                    <img class="advertising-img"
+                        src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/banner.webp' ); ?>"
+                        alt="<?php echo esc_attr__( 'LimoSMS Voice Banner', 'limosms' ); ?>">
+                </a>
+
+                <a href="https://panel.limosms.com/Payment/PayWithBank" target="_blank" class="limosms-slide"
+                    rel="noopener noreferrer">
+                    <img class="advertising-img"
+                        src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/banner1.webp' ); ?>"
+                        alt="<?php echo esc_attr__( 'LimoSMS SMS Banner', 'limosms' ); ?>">
+                </a>
+
+                <a href="https://panel.limosms.com/User/ContactUs" target="_blank" class="limosms-slide"
+                    rel="noopener noreferrer">
+                    <img class="advertising-img"
+                        src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/banner2.png' ); ?>"
+                        alt="<?php echo esc_attr__( 'LimoSMS OTP Banner', 'limosms' ); ?>">
+                </a>
+            </div>
+        </div>
+
+
     </div>
 
-    <a href="https://panel.limosms.com/Ticket/GetUserTicket" target="_blank" class="limosms-support-btn" rel="noopener noreferrer">
+    <a href="https://panel.limosms.com/Ticket/GetUserTicket" target="_blank" class="limosms-support-btn"
+        rel="noopener noreferrer">
         <span class="limosms-support-icon">💬</span>
         ارتباط با کارشناسان
     </a>

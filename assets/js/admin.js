@@ -209,4 +209,26 @@ jQuery(document).ready(function ($) {
             window.LimoSMS.triggerTabLoaded(tab);
         });
     });
+
+// slider banner
+    const slider = document.querySelector('.limosms-slider-wrapper');
+
+    if (!slider) {
+        return;
+    }
+
+    const slides = slider.querySelectorAll('.limosms-slide');
+
+    if (slides.length < 2) {
+        return;
+    }
+
+    let currentSlide = 0;
+
+    setInterval(function () {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }, 5000);
+
 });
