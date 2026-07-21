@@ -4,6 +4,90 @@
     let patternsCache = [];
     let isLoadingPatterns = false;
     let hasLoadedPatterns = false;
+    let initialAdminState = null;
+
+    function normalizeAdminPatternMap(patternMap) {
+        const normalized = {};
+        Object.keys(patternMap || {}).sort(function (a, b) {
+            return String(a).localeCompare(String(b), undefined, { numeric: true });
+        }).forEach(function (key) {
+            normalized[String(key)] = String(patternMap[key] || '');
+        });
+        return normalized;
+    }
+
+    function getAdminCurrentState() {
+        const state = {
+            admin_phones: String($('#limosms_admin_phones').val() || '').trim(),
+            events: {}
+        };
+
+        $('.limosms-event-card').each(function () {
+            const card = $(this);
+            const eventKey = String(card.data('event') || '').trim();
+            const enabled = card.find('.limosms-event-enabled').is(':checked');
+            const otpId = String(card.find('.limosms-event-otp-id').val() || '').trim();
+            const patternTitle = String(card.find('.limosms-event-pattern-title').val() || '').trim();
+            const patternText = String(card.find('.limosms-pattern-text').text() || '').trim();
+            const patternMap = {};
+
+            card.find('.limosms-pattern-select').each(function () {
+                const input = $(this);
+                const paramIndex = String(input.data('param'));
+                const tokenValue = String(input.val() || '').trim();
+                if (paramIndex !== '' && tokenValue !== '') {
+                    patternMap[paramIndex] = tokenValue;
+                }
+            });
+
+            state.events[eventKey] = {
+                enabled: enabled ? 'yes' : 'no',
+                otp_id: enabled ? otpId : '',
+                title: enabled ? patternTitle : '',
+                pattern_text: enabled ? patternText : '',
+                pattern_map: enabled ? normalizeAdminPatternMap(patternMap) : {}
+            };
+        });
+
+        return state;
+    }
+
+    function serializeAdminState(state) {
+        const normalized = {
+            admin_phones: String(state.admin_phones || '').trim(),
+            events: {}
+        };
+
+        Object.keys(state.events || {}).sort().forEach(function (eventKey) {
+            const eventData = state.events[eventKey] || {};
+            normalized.events[eventKey] = {
+                enabled: eventData.enabled === 'yes' ? 'yes' : 'no',
+                otp_id: String(eventData.otp_id || '').trim(),
+                title: String(eventData.title || '').trim(),
+                pattern_text: String(eventData.pattern_text || '').trim(),
+                pattern_map: normalizeAdminPatternMap(eventData.pattern_map || {})
+            };
+        });
+
+        return JSON.stringify(normalized);
+    }
+
+    function isAdminDirty() {
+        if (!initialAdminState) {
+            return false;
+        }
+        return serializeAdminState(getAdminCurrentState()) !== serializeAdminState(initialAdminState);
+    }
+
+    function setAdminSaveButtonState(isDirty) {
+        $('#limosms-save-otp-settings').prop('disabled', !isDirty);
+    }
+
+    function updateAdminSaveButtonState() {
+        const dirty = isAdminDirty();
+        setAdminSaveButtonState(dirty);
+        return dirty;
+    }
 
     function setAdminPhonesError(message) {
         const field = $('#limosms_admin_phones');
@@ -300,7 +384,11 @@
     }
 
     function enableSaveButton() {
-        $('#limosms-save-otp-settings').prop('disabled', false);
+        setAdminSaveButtonState(true);
+    }
+
+    function disableSaveButton() {
+        setAdminSaveButtonState(false);
     }
 
     function toggleEventFields(card, enabled) {
@@ -328,20 +416,24 @@
             maybeInitSelect2(select);
 
             if (savedId) {
-                setTimeout(function () {
-                    select.trigger('change');
-                }, 50);
+                select.trigger('change');
             }
         });
     }
 
-    function loadAllPatterns(forceReload) {
+    function loadAllPatterns(forceReload, callback) {
         if (isLoadingPatterns) {
+            if (typeof callback === 'function') {
+                callback();
+            }
             return;
         }
 
         if (hasLoadedPatterns && !forceReload) {
             populateAllSelectors(patternsCache);
+            if (typeof callback === 'function') {
+                callback();
+            }
             return;
         }
 
@@ -389,6 +481,9 @@
             showNotification('خطا در ارتباط با سرور هنگام دریافت الگوها.', 'error');
         }).always(function () {
             isLoadingPatterns = false;
+            if (typeof callback === 'function') {
+                callback();
+            }
         });
     }
 
@@ -539,13 +634,16 @@
             }
         });
 
-        loadAllPatterns(false);
+        loadAllPatterns(false, function () {
+            const phoneField = $('#limosms_admin_phones');
+            if (phoneField.length) {
+                const validation = validateAdminPhones(phoneField.val());
+                setAdminPhonesError(validation.message);
+            }
 
-        const phoneField = $('#limosms_admin_phones');
-        if (phoneField.length) {
-            const validation = validateAdminPhones(phoneField.val());
-            setAdminPhonesError(validation.message);
-        }
+            initialAdminState = getAdminCurrentState();
+            updateAdminSaveButtonState();
+        });
     }
 
     $(document).on('keypress', '#limosms_admin_phones', function (event) {
@@ -616,7 +714,7 @@
 
         const validation = validateAdminPhones(value);
         setAdminPhonesError(validation.message);
-        enableSaveButton();
+        updateAdminSaveButtonState();
     });
 
     $(document).on('blur', '#limosms_admin_phones', function () {
@@ -636,7 +734,7 @@
         const patternId = String(select.val() || '');
 
         updateSelectedPattern(card, patternId);
-        enableSaveButton();
+        updateAdminSaveButtonState();
     });
 
     $(document).on('click', '.limosms-token-chip', function () {
@@ -654,13 +752,13 @@
 
     $(document).on('change', '.limosms-pattern-select', function () {
         refreshUI($(this).closest('.limosms-event-card'));
-        enableSaveButton();
+        updateAdminSaveButtonState();
     });
 
     $(document).on('change', '.limosms-event-enabled', function () {
         const card = $(this).closest('.limosms-event-card');
         toggleEventFields(card, $(this).is(':checked'));
-        enableSaveButton();
+        updateAdminSaveButtonState();
     });
 
     $(document).on('click', '#limosms-save-otp-settings', function (event) {
@@ -791,6 +889,8 @@
             showNotification(responseMessage, 'error');
         }).always(function () {
             button.prop('disabled', false).text(originalText);
+            initialAdminState = getAdminCurrentState();
+            updateAdminSaveButtonState();
         });
     });
 

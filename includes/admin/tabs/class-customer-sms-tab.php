@@ -64,6 +64,10 @@ class LimoSMS_Customer_SMS {
             }
 
             $clean_map = array();
+            $required_variables = array();
+            if ( preg_match_all( '/\{(\d+)\}/', $pattern_text, $matches ) ) {
+                $required_variables = array_unique( array_map( 'absint', $matches[1] ) );
+            }
 
             foreach ( $pattern_map as $param => $token ) {
                 $param = absint( $param );
@@ -71,6 +75,19 @@ class LimoSMS_Customer_SMS {
 
                 if ( '' !== $token ) {
                     $clean_map[ $param ] = $token;
+                }
+            }
+
+            $has_variables = ! empty( $required_variables );
+            if ( 'yes' === $enabled && '' !== $otp_id && $has_variables ) {
+                $missing = array_diff( $required_variables, array_keys( $clean_map ) );
+                if ( ! empty( $missing ) ) {
+                    wp_send_json_error(
+                        array(
+                            'message' => sprintf( 'اتصال پارامترهای Pattern برای رویداد "%s" الزامی است.', $event_key ),
+                        ),
+                        400
+                    );
                 }
             }
 

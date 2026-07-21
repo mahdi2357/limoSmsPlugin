@@ -56,6 +56,79 @@
         }
     }
 
+    function normalizeSellerPatternMap(patternMap) {
+        const normalized = {};
+        Object.keys(patternMap || {}).sort(function (a, b) {
+            return String(a).localeCompare(String(b), undefined, { numeric: true });
+        }).forEach(function (key) {
+            normalized[String(key)] = String(patternMap[key] || '');
+        });
+        return normalized;
+    }
+
+    function getSellerCurrentState() {
+        const state = {};
+
+        getSellerCards().each(function () {
+            const card = $(this);
+            const eventKey = String(card.data('event') || '').trim();
+            const enabled = card.find('.limosms-event-enabled').is(':checked');
+            const otpId = String(card.find('.limosms-event-otp-id').val() || '').trim();
+            const title = String(card.find('.limosms-event-pattern-title').val() || '').trim();
+            const patternText = String(card.find('.limosms-pattern-text').text() || '').trim();
+            const patternMap = {};
+
+            card.find('.limosms-pattern-select').each(function () {
+                const input = $(this);
+                const index = String(input.data('param-index'));
+                const value = String(input.val() || '').trim();
+                if (index !== '' && value !== '') {
+                    patternMap[index] = value;
+                }
+            });
+
+            state[eventKey] = {
+                enabled: enabled ? 'yes' : 'no',
+                otp_id: enabled ? otpId : '',
+                title: enabled ? title : '',
+                pattern_text: enabled ? patternText : '',
+                pattern_map: enabled ? normalizeSellerPatternMap(patternMap) : {}
+            };
+        });
+
+        return state;
+    }
+
+    function serializeSellerState(state) {
+        const serialized = {};
+        Object.keys(state || {}).sort().forEach(function (eventKey) {
+            const eventData = state[eventKey] || {};
+            serialized[eventKey] = {
+                enabled: eventData.enabled === 'yes' ? 'yes' : 'no',
+                otp_id: String(eventData.otp_id || '').trim(),
+                title: String(eventData.title || '').trim(),
+                pattern_text: String(eventData.pattern_text || '').trim(),
+                pattern_map: normalizeSellerPatternMap(eventData.pattern_map || {})
+            };
+        });
+        return JSON.stringify(serialized);
+    }
+
+    function isSellerDirty() {
+        if (!sellerInitialized || !sellerDirty) {
+            return false;
+        }
+        return serializeSellerState(getSellerCurrentState()) !== serializeSellerState(sellerInitialState);
+    }
+
+    function updateSellerSaveButtonState() {
+        const dirty = sellerInitialized ? serializeSellerState(getSellerCurrentState()) !== serializeSellerState(sellerInitialState) : false;
+        setSellerDirty(dirty);
+        return dirty;
+    }
+
+    let sellerInitialState = null;
+
     function getEventTokens(eventKey) {
         if (
             typeof window.limosmsSellerTokens !== 'undefined' &&
@@ -665,7 +738,8 @@
             }
 
             persistCurrentMaps();
-            setSellerDirty(false);
+            sellerInitialState = getSellerCurrentState();
+            updateSellerSaveButtonState();
 
             showNotification(
                 response.data && response.data.message
@@ -681,10 +755,7 @@
             showNotification(responseMessage, 'error');
         }).always(function () {
             button.removeClass('updating-message');
-
-            if (sellerDirty) {
-                button.prop('disabled', false);
-            }
+            updateSellerSaveButtonState();
         });
     }
 
@@ -698,7 +769,7 @@
         $(document).on('change', '.limosms-seller-sms-settings .limosms-event-enabled', function () {
             const card = $(this).closest('.limosms-event-card');
             syncEventCardState(card);
-            setSellerDirty(true);
+            updateSellerSaveButtonState();
         });
 
         $(document).on('change', '.limosms-seller-sms-settings .limosms-pattern-selector', function () {
@@ -711,12 +782,12 @@
 
             if (!patternId) {
                 updateEventPatternUI(card, null);
-                setSellerDirty(true);
+                updateSellerSaveButtonState();
                 return;
             }
 
             updateEventPatternUI(card, findPatternById(patternId));
-            setSellerDirty(true);
+            updateSellerSaveButtonState();
         });
 
         $(document).on('click', '.limosms-seller-sms-settings .limosms-token-chip', function (event) {
@@ -744,7 +815,7 @@
         $(document).on('change', '.limosms-seller-sms-settings .limosms-pattern-select', function () {
             const card = $(this).closest('.limosms-event-card');
             refreshTokenChipState(card);
-            setSellerDirty(true);
+            updateSellerSaveButtonState();
         });
 
         $(document).on('click', '.limosms-seller-sms-settings #limosms-save-seller-otp-settings', function (event) {
@@ -768,8 +839,11 @@
             syncEventCardState($(this));
         });
 
-        setSellerDirty(false);
-        loadPatterns(!!forceReloadPatterns);
+        loadPatterns(!!forceReloadPatterns, function () {
+            sellerInitialState = getSellerCurrentState();
+            setSellerDirty(false);
+            updateSellerSaveButtonState();
+        });
 
         sellerInitialized = true;
         return true;

@@ -5,6 +5,72 @@
 
     let customerPatternsCache = {};
     let customerTabInitialized = false;
+    let customerInitialState = null;
+
+    function normalizeCustomerPatternMap(patternMap) {
+        const normalized = {};
+        Object.keys(patternMap || {}).sort(function (a, b) {
+            return String(a).localeCompare(String(b), undefined, { numeric: true });
+        }).forEach(function (key) {
+            normalized[String(key)] = String(patternMap[key] || '');
+        });
+        return normalized;
+    }
+
+    function getCustomerCurrentState() {
+        const state = {};
+
+        $('.limosms-event-card').each(function () {
+            const card = $(this);
+            const eventKey = String(card.data('event') || '').trim();
+            const enabled = card.find('.limosms-customer-event-enabled').is(':checked');
+            const otpId = String(card.find('.limosms-customer-otp-id').val() || '').trim();
+            const patternText = String(card.find('.limosms-pattern-text').text() || '').trim();
+            const patternMap = {};
+
+            card.find('.limosms-pattern-select').each(function () {
+                const input = $(this);
+                const param = String(input.data('param'));
+                const value = String(input.val() || '').trim();
+                if (param !== '' && value !== '') {
+                    patternMap[param] = value;
+                }
+            });
+
+            state[eventKey] = {
+                enabled: enabled ? 'yes' : 'no',
+                otp_id: enabled ? otpId : '',
+                pattern_text: enabled ? patternText : '',
+                pattern_map: enabled ? normalizeCustomerPatternMap(patternMap) : {}
+            };
+        });
+
+        return state;
+    }
+
+    function serializeCustomerState(state) {
+        const normalized = {};
+        Object.keys(state || {}).sort().forEach(function (eventKey) {
+            const eventData = state[eventKey] || {};
+            normalized[eventKey] = {
+                enabled: eventData.enabled === 'yes' ? 'yes' : 'no',
+                otp_id: String(eventData.otp_id || '').trim(),
+                pattern_text: String(eventData.pattern_text || '').trim(),
+                pattern_map: normalizeCustomerPatternMap(eventData.pattern_map || {})
+            };
+        });
+        return JSON.stringify(normalized);
+    }
+
+    function updateCustomerSaveButtonState() {
+        const isDirty = customerInitialState && serializeCustomerState(getCustomerCurrentState()) !== serializeCustomerState(customerInitialState);
+        if (isDirty) {
+            enableSaveButton();
+        } else {
+            disableSaveButton();
+        }
+        return isDirty;
+    }
 
     function debugLog(label, payload) {
         if (!DEBUG_MODE || !window.console) {
@@ -484,10 +550,13 @@
         });
     }
 
-    function loadAllPatterns() {
+    function loadAllPatterns(callback) {
         const data = getCustomerSmsData();
         if (!data.ajax_url || !data.nonce) {
             debugError('Missing ajax_url or nonce in limosmsCustomerSmsData', data);
+            if (typeof callback === 'function') {
+                callback();
+            }
             return;
         }
 
@@ -531,14 +600,7 @@
                     select.html(optionsHtml).val(savedPatternCode);
                     maybeInitSelect2(select);
 
-                    if (select.hasClass('select2-hidden-accessible')) {
-                        select.trigger('change.select2');
-                    } else {
-                        // افزودن یک setTimeout کوتاه برای جلوگیری از Race condition در رندر آپشن‌ها
-                        setTimeout(function() {
-                            select.trigger('change');
-                        }, 50);
-                    }
+                    select.trigger('change');
 
                     const selectedOption = select.find('option:selected');
                     const selectedText = selectedOption.length ? decodeURIComponent(selectedOption.data('text') || '') : '';
@@ -552,6 +614,9 @@
                 });
 
                 maybeInitSelect2($(document));
+                if (typeof callback === 'function') {
+                    callback();
+                }
             },
             error: function () {
                 showNotification('خطا در ارتباط با سرور برای دریافت الگوها');
@@ -571,6 +636,56 @@
         return patternMap;
     }
 
+    function validateCustomerEvents() {
+        let hasError = false;
+        let errorMessage = '';
+
+        $('.limosms-event-card').each(function () {
+            const card = $(this);
+            const eventKey = String(card.data('event') || '');
+            const enabled = card.find('.limosms-customer-event-enabled').is(':checked');
+            const otpId = String(card.find('.limosms-customer-otp-id').val() || '');
+            const patternText = String(card.find('.limosms-pattern-text').text() || '');
+            const patternInputs = card.find('.limosms-pattern-select');
+            const hasVariables = /\{(\d+)\}/.test(patternText);
+
+            if (!enabled) {
+                return;
+            }
+
+            if (!otpId) {
+                hasError = true;
+                errorMessage = 'لطفاً برای رویداد "' + eventKey + '" یک پترن انتخاب کنید.';
+                return false;
+            }
+
+            if (hasVariables && !patternInputs.length) {
+                hasError = true;
+                errorMessage = 'برای رویداد "' + eventKey + '" هیچ پارامتری پیدا نشد.';
+                return false;
+            }
+
+            let hasEmptyToken = false;
+            patternInputs.each(function () {
+                if (!String($(this).val() || '').trim()) {
+                    hasEmptyToken = true;
+                    return false;
+                }
+            });
+
+            if (hasVariables && hasEmptyToken) {
+                hasError = true;
+                errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventKey + '" تکمیل کنید.';
+                return false;
+            }
+        });
+
+        return {
+            valid: !hasError,
+            message: errorMessage
+        };
+    }
+
     function collectEventsPayload() {
         const events = {};
         $('.limosms-event-card').each(function () {
@@ -587,6 +702,12 @@
     }
 
     function saveCustomerSettings(button) {
+        const validation = validateCustomerEvents();
+        if (!validation.valid) {
+            showNotification(validation.message || 'لطفاً خطاهای فرم را اصلاح کنید.', 'error');
+            return;
+        }
+
         const data = getCustomerSmsData();
         if (!data.ajax_url || !data.nonce) {
             showNotification('اطلاعات لازم برای ذخیره‌سازی موجود نیست.');
@@ -594,6 +715,7 @@
         }
 
         const payload = collectEventsPayload();
+        const originalText = button.text();
         button.prop('disabled', true).text('در حال ذخیره...');
 
         $.ajax({
@@ -608,6 +730,7 @@
             success: function (response) {
                 if (response && response.success) {
                     showNotification('تنظیمات با موفقیت ذخیره شد.', 'success');
+                    customerInitialState = getCustomerCurrentState();
                     disableSaveButton();
                 } else {
                     showNotification((response && response.data) ? response.data : 'ذخیره تنظیمات با خطا مواجه شد.');
@@ -617,7 +740,8 @@
                 showNotification('خطا در ارتباط با سرور هنگام ذخیره تنظیمات');
             },
             complete: function () {
-                button.prop('disabled', false).text('ذخیره تنظیمات');
+                updateCustomerSaveButtonState();
+                button.text(originalText);
             }
         });
     }
@@ -667,7 +791,7 @@
             const card = checkbox.closest('.limosms-event-card');
             toggleEventFields(card, checkbox.is(':checked'));
             refreshUI(card);
-            enableSaveButton();
+            updateCustomerSaveButtonState();
         });
 
         $(document).on('change', '.limosms-customer-pattern-selector', function () {
@@ -684,7 +808,7 @@
             }
 
             applyPatternToCard(card, value, patternText);
-            enableSaveButton();
+            updateCustomerSaveButtonState();
         });
 
         $(document).on('click', '.limosms-token-chip', function () {
@@ -705,7 +829,7 @@
             const input = $(this);
             const card = input.closest('.limosms-event-card');
             refreshUI(card);
-            enableSaveButton();
+            updateCustomerSaveButtonState();
         });
 
         $(document).on('click', '#limosms-save-customer-settings', function (e) {
@@ -717,8 +841,10 @@
     function initCustomerSmsTab() {
         bindEvents();
         syncVisibleCustomerCards(true);
-        loadAllPatterns();
-        disableSaveButton();
+        loadAllPatterns(function () {
+            customerInitialState = getCustomerCurrentState();
+            updateCustomerSaveButtonState();
+        });
     }
 
     // اتصال به رویداد سراسری تغییر تب Ajax افزونه LimoSMS

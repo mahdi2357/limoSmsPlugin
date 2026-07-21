@@ -65,9 +65,16 @@ class LimoSMS_Seller_SMS_Settings
                 }
             }
 
-            if ($enabled === 'yes' && !empty($pattern_text) && preg_match('/\{(\d+)\}/', $pattern_text) === 1 && empty($clean_map)) {
-                // If a pattern has variables but no tokens are mapped, do not save this event.
-                continue;
+            $required_variables = array();
+            if (preg_match_all('/\{(\d+)\}/', $pattern_text, $matches)) {
+                $required_variables = array_unique(array_map('absint', $matches[1]));
+            }
+
+            if ($enabled === 'yes' && !empty($pattern_text) && !empty($required_variables)) {
+                $missing = array_diff($required_variables, array_keys($clean_map));
+                if (!empty($missing)) {
+                    return false;
+                }
             }
 
             $events_settings[$event_key] = array(
