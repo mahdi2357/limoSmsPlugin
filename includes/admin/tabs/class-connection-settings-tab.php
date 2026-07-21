@@ -13,6 +13,10 @@ class LimoSMS_Connection_Settings
     public function __construct()
     {
         $this->api = new LimoSMS_API();
+
+        if ( method_exists( $this, 'register_hooks' ) ) {
+            $this->register_hooks();
+        }
     }
 
     public function register_hooks()

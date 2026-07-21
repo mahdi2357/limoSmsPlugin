@@ -89,7 +89,7 @@ $api_key = get_option('limosms_api_key', '');
     <input
             type="text"
             id="limosms_api_key"
-            name="api_key"
+            name="limosms_api_key"
             value="<?php echo esc_attr($api_key); ?>"
             maxlength="50"
             data-initial="<?php echo esc_attr($api_key); ?>"
@@ -98,7 +98,7 @@ $api_key = get_option('limosms_api_key', '');
             autocomplete="off"
     >
 
-    <?php wp_nonce_field('limosms_save_connection_settings', 'nonce'); ?>
+    <?php wp_nonce_field('limosms_admin_nonce', 'security'); ?>
 
     <input type="hidden" name="action" value="limosms_save_connection_settings">
 

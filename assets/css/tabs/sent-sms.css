@@ -75,7 +75,7 @@
 .limosms-pattern-text {
     color: var(--limosms-muted);
     line-height: 1.9;
-    max-width: 520px;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
