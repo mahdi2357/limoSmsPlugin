@@ -264,6 +264,21 @@ class LimoSMS_Admin {
 
         $file_path = LIMOSMS_PATH . 'templates/admin-tabs/' . $tab . '-view.php';
 
+        // server-side gate: if connection not available, show notice instead of other tabs
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-connection-settings-tab.php';
+        $connection_checker = new LimoSMS_Connection_Settings();
+        $connection_status   = $connection_checker->get_connection_status();
+        $is_connected        = ! empty( $connection_status['success'] );
+
+        if ( ! $is_connected && 'connection-settings' !== $tab ) {
+            echo '<div style="padding:22px;max-width:900px;margin:20px auto;background:#fff;border-radius:12px;border:1px solid #e6e6e6;">';
+            echo '<h3 style="margin-top:0;">تنظیم کلید API الزامی است</h3>';
+            echo '<p>لطفا ابتدا کلید api را تنظیم کنید. جهت دریافت کلید api به پنل لیمو اس ام اس بخش دریافت کد دسترسی در منوی ویژه برنامه نویسان مراجعه فرمایید. <a href="https://panel.limosms.com/Programmer/ApiAccess" target="_blank" rel="noopener noreferrer">مشاهده صفحه دریافت کلید API</a></p>';
+            echo '<p><a class="button button-primary" href="' . esc_url( admin_url( 'admin.php?page=limosms&tab=connection-settings' ) ) . '">رفتن به تنظیمات اتصال</a></p>';
+            echo '</div>';
+            wp_die();
+        }
+
         if ( file_exists( $file_path ) ) {
             if ( 'connection-settings' === $tab ) {
                 require_once LIMOSMS_PATH . 'includes/admin/tabs/class-connection-settings-tab.php';

@@ -197,18 +197,137 @@ jQuery(document).ready(function ($) {
     const urlParams = new URLSearchParams(window.location.search);
     const currentTab = urlParams.get('tab') || 'connection-settings';
 
+    // limosms_connection_status is output by PHP (true/false)
+    function isConnectionAvailable() {
+        return (typeof limosms_connection_status !== 'undefined') ? Boolean(limosms_connection_status) : true;
+    }
+
+    console.log('limosms:connectionAvailable', isConnectionAvailable());
+
     setActiveTab(currentTab);
     setPageTitle(currentTab);
-    window.LimoSMS.triggerTabLoaded(currentTab);
+
+    // if connection is not available, ensure user stays on connection-settings and show overlay
+    if (!isConnectionAvailable()) {
+        if (currentTab !== 'connection-settings') {
+            const $link = $('.limosms-tab-link[data-tab="connection-settings"]');
+            fetchTabContent('connection-settings', $link.attr('href') || '', $link, function () {
+                window.LimoSMS.triggerTabLoaded('connection-settings');
+                // don't auto-show overlay on load; show lightweight toast when user interacts
+            });
+        } else {
+            window.LimoSMS.triggerTabLoaded(currentTab);
+            // don't auto-show overlay on initial load
+        }
+    } else {
+        window.LimoSMS.triggerTabLoaded(currentTab);
+    }
 
     window.addEventListener('popstate', function () {
         const params = new URLSearchParams(window.location.search);
         const tab = params.get('tab') || 'connection-settings';
 
+        if (!isConnectionAvailable() && tab !== 'connection-settings') {
+            // show toast instead of forcing overlay when user navigates via history
+            if (window.LimoSMS && typeof window.LimoSMS.showToast === 'function') {
+                window.LimoSMS.showToast('لطفا ابتدا کلید api را تنظیم کنید. جهت دریافت کلید api به پنل لیمو اس ام اس بخش دریافت کد دسترسی در منوی ویژه برنامه نویسان مراجعه فرمایید', 'error', 6000);
+            }
+            return;
+        }
+
         fetchTabContent(tab, null, null, function () {
             window.LimoSMS.triggerTabLoaded(tab);
         });
     });
+
+    // Override click handler to prevent navigation when disconnected
+    $('.limosms-sidebar').off('click', '.limosms-tab-link');
+    $('.limosms-sidebar').on('click', '.limosms-tab-link', function (event) {
+        event.preventDefault();
+
+        const $link = $(this);
+        const tab = $link.data('tab');
+        const href = $link.attr('href') || '';
+
+        if (!tab) {
+            return;
+        }
+
+        console.log('limosms:tab-click', tab);
+
+        if (!isConnectionAvailable() && tab !== 'connection-settings') {
+            if (window.LimoSMS && typeof window.LimoSMS.showToast === 'function') {
+                window.LimoSMS.showToast('لطفا ابتدا کلید api را تنظیم کنید. جهت دریافت کلید api به پنل لیمو اس ام اس بخش دریافت کد دسترسی در منوی ویژه برنامه نویسان مراجعه فرمایید', 'error', 6000);
+            }
+            return;
+        }
+
+        fetchTabContent(tab, href, $link, function () {
+            window.LimoSMS.triggerTabLoaded(tab);
+        });
+    });
+
+    function showConnectionRequiredOverlay() {
+        if (document.querySelector('.limosms-connection-required-overlay')) {
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'limosms-connection-required-overlay';
+
+        const card = document.createElement('div');
+        card.className = 'limosms-connection-required-card';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'limosms-connection-required-close';
+        closeBtn.innerHTML = '✕';
+        closeBtn.addEventListener('click', function () {
+            overlay.remove();
+        });
+
+        const title = document.createElement('h3');
+        title.textContent = 'تنظیم کلید API الزامی است';
+
+        const para = document.createElement('p');
+        para.innerHTML = 'لطفا ابتدا کلید api را تنظیم کنید. جهت دریافت کلید api به پنل لیمو اس ام اس بخش دریافت کد دسترسی در منوی ویژه برنامه نویسان مراجعه فرمایید <a href="https://panel.limosms.com/Programmer/ApiAccess" target="_blank" rel="noopener noreferrer">مشاهده صفحه دریافت کلید API</a>';
+
+        const actions = document.createElement('div');
+        actions.className = 'limosms-connection-actions';
+
+        const goToConnection = document.createElement('button');
+        goToConnection.className = 'button button-primary';
+        goToConnection.textContent = 'رفتن به تنظیمات اتصال';
+        goToConnection.addEventListener('click', function () {
+            const $link = $('.limosms-tab-link[data-tab="connection-settings"]');
+            fetchTabContent('connection-settings', $link.attr('href') || '', $link, function () {
+                window.LimoSMS.triggerTabLoaded('connection-settings');
+                overlay.remove();
+            });
+        });
+
+        const closeSecondary = document.createElement('button');
+        closeSecondary.className = 'button';
+        closeSecondary.textContent = 'بستن';
+        closeSecondary.addEventListener('click', function () {
+            overlay.remove();
+        });
+
+        actions.appendChild(closeSecondary);
+        actions.appendChild(goToConnection);
+
+        card.appendChild(closeBtn);
+        card.appendChild(title);
+        card.appendChild(para);
+        card.appendChild(actions);
+
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+    }
+
+    // expose helper to console for debugging
+    if (window && window.LimoSMS) {
+        window.LimoSMS.showConnectionRequiredOverlay = showConnectionRequiredOverlay;
+    }
 
 // slider banner
     const slider = document.querySelector('.limosms-slider-wrapper');

@@ -22,6 +22,7 @@ class LimoSMS_Connection_Settings
     public function register_hooks()
     {
         add_action('wp_ajax_limosms_save_connection_settings', array($this, 'save_connection_settings'));
+        add_action('wp_ajax_limosms_check_connection', array($this, 'ajax_check_connection'));
     }
 
     /**
@@ -95,5 +96,26 @@ class LimoSMS_Connection_Settings
         set_transient('limosms_connection_status', $response, 300);
 
         return $response;
+    }
+
+    /**
+     * AJAX: بازگشت وضعیت اتصال فعلی (برای بروزرسانی سمت کلاینت)
+     */
+    public function ajax_check_connection()
+    {
+        check_ajax_referer('limosms_admin_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'دسترسی غیرمجاز'));
+        }
+
+        $status = $this->get_connection_status();
+
+        $connected = !empty($status['success']);
+
+        wp_send_json_success(array(
+            'connected' => $connected,
+            'status'    => $status,
+        ));
     }
 }

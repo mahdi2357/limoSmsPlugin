@@ -58,6 +58,12 @@ if ( ! array_key_exists( $active_tab, $menu_items ) ) {
 }
 
 $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
+
+// expose connection status to JS so tabs can be gated when API is not configured/connected
+$connection_tab_obj = new LimoSMS_Connection_Settings();
+$connection_status = $connection_tab_obj->get_connection_status();
+$is_connected = !empty($connection_status['success']);
+
 ?>
 
 <div class="limosms-wrapper">
@@ -148,3 +154,6 @@ $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
         ارتباط با کارشناسان
     </a>
 </div>
+<script>
+    var limosms_connection_status = <?php echo $is_connected ? 'true' : 'false'; ?>;
+</script>

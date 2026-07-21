@@ -392,6 +392,60 @@
     padding: 16px;
   }
 
+  /* Connection required overlay */
+  .limosms-connection-required-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+  }
+
+  .limosms-connection-required-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    max-width: 760px;
+    width: calc(100% - 40px);
+    box-shadow: 0 12px 40px rgba(2,6,23,0.4);
+    text-align: right;
+    direction: rtl;
+  }
+
+  .limosms-connection-required-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+  }
+
+  .limosms-connection-required-card p {
+    margin: 8px 0 16px 0;
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  .limosms-connection-required-card .limosms-connection-actions {
+    display:flex;
+    gap:12px;
+    justify-content:flex-end;
+  }
+
+  .limosms-connection-required-card .button {
+    border-radius: 8px;
+  }
+
+  .limosms-connection-required-close {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #6b7280;
+    cursor: pointer;
+  }
+
   .limosms-form-grid {
     grid-template-columns: 1fr;
     gap: 18px;

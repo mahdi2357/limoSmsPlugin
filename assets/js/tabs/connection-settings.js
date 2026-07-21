@@ -70,6 +70,20 @@
                     }, function (html) {
                         $("#limosms-tab-content").html(html);
                         $(document).trigger("limosms:tab-loaded", ["connection-settings"]);
+                        // بعد از لود مجدد تب، بررسی وضعیت اتصال از سرور و بروزرسانی وضعیت کلاینت
+                        $.post(limosms_ajax.url, { action: 'limosms_check_connection', nonce: limosms_ajax.nonce }, function (res) {
+                            if (res && res.success) {
+                                window.limosms_connection_status = !!res.data.connected;
+                                console.log('limosms:checkedConnection', window.limosms_connection_status);
+
+                                if (window.limosms_connection_status) {
+                                    window.LimoSMS.showToast('اتصال برقرار شد.', 'success');
+                                    // حذف اورلِی در صورت وجود
+                                    var node = document.querySelector('.limosms-connection-required-overlay');
+                                    if (node) node.remove();
+                                }
+                            }
+                        });
                     });
                 }, 1000);
             } else {
