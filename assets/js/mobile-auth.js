@@ -255,9 +255,7 @@
                     goToCodeStep(mobile);
 
                     startSendCooldown(
-                        data.data && data.data.expiresIn
-                            ? Number(data.data.expiresIn)
-                            : Number(limosmsMobileAuth.sendCooldown || 60)
+                        Number(limosmsMobileAuth.sendCooldown || 60)
                     );
                 })
                 .catch(function () {

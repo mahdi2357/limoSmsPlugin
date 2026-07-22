@@ -29,9 +29,81 @@ class LimoSMS_Mobile_Auth {
     }
 
     private function is_login_register_enabled() {
-        $settings = get_option( 'limoo_sms_settings', array() );
+        $settings = $this->get_settings();
 
         return ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
+    }
+
+    private function get_settings() {
+        $settings = get_option( 'limoo_sms_settings', array() );
+        return is_array( $settings ) ? $settings : array();
+    }
+
+    private function get_setting( $key, $default = null ) {
+        $settings = $this->get_settings();
+
+        if ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) {
+            return $settings[ $key ];
+        }
+
+        return $default;
+    }
+
+    private function get_redirect_url() {
+        $redirect = trim( (string) $this->get_setting( 'login_register_otp_redirect_url', '' ) );
+
+        if ( '' === $redirect ) {
+            return home_url( '/' );
+        }
+
+        if ( preg_match( '#^(https?:)?//#i', $redirect ) ) {
+            return esc_url_raw( $redirect );
+        }
+
+        if ( strpos( $redirect, '/' ) !== 0 ) {
+            $redirect = '/' . ltrim( $redirect, '/' );
+        }
+
+        return home_url( $redirect );
+    }
+
+    private function get_otp_expiry_seconds() {
+        return max( 60, absint( $this->get_setting( 'login_register_otp_expiry_minutes', 10 ) ) * MINUTE_IN_SECONDS );
+    }
+
+    private function get_resend_cooldown_seconds() {
+        return max( 10, absint( $this->get_setting( 'login_register_otp_resend_seconds', self::SEND_COOLDOWN_SECONDS ) ) );
+    }
+
+    private function get_verify_lockout_seconds() {
+        return max( 60, absint( $this->get_setting( 'login_register_otp_lockout_minutes', 15 ) ) * MINUTE_IN_SECONDS );
+    }
+
+    private function get_verify_max_attempts() {
+        return max( 1, absint( $this->get_setting( 'login_register_otp_max_attempts', self::VERIFY_MAX_ATTEMPTS ) ) );
+    }
+
+    private function get_new_user_role() {
+        $role = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_role', get_option( 'default_role', 'subscriber' ) ) );
+        $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
+
+        return isset( $roles[ $role ] ) ? $role : get_option( 'default_role', 'subscriber' );
+    }
+
+    private function ensure_mobile_user_meta( WP_User $user, $mobile ) {
+        if ( '' === $mobile ) {
+            return $user;
+        }
+
+        if ( get_user_meta( $user->ID, 'limosms_mobile', true ) !== $mobile ) {
+            update_user_meta( $user->ID, 'limosms_mobile', $mobile );
+        }
+
+        if ( get_user_meta( $user->ID, 'billing_phone', true ) !== $mobile ) {
+            update_user_meta( $user->ID, 'billing_phone', $mobile );
+        }
+
+        return $user;
     }
 
     public function register_assets() {
@@ -56,10 +128,12 @@ class LimoSMS_Mobile_Auth {
             array(
                 'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
                 'nonce'           => wp_create_nonce( 'limosms_mobile_auth_nonce' ),
-                'redirectUrl'     => home_url( '/' ),
+                'redirectUrl'     => $this->get_redirect_url(),
                 'otpLength'       => 6,
-                'sendCooldown'    => self::SEND_COOLDOWN_SECONDS,
-                'challengeExpiry' => self::CHALLENGE_TTL_SECONDS,
+                'sendCooldown'    => $this->get_resend_cooldown_seconds(),
+                'challengeExpiry' => $this->get_otp_expiry_seconds(),
+                'verifyMaxAttempts' => $this->get_verify_max_attempts(),
+                'lockoutSeconds'  => $this->get_verify_lockout_seconds(),
             )
         );
     }
@@ -164,10 +238,12 @@ class LimoSMS_Mobile_Auth {
             'attempts'   => 0,
         );
 
+        $challenge_ttl = $this->get_otp_expiry_seconds();
+
         set_transient(
             $this->get_challenge_key( $challenge_token ),
             $challenge_data,
-            self::CHALLENGE_TTL_SECONDS
+            $challenge_ttl
         );
 
         $this->mark_send_request( $mobile );
@@ -177,7 +253,7 @@ class LimoSMS_Mobile_Auth {
             array(
                 'message'        => 'کد تایید ارسال شد.',
                 'challengeToken' => $challenge_token,
-                'expiresIn'      => self::CHALLENGE_TTL_SECONDS,
+                'expiresIn'      => $challenge_ttl,
             )
         );
     }
@@ -254,7 +330,7 @@ class LimoSMS_Mobile_Auth {
             );
         }
 
-        if ( time() - absint( $challenge['created_at'] ) > self::CHALLENGE_TTL_SECONDS ) {
+        if ( time() - absint( $challenge['created_at'] ) > $this->get_otp_expiry_seconds() ) {
             delete_transient( $this->get_challenge_key( $challenge_token ) );
 
             wp_send_json_error(
@@ -267,7 +343,9 @@ class LimoSMS_Mobile_Auth {
 
         $attempts = isset( $challenge['attempts'] ) ? absint( $challenge['attempts'] ) : 0;
 
-        if ( $attempts >= self::VERIFY_MAX_ATTEMPTS ) {
+        $max_attempts = $this->get_verify_max_attempts();
+
+        if ( $attempts >= $max_attempts ) {
             delete_transient( $this->get_challenge_key( $challenge_token ) );
             $this->set_verify_lock( $mobile );
 
@@ -299,7 +377,7 @@ class LimoSMS_Mobile_Auth {
                 self::CHALLENGE_TTL_SECONDS
             );
 
-            if ( $challenge['attempts'] >= self::VERIFY_MAX_ATTEMPTS ) {
+            if ( $challenge['attempts'] >= $max_attempts ) {
                 delete_transient( $this->get_challenge_key( $challenge_token ) );
                 $this->set_verify_lock( $mobile );
 
@@ -340,7 +418,7 @@ class LimoSMS_Mobile_Auth {
         wp_send_json_success(
             array(
                 'message'     => 'ورود با موفقیت انجام شد.',
-                'redirectUrl' => home_url( '/' ),
+                'redirectUrl' => $this->get_redirect_url(),
             )
         );
     }
@@ -373,11 +451,12 @@ class LimoSMS_Mobile_Auth {
 
     private function mark_send_request( $mobile ) {
         $ip = $this->get_client_ip();
+        $cooldown = $this->get_resend_cooldown_seconds();
 
-        set_transient( $this->get_send_cooldown_key( 'mobile', $mobile ), 1, self::SEND_COOLDOWN_SECONDS );
+        set_transient( $this->get_send_cooldown_key( 'mobile', $mobile ), 1, $cooldown );
 
         if ( $ip ) {
-            set_transient( $this->get_send_cooldown_key( 'ip', $ip ), 1, self::SEND_COOLDOWN_SECONDS );
+            set_transient( $this->get_send_cooldown_key( 'ip', $ip ), 1, $cooldown );
         }
 
         $mobile_hourly_key   = $this->get_send_hourly_key( 'mobile', $mobile );
@@ -407,11 +486,12 @@ class LimoSMS_Mobile_Auth {
 
     private function set_verify_lock( $mobile ) {
         $ip = $this->get_client_ip();
+        $lockout = $this->get_verify_lockout_seconds();
 
-        set_transient( $this->get_verify_lock_key( 'mobile', $mobile ), 1, self::VERIFY_LOCKOUT_SECONDS );
+        set_transient( $this->get_verify_lock_key( 'mobile', $mobile ), 1, $lockout );
 
         if ( $ip ) {
-            set_transient( $this->get_verify_lock_key( 'ip', $ip ), 1, self::VERIFY_LOCKOUT_SECONDS );
+            set_transient( $this->get_verify_lock_key( 'ip', $ip ), 1, $lockout );
         }
     }
 
@@ -469,7 +549,7 @@ class LimoSMS_Mobile_Auth {
         $user = $this->find_user_by_mobile( $mobile );
 
         if ( $user instanceof WP_User ) {
-            return $user;
+            return $this->ensure_mobile_user_meta( $user, $mobile );
         }
 
         $username = $this->generate_username_from_mobile( $mobile );
@@ -483,7 +563,7 @@ class LimoSMS_Mobile_Auth {
                 'user_email'   => $email,
                 'display_name' => $mobile,
                 'nickname'     => $mobile,
-                'role'         => get_option( 'default_role', 'subscriber' ),
+                'role'         => $this->get_new_user_role(),
             )
         );
 

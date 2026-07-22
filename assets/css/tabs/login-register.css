@@ -44,9 +44,6 @@
     background: #f9fafb;
 }
 
-.limoo-setting-row__content {
-    flex: 1;
-}
 
 .limoo-setting-row__label {
     display: inline-block;

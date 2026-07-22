@@ -2,7 +2,8 @@ jQuery(function ($) {
     function getOtpElements() {
         return {
             toggle: document.getElementById('limoo-login-register-otp-enabled'),
-            notice: document.getElementById('limoo-otp-shortcode-notice')
+            notice: document.getElementById('limoo-otp-shortcode-notice'),
+            settings: document.getElementById('limoo-otp-settings')
         };
     }
 
@@ -15,14 +16,26 @@ jQuery(function ($) {
 
         elements.notice.hidden = !enabled;
         elements.notice.classList.toggle('is-visible', enabled);
+
+        if (elements.settings) {
+            elements.settings.hidden = !enabled;
+            elements.settings.classList.toggle('is-visible', enabled);
+        }
     }
+
+    $(document).on('change', '#limoo-login-register-otp-enabled', function () {
+        syncOtpNotice(this.checked);
+    });
 
     $(document).on('submit', '#limoo-login-register-form', function (e) {
         e.preventDefault();
 
         var $form = $(this);
         var $button = $form.find('#limoo-login-register-save');
-        var enabled = $form.find('#limoo-login-register-otp-enabled').is(':checked');
+        var data = $form.serializeArray();
+
+        data.push({ name: 'action', value: 'limosms_save_login_register_settings' });
+        data.push({ name: 'nonce', value: limosms_ajax.nonce });
 
         $button.prop('disabled', true).addClass('is-busy');
 
@@ -30,11 +43,7 @@ jQuery(function ($) {
             url: limosms_ajax.url,
             type: 'POST',
             dataType: 'json',
-            data: {
-                action: 'limosms_save_login_register_settings',
-                nonce: limosms_ajax.nonce,
-                login_register_otp_enabled: enabled ? '1' : '0'
-            }
+            data: data
         })
             .done(function (response) {
                 if (response && response.success) {

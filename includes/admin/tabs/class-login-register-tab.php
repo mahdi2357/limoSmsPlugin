@@ -33,6 +33,13 @@ class LimoSMS_Login_Register_Tab {
             '1' === sanitize_text_field( wp_unslash( $_POST['login_register_otp_enabled'] ) )
         ) ? '1' : '0';
 
+        $settings['login_register_otp_redirect_url'] = sanitize_text_field( wp_unslash( $_POST['login_register_otp_redirect_url'] ?? '' ) );
+        $settings['login_register_otp_role'] = sanitize_text_field( wp_unslash( $_POST['login_register_otp_role'] ?? get_option( 'default_role', 'subscriber' ) ) );
+        $settings['login_register_otp_expiry_minutes'] = max( 1, absint( $_POST['login_register_otp_expiry_minutes'] ?? 10 ) );
+        $settings['login_register_otp_resend_seconds'] = max( 10, absint( $_POST['login_register_otp_resend_seconds'] ?? 60 ) );
+        $settings['login_register_otp_max_attempts'] = max( 1, absint( $_POST['login_register_otp_max_attempts'] ?? 5 ) );
+        $settings['login_register_otp_lockout_minutes'] = max( 1, absint( $_POST['login_register_otp_lockout_minutes'] ?? 15 ) );
+
         $updated = update_option( 'limoo_sms_settings', $settings );
 
         wp_send_json_success(
