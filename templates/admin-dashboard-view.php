@@ -68,7 +68,7 @@ $is_connected = !empty($connection_status['success']);
 
 <div class="limosms-wrapper">
     <div class="limosms-sidebar">
-        <a class="limosms-logo-link" target="_blank" href="https://panel.limosms.com/" rel="noopener noreferrer">
+        <a class="" target="_blank" href="https://panel.limosms.com/" rel="noopener noreferrer">
             <img class="limosms-logo" src="<?php echo esc_url( LIMOSMS_URL . 'assets/images/logo.png' ); ?>"
                 alt="<?php echo esc_attr__( 'LimoSMS Logo', 'limosms' ); ?>">
         </a>
