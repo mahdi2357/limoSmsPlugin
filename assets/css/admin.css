@@ -534,11 +534,12 @@
 /**/
 /* باکس اصلی مدیریت توکن‌های هر پارامتر */
 .limosms-token-selector-wrapper {
-  background: #fcfcfc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #fcfbff;
+  border: 1px solid #e9ddff;
+  border-radius: 12px;
   padding: 12px;
   margin-bottom: 15px;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.06);
 }
 
 /* فیلد جستجوی توکن‌ها */
@@ -547,19 +548,26 @@
   max-width: 300px;
   padding: 6px 12px;
   font-size: 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #d8c5ff;
+  border-radius: 8px;
   margin-bottom: 10px;
   display: inline-block;
+  background: #fff;
+}
+
+.limosms-token-search:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.16);
+  outline: none;
 }
 
 /* باکس دکمه‌های توکن با اسکرول محدود */
 .limosms-tokens-container {
   max-height: 120px; /* نمایش حدود ۲ الی ۳ ردیف به صورت پیش‌فرض */
   overflow-y: auto;
-  border: 1px dashed #e2e8f0;
+  border: 1px dashed #e9ddff;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
   transition: max-height 0.3s ease;
 }
@@ -573,7 +581,7 @@
 .limosms-toggle-tokens-btn {
   background: none;
   border: none;
-  color: #007cba;
+  color: #7c3aed;
   cursor: pointer;
   font-size: 12px;
   margin-top: 8px;
@@ -583,7 +591,7 @@
   text-decoration: underline;
 }
 .limosms-toggle-tokens-btn:hover {
-  color: #005a87;
+  color: #5b21b6;
 }
 
 /* زیباسازی اسکرول‌بار */
@@ -591,15 +599,15 @@
   width: 6px;
 }
 .limosms-tokens-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f5f0ff;
   border-radius: 4px;
 }
 .limosms-tokens-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #c8b5ff;
   border-radius: 4px;
 }
 .limosms-tokens-container::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #a78bfa;
 }
 
 .no-focus-outline:focus {
@@ -873,3 +881,24 @@ body.admin-color-modern .ab-item:focus {
   box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.24) !important;
 }
 
+.tab-title{
+  color: #7E4BD0;
+}
+
+.limosms-selected-badge.is-selected {
+    background: #814DD5 !important;
+    color: white !important;
+}
+
+.limosms-token-chip.is-active {
+    background: #814DD5 !important;
+    border-color: #814DD5 !important;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(100, 37, 235, 0.2);
+}
+
+.limosms-token-chip:hover {
+    border-color: #814DD5 !important;
+    color: #814DD5 !important;
+    transform: translateY(-1px);
+}

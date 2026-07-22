@@ -88,7 +88,7 @@ $is_connected = !empty($connection_status['success']);
 
     <div class="limosms-content">
         <div class="content-header">
-            <h1 id="limosms-page-title">
+            <h1 class="tab-title" id="limosms-page-title">
                 <?php echo esc_html( $tab_titles[ $active_tab ] ?? 'به لیمو SMS خوش آمدید' ); ?>
             </h1>
         </div>

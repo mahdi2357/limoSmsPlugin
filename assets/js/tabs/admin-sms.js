@@ -337,6 +337,8 @@
                 dir: 'rtl',
                 placeholder: 'انتخاب الگو...',
                 allowClear: true,
+                dropdownParent: select.parent(),
+                dropdownCssClass: 'limosms-select2',
                 templateResult: function (item) {
                     if (!item.id) {
                         return item.text;
@@ -396,9 +398,114 @@
 
         if (enabled) {
             fields.stop(true, true).slideDown(200);
+            
         } else {
             fields.stop(true, true).slideUp(200);
         }
+    }
+
+    /* Custom select replacement for .limosms-pattern-select to allow full styling */
+    function initCustomPatternSelects(context) {
+        const container = context ? $(context) : $(document);
+
+        container.find('.limosms-pattern-selector').each(function () {
+            const select = $(this);
+
+            // if Select2 has been applied to this select, skip custom replacement
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            // skip if already transformed by our custom replacer
+            if (select.data('customized')) {
+                return;
+            }
+
+            const options = [];
+            select.find('option').each(function () {
+                const opt = $(this);
+                options.push({ value: opt.attr('value') || '', label: opt.text() || '' , disabled: opt.prop('disabled')});
+            });
+
+            const wrapper = $('<div class="limosms-custom-select" aria-hidden="false"></div>');
+            const button = $('<button type="button" class="limosms-custom-select__button" aria-haspopup="listbox"></button>');
+            const list = $('<div class="limosms-custom-select__list" role="listbox"></div>');
+
+            // build list items with search input (for fallback when Select2 isn't present)
+            const searchInput = $('<input type="text" class="limosms-custom-select__search" placeholder="جستجو...">');
+            list.append(searchInput);
+
+            if (options.length === 0) {
+                list.append('<div class="limosms-custom-select__noresults">هیچ گزینه‌ای نیست</div>');
+            } else {
+                options.forEach(function (opt) {
+                    const item = $('<div class="limosms-custom-select__item" data-value="' + opt.value.replace(/"/g, '&quot;') + '"></div>');
+                    item.text(opt.label);
+                    if (opt.disabled) {
+                        item.attr('aria-disabled', 'true').addClass('is-disabled');
+                    }
+                    list.append(item);
+                });
+            }
+
+            // search/filter handler for custom dropdown
+            searchInput.on('input', function () {
+                const q = String(this.value || '').toLowerCase().trim();
+                let visible = 0;
+                list.find('.limosms-custom-select__item').each(function () {
+                    const it = $(this);
+                    const text = (it.text() || '').toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        it.show();
+                        visible++;
+                    } else {
+                        it.hide();
+                    }
+                });
+                list.find('.limosms-custom-select__noresults').toggle(visible === 0);
+            });
+
+            // initial selected
+            const selectedOption = select.find('option:selected');
+            const selectedLabel = selectedOption.length ? selectedOption.text() : select.attr('placeholder') || 'انتخاب الگو...';
+            button.text(selectedLabel);
+
+            // assemble
+            wrapper.append(button).append(list);
+            select.after(wrapper);
+
+            // hide native select visually but keep for form
+            select.addClass('limosms-native-hidden');
+            select.data('customized', true);
+
+            // open/close
+            button.on('click', function (e) {
+                e.preventDefault();
+                list.toggle();
+            });
+
+            // item click
+            list.on('click', '.limosms-custom-select__item', function () {
+                const item = $(this);
+                if (item.is('.is-disabled')) {
+                    return;
+                }
+                const val = item.data('value') || '';
+                select.val(val).trigger('change');
+                button.text(item.text());
+                list.hide();
+                // update active state
+                list.find('.limosms-custom-select__item').removeClass('is-active');
+                item.addClass('is-active');
+            });
+
+            // close on outside click
+            $(document).on('click.limosmsCustomSelect', function (e) {
+                if (!wrapper.is(e.target) && wrapper.has(e.target).length === 0) {
+                    list.hide();
+                }
+            });
+        });
     }
 
     function populateAllSelectors(patterns) {
@@ -414,6 +521,10 @@
 
             select.html(optionsHtml);
             maybeInitSelect2(select);
+            // also initialize our custom replacement for browsers that don't style <option>
+            if (typeof initCustomPatternSelects === 'function') {
+                initCustomPatternSelects(select);
+            }
 
             if (savedId) {
                 select.trigger('change');
@@ -477,6 +588,9 @@
             hasLoadedPatterns = true;
             populateAllSelectors(patternsCache);
             maybeInitSelect2($(document));
+            if (typeof initCustomPatternSelects === 'function') {
+                initCustomPatternSelects($(document));
+            }
         }).fail(function () {
             showNotification('خطا در ارتباط با سرور هنگام دریافت الگوها.', 'error');
         }).always(function () {

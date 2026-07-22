@@ -1,33 +1,44 @@
 <div id="limosms-pattern-management-tab" class="limosms-pattern-container">
     <div class="limosms-pattern-header">
-        <h2 >جهت ثبت الگوی جدید به
-            <a href="https://panel.limosms.com/Programmer/PatternMessage" target="_blank" style="text-decoration: none;">
-                پنل لیمو اس ام اس
+        <h2 class="limosms-pattern-heading">
+            <?php esc_html_e( 'جهت ثبت الگوی جدید به', 'limosms' ); ?>
+            <a href="https://panel.limosms.com/Programmer/PatternMessage" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e( 'پنل لیمو اس ام اس', 'limosms' ); ?>
             </a>
-            مراجعه بفرمایید</h2>
+            <?php esc_html_e( 'مراجعه بفرمایید', 'limosms' ); ?>
+        </h2>
     </div>
 
     <div class="limosms-table-card">
-        <table class="limosms-custom-table">
-            <thead>
-            <tr>
-                <th><?php esc_html_e( 'ردیف', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'کد الگو', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'عنوان', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'متن پیام', 'limosms' ); ?></th>
-                <th><?php esc_html_e( 'عملیات', 'limosms' ); ?></th>
-            </tr>
-            </thead>
+        <div class="limosms-table-responsive">
+            <table class="limosms-custom-table">
+                <colgroup>
+                    <col class="col-row" />
+                    <col class="col-code" />
+                    <col class="col-title" />
+                    <col class="col-text" />
+                    <col class="col-actions" />
+                </colgroup>
 
-            <tbody id="limosms-patterns-table-body">
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 24px;">
-                    <?php esc_html_e( 'در حال دریافت الگوها...', 'limosms' ); ?>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'ردیف', 'limosms' ); ?></th>
+                        <th><?php esc_html_e( 'کد الگو', 'limosms' ); ?></th>
+                        <th><?php esc_html_e( 'عنوان', 'limosms' ); ?></th>
+                        <th><?php esc_html_e( 'متن پیام', 'limosms' ); ?></th>
+                        <th><?php esc_html_e( 'عملیات', 'limosms' ); ?></th>
+                    </tr>
+                </thead>
 
+                <tbody id="limosms-patterns-table-body">
+                    <tr>
+                        <td colspan="5" class="limosms-table-loading">
+                            <?php esc_html_e( 'در حال دریافت الگوها...', 'limosms' ); ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div class="limosms-pagination-wrap" style="display: none;">
             <div class="limosms-pagination-info">

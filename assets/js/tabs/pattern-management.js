@@ -81,8 +81,7 @@
     }
 
     function getPatternTitle(pattern) {
-        return pattern.title ||
-            '-';
+        return pattern.title || '-';
     }
 
     function renderEmptyRow(message) {
@@ -159,14 +158,13 @@
             const rawCode = getPatternCode(pattern);
             const titleValue = getPatternTitle(pattern);
             const textValue = getPatternText(pattern);
-            const shortText = textValue.length > 60 ? textValue.substring(0, 60) + '...' : textValue;
 
             elements.tableBody.append(
                 '<tr>' +
                 '<td>' + rowNumber + '</td>' +
-                '<td><code class="limosms-pattern-code">' + escapeHtml(rawCode || '-') + '</code></td>' +
-                '<td class="limosms-pattern-text">' + escapeHtml(titleValue) + '</td>' +
-                '<td class="limosms-pattern-text">' + escapeHtml(shortText) + '</td>' +
+                '<td><span class="limosms-pattern-code">' + escapeHtml(rawCode || '-') + '</span></td>' +
+                '<td>' + escapeHtml(titleValue) + '</td>' +
+                '<td><div class="limosms-pattern-text">' + escapeHtml(textValue) + '</div></td>' +
                 '<td>' +
                 '<div class="limosms-actions">' +
                 '<button type="button" class="limosms-action-btn copy limosms-copy-pattern-code" data-code="' + escapeHtml(rawCode) + '" title="کپی کد">' +
@@ -177,7 +175,6 @@
                 '</tr>'
             );
         });
-
 
         renderPaginationControls();
     }
@@ -229,7 +226,6 @@
             showNotification('خطا در ارتباط با سرور.', 'error');
         }).always(function () {
             isLoadingPatterns = false;
-
         });
     }
 
@@ -242,7 +238,6 @@
 
         loadPatterns(false);
     }
-
 
     $(document).on('click', '.limosms-copy-pattern-code', function () {
         const code = $(this).data('code');
