@@ -69,11 +69,14 @@ class LimoSMS_Admin {
             true
         );
 
+        wp_enqueue_media();
+
         // Shared ajax data for generic tab loading/admin actions.
         $admin_ajax_data = array(
             'url'   => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'limosms_admin_nonce' ),
-
+            'mediaTitle' => __( 'انتخاب تصویر', 'limosms' ),
+            'mediaButton' => __( 'انتخاب', 'limosms' ),
         );
 
         wp_localize_script( 'limosms-admin-js', 'limosms_ajax', $admin_ajax_data );

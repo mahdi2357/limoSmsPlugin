@@ -23,6 +23,71 @@ jQuery(function ($) {
         }
     }
 
+    function openMediaUploader(button) {
+        var target = button.getAttribute('data-target');
+        if ( ! target ) {
+            return;
+        }
+
+        var input = document.getElementById(target);
+        if ( ! input ) {
+            return;
+        }
+
+        var frame = wp.media({
+            title: limosms_ajax.mediaTitle || 'انتخاب تصویر',
+            button: {
+                text: limosms_ajax.mediaButton || 'انتخاب'
+            },
+            library: {
+                type: 'image'
+            },
+            multiple: false
+        });
+
+        frame.on('select', function () {
+            var attachment = frame.state().get('selection').first().toJSON();
+            input.value = attachment.url;
+            var preview = document.querySelector('[data-preview="' + target + '"]');
+            if ( preview ) {
+                preview.src = attachment.url;
+                preview.hidden = false;
+            }
+        });
+
+        frame.open();
+    }
+
+    function clearMediaField(button) {
+        var target = button.getAttribute('data-target');
+        if ( ! target ) {
+            return;
+        }
+
+        var input = document.getElementById(target);
+        if ( ! input ) {
+            return;
+        }
+
+        input.value = '';
+        var preview = document.querySelector('[data-preview="' + target + '"]');
+        if ( preview ) {
+            preview.src = '';
+            preview.hidden = true;
+        }
+    }
+
+    $(document).on('click', '.limoo-media-upload-button', function (e) {
+        e.preventDefault();
+        openMediaUploader(this);
+    });
+
+    $(document).on('click', '.limoo-media-remove-button', function (e) {
+        e.preventDefault();
+        clearMediaField(this);
+    });
+
+
     $(document).on('change', '#limoo-login-register-otp-enabled', function () {
         syncOtpNotice(this.checked);
     });
@@ -32,6 +97,7 @@ jQuery(function ($) {
 
         var $form = $(this);
         var $button = $form.find('#limoo-login-register-save');
+        var enabled = $form.find('#limoo-login-register-otp-enabled').is(':checked');
         var data = $form.serializeArray();
 
         data.push({ name: 'action', value: 'limosms_save_login_register_settings' });

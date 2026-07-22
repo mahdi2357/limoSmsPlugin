@@ -9,6 +9,13 @@ $expiry_minutes = ! empty( $settings['login_register_otp_expiry_minutes'] ) ? ab
 $resend_seconds = ! empty( $settings['login_register_otp_resend_seconds'] ) ? absint( $settings['login_register_otp_resend_seconds'] ) : 60;
 $max_attempts = ! empty( $settings['login_register_otp_max_attempts'] ) ? absint( $settings['login_register_otp_max_attempts'] ) : 5;
 $lockout_minutes = ! empty( $settings['login_register_otp_lockout_minutes'] ) ? absint( $settings['login_register_otp_lockout_minutes'] ) : 15;
+$form_align = isset( $settings['login_register_otp_form_align'] ) ? $settings['login_register_otp_form_align'] : 'center';
+$form_direction = isset( $settings['login_register_otp_form_direction'] ) ? $settings['login_register_otp_form_direction'] : 'rtl';
+$logo_url = isset( $settings['login_register_otp_logo_url'] ) ? $settings['login_register_otp_logo_url'] : '';
+$background_image_url = isset( $settings['login_register_otp_background_image_url'] ) ? $settings['login_register_otp_background_image_url'] : '';
+$background_color = isset( $settings['login_register_otp_background_color'] ) ? $settings['login_register_otp_background_color'] : '#ffffff';
+$form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
+$accent_color = isset( $settings['login_register_otp_accent_color'] ) ? $settings['login_register_otp_accent_color'] : '#2563eb';
 $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
 ?>
 
@@ -152,7 +159,7 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                         <?php esc_html_e( 'قفل پس از شکست', 'limo-sms' ); ?>
                     </label>
                     <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'مدت زمان قفل شدن ارسال/اعتبارسنجی پس از تلاش‌های ناموفق.', 'limo-sms' ); ?>
+                        <?php esc_html_e( 'مدت زمان قفل شدن ارسال/اعتبارسنجی پس از تلاش‌های ناموفق.', 'limosms' ); ?>
                     </p>
                 </div>
                 <input
@@ -163,6 +170,81 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                         value="<?php echo esc_attr( $lockout_minutes ); ?>"
                         class="limoo-setting-row__input"
                 />
+            </div>
+
+            <div class="limoo-login-register-card__section">
+                <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'شخصی‌سازی فرم', 'limosms' ); ?></h3>
+                <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'برای هر سایت ظاهر فرم را تنظیم کنید.', 'limosms' ); ?></p>
+            </div>
+
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'چیدمان فرم', 'limosms' ); ?></label>
+                    <p class="limoo-setting-row__description"><?php esc_html_e( 'موقعیت بلوک فرم را مشخص کنید.', 'limosms' ); ?></p>
+                </div>
+                <select id="limoo-login-register-align" name="login_register_otp_form_align" class="limoo-setting-row__input">
+                    <option value="left" <?php selected( $form_align, 'left' ); ?>><?php esc_html_e( 'چپ', 'limosms' ); ?></option>
+                    <option value="center" <?php selected( $form_align, 'center' ); ?>><?php esc_html_e( 'وسط', 'limosms' ); ?></option>
+                    <option value="right" <?php selected( $form_align, 'right' ); ?>><?php esc_html_e( 'راست', 'limosms' ); ?></option>
+                </select>
+            </div>
+
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'جهت متن', 'limosms' ); ?></label>
+                    <p class="limoo-setting-row__description"><?php esc_html_e( 'نمایش فرم را برای RTL یا LTR تنظیم کنید.', 'limosms' ); ?></p>
+                </div>
+                <select id="limoo-login-register-direction" name="login_register_otp_form_direction" class="limoo-setting-row__input">
+                    <option value="rtl" <?php selected( $form_direction, 'rtl' ); ?>><?php esc_html_e( 'راست‌چین', 'limosms' ); ?></option>
+                    <option value="ltr" <?php selected( $form_direction, 'ltr' ); ?>><?php esc_html_e( 'چپ‌چین', 'limosms' ); ?></option>
+                </select>
+            </div>
+
+            <div class="limoo-setting-row limoo-setting-row--media">
+                <div class="limoo-setting-row__content">
+                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'لوگو فرم', 'limosms' ); ?></label>
+                    <p class="limoo-setting-row__description"><?php esc_html_e( 'لوگوی کوچک بالای فرم را تنظیم کنید.', 'limosms' ); ?></p>
+                </div>
+                <div class="limoo-media-field">
+                    <input type="text" id="limoo-login-register-logo-url" name="login_register_otp_logo_url" value="<?php echo esc_attr( $logo_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
+                    <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
+                    <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
+                    <img data-preview="limoo-login-register-logo-url" src="<?php echo esc_url( $logo_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $logo_url ) ? 'hidden' : ''; ?> />
+                </div>
+            </div>
+
+            <div class="limoo-setting-row limoo-setting-row--media">
+                <div class="limoo-setting-row__content">
+                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'پس‌زمینه فرم', 'limosms' ); ?></label>
+                    <p class="limoo-setting-row__description"><?php esc_html_e( 'یک تصویر پس‌زمینه برای بخش فرم انتخاب کنید.', 'limosms' ); ?></p>
+                </div>
+                <div class="limoo-media-field">
+                    <input type="text" id="limoo-login-register-background-url" name="login_register_otp_background_image_url" value="<?php echo esc_attr( $background_image_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
+                    <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
+                    <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
+                    <img data-preview="limoo-login-register-background-url" src="<?php echo esc_url( $background_image_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $background_image_url ) ? 'hidden' : ''; ?> />
+                </div>
+            </div>
+
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label for="limoo-login-register-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه کلی', 'limosms' ); ?></label>
+                </div>
+                <input type="color" id="limoo-login-register-background-color" name="login_register_otp_background_color" value="<?php echo esc_attr( $background_color ); ?>" class="limoo-setting-row__input" />
+            </div>
+
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label for="limoo-login-register-form-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه فرم', 'limosms' ); ?></label>
+                </div>
+                <input type="color" id="limoo-login-register-form-background-color" name="login_register_otp_form_background_color" value="<?php echo esc_attr( $form_background_color ); ?>" class="limoo-setting-row__input" />
+            </div>
+
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
+                </div>
+                <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
             </div>
         </div>
 

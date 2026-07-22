@@ -4,8 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="limosms-mobile-auth">
-    <div class="limosms-mobile-auth__wrap">
+<div
+    class="limosms-mobile-auth limosms-mobile-auth--align-<?php echo esc_attr( $form_style['form_align'] ); ?> limosms-mobile-auth--dir-<?php echo esc_attr( $form_style['form_direction'] ); ?>"
+    dir="<?php echo esc_attr( $form_style['form_direction'] ); ?>"
+    style="background-color:<?php echo esc_attr( $form_style['background_color'] ); ?>;<?php echo ! empty( $form_style['background_image_url'] ) ? 'background-image:url(' . esc_url( $form_style['background_image_url'] ) . ');' : ''; ?>"
+>
+    <div class="limosms-mobile-auth__wrap" style="background-color:<?php echo esc_attr( $form_style['form_background_color'] ); ?>;--limosms-accent-color:<?php echo esc_attr( $form_style['accent_color'] ); ?>;">
+        <?php if ( ! empty( $form_style['logo_url'] ) ) : ?>
+            <div class="limosms-mobile-auth__logo">
+                <img src="<?php echo esc_url( $form_style['logo_url'] ); ?>" alt="<?php esc_attr_e( 'لوگو', 'limosms' ); ?>" />
+            </div>
+        <?php endif; ?>
         <?php if ( ! empty( $title ) ) : ?>
             <h2 class="limosms-mobile-auth__title"><?php echo esc_html( $title ); ?></h2>
         <?php endif; ?>

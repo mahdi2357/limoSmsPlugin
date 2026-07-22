@@ -1,24 +1,66 @@
 .limosms-mobile-auth {
+    position: relative;
     max-width: 440px;
     margin: 40px auto;
     padding: 32px;
     border-radius: 20px;
     background: #ffffff;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
+}
+
+.limosms-mobile-auth--align-left {
+    margin-left: 20px;
+    margin-right: auto;
+}
+
+.limosms-mobile-auth--align-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.limosms-mobile-auth--align-right {
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.limosms-mobile-auth--dir-ltr .limosms-mobile-auth__wrap {
+    direction: ltr;
+}
+
+.limosms-mobile-auth--dir-rtl .limosms-mobile-auth__wrap {
+    direction: rtl;
+}
+
+.limosms-mobile-auth::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.limosms-mobile-auth__wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 32px;
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .limosms-mobile-auth *,
 .limosms-mobile-auth *::before,
 .limosms-mobile-auth *::after {
     box-sizing: inherit;
-}
-
-.limosms-mobile-auth__wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
 }
 
 .limosms-mobile-auth__title {
@@ -125,7 +167,7 @@
 }
 
 .limosms-mobile-auth__button--primary {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: var(--limosms-accent-color, #2563eb);
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }

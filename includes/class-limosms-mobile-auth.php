@@ -83,6 +83,36 @@ class LimoSMS_Mobile_Auth {
         return max( 1, absint( $this->get_setting( 'login_register_otp_max_attempts', self::VERIFY_MAX_ATTEMPTS ) ) );
     }
 
+    private function get_form_align() {
+        $align = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_form_align', 'center' ) );
+        return in_array( $align, array( 'left', 'center', 'right' ), true ) ? $align : 'center';
+    }
+
+    private function get_form_direction() {
+        $direction = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_form_direction', 'rtl' ) );
+        return in_array( $direction, array( 'rtl', 'ltr' ), true ) ? $direction : 'rtl';
+    }
+
+    private function get_logo_url() {
+        return esc_url_raw( $this->get_setting( 'login_register_otp_logo_url', '' ) );
+    }
+
+    private function get_background_image_url() {
+        return esc_url_raw( $this->get_setting( 'login_register_otp_background_image_url', '' ) );
+    }
+
+    private function get_background_color() {
+        return sanitize_hex_color( $this->get_setting( 'login_register_otp_background_color', '#ffffff' ) );
+    }
+
+    private function get_form_background_color() {
+        return sanitize_hex_color( $this->get_setting( 'login_register_otp_form_background_color', '#ffffff' ) );
+    }
+
+    private function get_accent_color() {
+        return sanitize_hex_color( $this->get_setting( 'login_register_otp_accent_color', '#2563eb' ) );
+    }
+
     private function get_new_user_role() {
         $role = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_role', get_option( 'default_role', 'subscriber' ) ) );
         $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
@@ -134,6 +164,13 @@ class LimoSMS_Mobile_Auth {
                 'challengeExpiry' => $this->get_otp_expiry_seconds(),
                 'verifyMaxAttempts' => $this->get_verify_max_attempts(),
                 'lockoutSeconds'  => $this->get_verify_lockout_seconds(),
+                'formAlign'       => $this->get_form_align(),
+                'formDirection'   => $this->get_form_direction(),
+                'logoUrl'         => $this->get_logo_url(),
+                'backgroundImageUrl' => $this->get_background_image_url(),
+                'backgroundColor' => $this->get_background_color(),
+                'formBackgroundColor' => $this->get_form_background_color(),
+                'accentColor'     => $this->get_accent_color(),
             )
         );
     }
@@ -163,6 +200,16 @@ class LimoSMS_Mobile_Auth {
 
         wp_enqueue_style( 'limosms-mobile-auth' );
         wp_enqueue_script( 'limosms-mobile-auth' );
+
+        $form_style = array(
+            'logo_url'             => $this->get_logo_url(),
+            'background_image_url' => $this->get_background_image_url(),
+            'background_color'     => $this->get_background_color(),
+            'form_background_color'=> $this->get_form_background_color(),
+            'accent_color'         => $this->get_accent_color(),
+            'form_align'           => $this->get_form_align(),
+            'form_direction'       => $this->get_form_direction(),
+        );
 
         ob_start();
         include LIMOSMS_PATH . 'templates/mobile-auth-form.php';
