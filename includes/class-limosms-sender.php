@@ -114,6 +114,10 @@ class LimoSMS_Sender
             return '';
         }
 
+        if (0 === strpos($number, '0098')) {
+            return substr($number, 2);
+        }
+
         if (0 === strpos($number, '98')) {
             return $number;
         }

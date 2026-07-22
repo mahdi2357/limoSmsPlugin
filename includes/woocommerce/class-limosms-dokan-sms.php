@@ -12,6 +12,7 @@ class LimoSMS_Dokan_SMS {
         }
 
         add_action('woocommerce_checkout_order_processed', [$this, 'send_seller_sms_on_new_order'], 10, 1);
+        add_action('woocommerce_order_status_pending', [$this, 'send_seller_sms_on_new_order'], 10, 1);
         add_action('woocommerce_order_status_processing', [$this, 'send_seller_sms_on_processing'], 10, 1);
         add_action('woocommerce_order_status_completed', [$this, 'send_seller_sms_on_completed'], 10, 1);
         add_action('woocommerce_order_status_cancelled', [$this, 'send_seller_sms_on_cancelled'], 10, 1);
@@ -109,10 +110,11 @@ class LimoSMS_Dokan_SMS {
     private function get_seller_ids_from_order($order) {
         $seller_ids = array();
 
+        $order_seller_id = 0;
         if (function_exists('dokan_get_seller_id_by_order')) {
-            $seller_id = dokan_get_seller_id_by_order($order->get_id());
-            if ($seller_id) {
-                $seller_ids[] = absint($seller_id);
+            $order_seller_id = absint(dokan_get_seller_id_by_order($order->get_id()));
+            if ($order_seller_id > 0) {
+                $seller_ids[] = $order_seller_id;
             }
         }
 
@@ -122,7 +124,15 @@ class LimoSMS_Dokan_SMS {
             }
 
             $vendor_ids = array();
-            $vendor_meta_keys = array('_vendor_id', '_vendor_user_id', 'vendor_id', 'seller_id', 'user_id');
+            $vendor_meta_keys = array(
+                '_vendor_id',
+                '_vendor_user_id',
+                '_dokan_vendor_id',
+                'vendor_id',
+                'seller_id',
+                'user_id',
+            );
+
             foreach ($vendor_meta_keys as $meta_key) {
                 $value = $item->get_meta($meta_key, true);
                 if ($value !== '' && $value !== false) {
@@ -130,9 +140,16 @@ class LimoSMS_Dokan_SMS {
                 }
             }
 
-            if (!$vendor_ids && $item->get_product()) {
-                $product = $item->get_product();
-                if ($product && method_exists($product, 'get_post_data')) {
+            $product = $item->get_product();
+            if ($product) {
+                if (function_exists('dokan_get_seller_id_by_product')) {
+                    $vendor_id = absint(dokan_get_seller_id_by_product($product->get_id()));
+                    if ($vendor_id > 0) {
+                        $vendor_ids[] = $vendor_id;
+                    }
+                }
+
+                if (!$vendor_ids && method_exists($product, 'get_post_data')) {
                     $post = $product->get_post_data();
                     if ($post && !empty($post->post_author)) {
                         $vendor_ids[] = absint($post->post_author);
@@ -186,6 +203,38 @@ class LimoSMS_Dokan_SMS {
         }
 
         return '';
+    }
+
+    private function find_item_seller_id($item, $product) {
+        if (!is_object($item)) {
+            return 0;
+        }
+
+        $vendor_meta_keys = array('_vendor_id', '_vendor_user_id', 'vendor_id', 'seller_id', 'user_id');
+        foreach ($vendor_meta_keys as $meta_key) {
+            $value = $item->get_meta($meta_key, true);
+            if ($value !== '' && $value !== false) {
+                return absint($value);
+            }
+        }
+
+        if ($product) {
+            if (function_exists('dokan_get_seller_id_by_product')) {
+                $vendor_id = dokan_get_seller_id_by_product($product->get_id());
+                if ($vendor_id) {
+                    return absint($vendor_id);
+                }
+            }
+
+            if (method_exists($product, 'get_post_data')) {
+                $post = $product->get_post_data();
+                if ($post && !empty($post->post_author)) {
+                    return absint($post->post_author);
+                }
+            }
+        }
+
+        return 0;
     }
 
     private function build_seller_pattern_tokens($order, $seller_id, $pattern_map) {
@@ -264,7 +313,9 @@ class LimoSMS_Dokan_SMS {
             'order_total'         => wp_strip_all_tags($order->get_formatted_order_total()),
             'order_date'          => $order_date,
             'payment_method'      => $order->get_payment_method_title(),
+            'shipping_method'     => (string) $order->get_shipping_method(),
             'customer_name'       => trim($billing_first_name . ' ' . $billing_last_name),
+            'customer_phone'      => $billing_phone,
             'billing_first_name'  => $billing_first_name,
             'billing_last_name'   => $billing_last_name,
             'billing_phone'       => $billing_phone,
