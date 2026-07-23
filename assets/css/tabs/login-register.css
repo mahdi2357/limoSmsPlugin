@@ -25,6 +25,53 @@
     color: #6b7280;
 }
 
+.limoo-country-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.limoo-country-selector__options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.limoo-country-selector__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    color: #111827;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.limoo-country-selector__option:hover {
+    border-color: #93c5fd;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08);
+}
+
+.limoo-country-selector__option input {
+    margin: 0;
+}
+
+.limoo-country-selector__hint {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #4b5563;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
 .limoo-setting-row--media {
     flex-wrap: wrap;
     align-items: flex-start;

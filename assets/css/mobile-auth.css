@@ -116,6 +116,16 @@
     gap: 10px;
 }
 
+.limosms-mobile-auth__phone-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 140px) 1fr;
+    gap: 12px;
+}
+
+.limosms-mobile-auth__field--country-code {
+    min-width: 0;
+}
+
 .limosms-mobile-auth__field label {
     font-size: 13px;
     font-weight: 700;

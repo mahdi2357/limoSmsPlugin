@@ -61,12 +61,15 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    /* background: #fff; */
+    /* border: 1px solid #e2e8f0; */
     padding: 6px 10px;
     border-radius: 999px;
     font-weight: 600;
-    color: #1f2937;
+    /* color: #1f2937; */
+    background-color: #814DD5;
+    color: white;
+    border: #814DD5;
 }
 
 .limosms-admin-phone-chip .limosms-remove-admin-phone {

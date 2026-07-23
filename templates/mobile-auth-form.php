@@ -44,18 +44,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <input type="hidden" id="limosms_auth_mode" name="mode" value="login" />
 
-                <div class="limosms-mobile-auth__field">
-                    <label for="limosms_mobile"><?php esc_html_e( 'شماره موبایل خود را وارد کنید', 'limosms' ); ?></label>
-                    <input
-                            type="tel"
-                            id="limosms_mobile"
-                            name="mobile"
-                            class="limosms-mobile-auth__input"
-                            placeholder="<?php esc_attr_e( '0912...', 'limosms' ); ?>"
-                            inputmode="numeric"
-                            autocomplete="tel"
-                            dir="ltr"
-                    />
+                <div class="limosms-mobile-auth__phone-row">
+                    <div class="limosms-mobile-auth__field limosms-mobile-auth__field--country-code">
+                        <label for="limosms_country_code"><?php esc_html_e( 'کد کشور', 'limosms' ); ?></label>
+                        <input
+                                type="text"
+                                id="limosms_country_code"
+                                name="country_code"
+                                class="limosms-mobile-auth__input"
+                                placeholder="<?php esc_attr_e( '+98', 'limosms' ); ?>"
+                                value="+98"
+                                inputmode="numeric"
+                                autocomplete="tel-country-code"
+                                dir="ltr"
+                        />
+                    </div>
+
+                    <div class="limosms-mobile-auth__field limosms-mobile-auth__field--mobile">
+                        <label for="limosms_mobile"><?php esc_html_e( 'شماره موبایل خود را وارد کنید', 'limosms' ); ?></label>
+                        <input
+                                type="tel"
+                                id="limosms_mobile"
+                                name="mobile"
+                                class="limosms-mobile-auth__input"
+                                placeholder="<?php esc_attr_e( '9123456789', 'limosms' ); ?>"
+                                inputmode="numeric"
+                                autocomplete="tel"
+                                dir="ltr"
+                        />
+                    </div>
                 </div>
 
                 <div id="limosms_register_fields" class="limosms-mobile-auth__register-fields is-hidden" hidden aria-hidden="true">

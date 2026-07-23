@@ -79,6 +79,21 @@ class LimoSMS_Login_Register_Tab {
         );
         $settings['login_register_otp_font_family'] = in_array( $font_family, $allowed_font_families, true ) ? $font_family : 'Vazirmatn, Tahoma, Arial, sans-serif';
 
+        $allowed_country_codes = array();
+        if ( isset( $_POST['login_register_otp_allowed_country_codes'] ) && is_array( wp_unslash( $_POST['login_register_otp_allowed_country_codes'] ) ) ) {
+            foreach ( wp_unslash( $_POST['login_register_otp_allowed_country_codes'] ) as $country_code ) {
+                $country_code = sanitize_text_field( (string) $country_code );
+                $country_code = preg_replace( '/[^0-9]/', '', $country_code );
+                if ( '' !== $country_code ) {
+                    $allowed_country_codes[] = $country_code;
+                }
+            }
+        }
+        if ( empty( $allowed_country_codes ) ) {
+            $allowed_country_codes = array( '98' );
+        }
+        $settings['login_register_otp_allowed_country_codes'] = array_values( array_unique( $allowed_country_codes ) );
+
         $settings['login_register_otp_logo_url'] = esc_url_raw( wp_unslash( $_POST['login_register_otp_logo_url'] ?? '' ) );
         $settings['login_register_otp_background_image_url'] = esc_url_raw( wp_unslash( $_POST['login_register_otp_background_image_url'] ?? '' ) );
         $settings['login_register_otp_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_background_color'] ?? '#ffffff' ) );

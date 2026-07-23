@@ -902,3 +902,17 @@ body.admin-color-modern .ab-item:focus {
     color: #814DD5 !important;
     transform: translateY(-1px);
 }
+
+.limoo-switch input:checked + .limoo-switch__slider {
+    background: #7C3AED !important;
+}
+
+.limoo-login-register-subtab.is-active {
+    background: #7C3AED !important;
+    border-color: #7C3AED !important;
+    color: #fff;
+}
+.limoo-login-register-subtab:hover {
+    border-color: #7C3AED !important;
+    color: #7C3AED !important;
+}

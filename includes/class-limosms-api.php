@@ -190,18 +190,43 @@ class LimoSMS_API {
         return $default;
     }
 
-    public function normalize_mobile( $mobile ) {
-        $mobile = preg_replace( '/[^0-9]/', '', (string) $mobile );
+    public function normalize_mobile( $mobile, $allowed_country_codes = array() ) {
+        $digits = preg_replace( '/[^0-9]/', '', (string) $mobile );
 
-        if ( 0 === strpos( $mobile, '98' ) ) {
-            $mobile = '0' . substr( $mobile, 2 );
+        if ( '' === $digits ) {
+            return '';
         }
 
-        if ( 10 === strlen( $mobile ) && '9' === substr( $mobile, 0, 1 ) ) {
-            $mobile = '0' . $mobile;
+        if ( 0 === strpos( $digits, '98' ) ) {
+            $digits = '0' . substr( $digits, 2 );
+            return preg_match( '/^09\d{9}$/', $digits ) ? $digits : '';
         }
 
-        return preg_match( '/^09\d{9}$/', $mobile ) ? $mobile : '';
+        if ( preg_match( '/^0\d{9,12}$/', $digits ) ) {
+            return $digits;
+        }
+
+        $normalized_country_codes = array();
+        foreach ( (array) $allowed_country_codes as $country_code ) {
+            $code = preg_replace( '/[^0-9]/', '', (string) $country_code );
+            if ( '' !== $code ) {
+                $normalized_country_codes[] = $code;
+            }
+        }
+
+        $normalized_country_codes = array_values( array_unique( $normalized_country_codes ) );
+
+        if ( empty( $normalized_country_codes ) ) {
+            return '+' . $digits;
+        }
+
+        foreach ( $normalized_country_codes as $country_code ) {
+            if ( 0 === strpos( $digits, $country_code ) ) {
+                return '+' . $digits;
+            }
+        }
+
+        return '';
     }
 
     public function normalize_code( $code ) {

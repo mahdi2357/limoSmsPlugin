@@ -11,6 +11,7 @@
         var mobileStep = authBox.querySelector('[data-step="mobile"]');
         var codeStep = authBox.querySelector('[data-step="code"]');
         var mobileInput = authBox.querySelector("#limosms_mobile");
+        var countryCodeInput = authBox.querySelector("#limosms_country_code");
         var mobileConfirmInput = authBox.querySelector("#limosms_mobile_confirm");
         var authModeInput = authBox.querySelector("#limosms_auth_mode");
         var modeButtons = authBox.querySelectorAll(".limosms-mobile-auth__mode-button");
@@ -168,22 +169,62 @@
             });
         }
 
-        function normalizeMobile(value) {
-            var mobile = normalizeDigits(value).replace(/[^\d]/g, "");
-
-            if (mobile.indexOf("98") === 0) {
-                mobile = "0" + mobile.substring(2);
+        function normalizeCountryCode(value) {
+            var digits = normalizeDigits(value).replace(/[^\d]/g, "");
+            if (!digits) {
+                return "";
             }
-
-            if (mobile.length === 10 && mobile.charAt(0) === "9") {
-                mobile = "0" + mobile;
-            }
-
-            return mobile;
+            return "+" + digits.slice(0, 4);
         }
 
-        function isValidMobile(value) {
-            return /^09\d{9}$/.test(normalizeMobile(value));
+        function normalizeMobile(value, countryCode) {
+            var phoneDigits = normalizeDigits(value).replace(/[^\d]/g, "");
+            var countryCodeValue = normalizeCountryCode(countryCode || "").replace(/[^\d]/g, "");
+
+            if (!phoneDigits) {
+                return "";
+            }
+
+            if (countryCodeValue) {
+                if (phoneDigits.indexOf(countryCodeValue) === 0) {
+                    return "+" + phoneDigits;
+                }
+
+                if (phoneDigits.indexOf("0") === 0 && countryCodeValue === "98") {
+                    return "+" + countryCodeValue + phoneDigits.substring(1);
+                }
+
+                return "+" + countryCodeValue + phoneDigits;
+            }
+
+            if (phoneDigits.indexOf("98") === 0) {
+                return "+" + phoneDigits;
+            }
+
+            if (phoneDigits.length === 10 && phoneDigits.charAt(0) === "9") {
+                return "+98" + phoneDigits;
+            }
+
+            return phoneDigits.startsWith("0") ? phoneDigits : "+" + phoneDigits;
+        }
+
+        function isValidMobile(value, countryCode) {
+            var normalized = normalizeMobile(value, countryCode);
+            if (!normalized) {
+                return false;
+            }
+
+            var digits = normalized.replace(/[^\d]/g, "");
+
+            if (digits.indexOf("98") === 0) {
+                return /^98\d{9,10}$/.test(digits);
+            }
+
+            if (digits.indexOf("0") === 0) {
+                return /^0\d{9,10}$/.test(digits);
+            }
+
+            return /^\+\d{1,4}\d{6,12}$/.test(normalized);
         }
 
         function normalizeCode(value) {
@@ -283,12 +324,14 @@
         });
 
         mobileInput.addEventListener("input", function () {
-            this.value = normalizeMobile(this.value).slice(0, 11);
+            this.value = normalizeDigits(this.value).replace(/[^\d]/g, "").slice(0, 12);
         });
 
-        mobileConfirmInput.addEventListener("input", function () {
-            this.value = normalizeMobile(this.value).slice(0, 11);
-        });
+        if (countryCodeInput) {
+            countryCodeInput.addEventListener("input", function () {
+                this.value = normalizeCountryCode(this.value).slice(0, 5);
+            });
+        }
 
         codeInput.addEventListener("input", function () {
             this.value = normalizeCode(this.value).slice(0, getOtpLength());
@@ -315,13 +358,14 @@
                 return;
             }
 
-            var mobile = normalizeMobile(mobileInput.value);
-            mobileInput.value = mobile;
+            var countryCode = countryCodeInput ? countryCodeInput.value : "";
+            var mobile = normalizeMobile(mobileInput.value, countryCode);
+            mobileInput.value = mobileInput.value;
             var captchaAnswer = captchaEnabled && captchaInput ? normalizeDigits(captchaInput.value).replace(/[^\d]/g, "") : "";
             var captchaToken = captchaEnabled && captchaTokenInput ? captchaTokenInput.value : "";
 
-            if (!isValidMobile(mobile)) {
-                setMessage("شماره موبایل باید با 09 شروع شود و 11 رقم باشد.", "is-error");
+            if (!isValidMobile(mobileInput.value, countryCode)) {
+                setMessage("شماره موبایل باید با کد کشور معتبر و شماره همراه وارد شود.", "is-error");
                 mobileInput.focus();
                 return;
             }
@@ -399,7 +443,7 @@
                 return;
             }
 
-            var mobile = normalizeMobile(mobileConfirmInput.value);
+            var mobile = normalizeMobile(mobileConfirmInput.value, countryCodeInput ? countryCodeInput.value : "");
             var code = normalizeCode(codeInput.value);
             var otpLength = getOtpLength();
 
@@ -412,7 +456,7 @@
                 return;
             }
 
-            if (!isValidMobile(mobile)) {
+            if (!isValidMobile(mobile, countryCodeInput ? countryCodeInput.value : "")) {
                 setMessage("شماره موبایل معتبر نیست.", "is-error");
                 goToMobileStep();
                 return;

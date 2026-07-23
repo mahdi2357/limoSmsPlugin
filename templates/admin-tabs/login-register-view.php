@@ -61,6 +61,10 @@ $background_color = isset( $settings['login_register_otp_background_color'] ) ? 
 $form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
 $accent_color = isset( $settings['login_register_otp_accent_color'] ) ? $settings['login_register_otp_accent_color'] : '#2563eb';
 $custom_css = isset( $settings['login_register_otp_custom_css'] ) ? $settings['login_register_otp_custom_css'] : '';
+$selected_allowed_country_codes = isset( $settings['login_register_otp_allowed_country_codes'] ) && is_array( $settings['login_register_otp_allowed_country_codes'] ) ? $settings['login_register_otp_allowed_country_codes'] : array();
+if ( empty( $selected_allowed_country_codes ) ) {
+    $selected_allowed_country_codes = array( '98' );
+}
 $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
 ?>
 
@@ -161,6 +165,56 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                             class="limoo-setting-row__input"
                             placeholder="<?php esc_attr_e( '/my-account', 'limo-sms' ); ?>"
                     />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-allowed-countries" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'کشورهای مجاز برای ورود/ثبت‌نام', 'limoo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'کشورهایی که شماره موبایل آن‌ها مجاز است را انتخاب کنید. اگر هیچ کشور انتخاب نشود، فقط ایران در نظر گرفته می‌شود.', 'limoo-sms' ); ?>
+                        </p>
+                    </div>
+                    <div class="limoo-country-selector">
+                        <div class="limoo-country-selector__options">
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="98" <?php checked( in_array( '98', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'ایران (+98)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="90" <?php checked( in_array( '90', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'ترکیه (+90)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="964" <?php checked( in_array( '964', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'عراق (+964)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="966" <?php checked( in_array( '966', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'عربستان (+966)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="971" <?php checked( in_array( '971', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'امارات (+971)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="1" <?php checked( in_array( '1', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'آمریکا/کانادا (+1)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="44" <?php checked( in_array( '44', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'انگلیس (+44)', 'limoo-sms' ); ?></span>
+                            </label>
+                            <label class="limoo-country-selector__option">
+                                <input type="checkbox" name="login_register_otp_allowed_country_codes[]" value="49" <?php checked( in_array( '49', $selected_allowed_country_codes, true ) ); ?> />
+                                <span><?php esc_html_e( 'آلمان (+49)', 'limoo-sms' ); ?></span>
+                            </label>
+                        </div>
+                        <p class="limoo-country-selector__hint">
+                            <?php esc_html_e( 'در این بخش می‌توانید چند کشور را هم‌زمان برای ورود/ثبت‌نام فعال کنید. کاربر با کد کشور انتخاب‌شده می‌تواند شماره را وارد کند.', 'limoo-sms' ); ?>
+                        </p>
+                    </div>
                 </div>
 
                 <div class="limoo-setting-row">

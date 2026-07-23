@@ -96,6 +96,56 @@ class LimoSMS_Mobile_Auth {
         return in_array( $direction, array( 'rtl', 'ltr' ), true ) ? $direction : 'rtl';
     }
 
+    private function get_allowed_country_codes() {
+        $codes = $this->get_setting( 'login_register_otp_allowed_country_codes', array() );
+
+        if ( ! is_array( $codes ) ) {
+            $codes = array();
+        }
+
+        $normalized = array();
+        foreach ( $codes as $code ) {
+            $clean_code = preg_replace( '/[^0-9]/', '', (string) $code );
+            if ( '' !== $clean_code ) {
+                $normalized[] = $clean_code;
+            }
+        }
+
+        $normalized = array_values( array_unique( $normalized ) );
+
+        if ( empty( $normalized ) ) {
+            $normalized = array( '98' );
+        }
+
+        return $normalized;
+    }
+
+    private function is_mobile_allowed_for_selected_countries( $mobile ) {
+        $allowed_codes = $this->get_allowed_country_codes();
+
+        if ( empty( $allowed_codes ) ) {
+            return '' !== $this->api->normalize_mobile( $mobile );
+        }
+
+        $digits = preg_replace( '/[^0-9]/', '', (string) $mobile );
+
+        if ( '' === $digits ) {
+            return false;
+        }
+
+        if ( in_array( '98', $allowed_codes, true ) && preg_match( '/^09\d{9}$/', $digits ) ) {
+            return true;
+        }
+
+        foreach ( $allowed_codes as $code ) {
+            if ( 0 === strpos( $digits, $code ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function get_custom_css() {
         return sanitize_textarea_field( (string) $this->get_setting( 'login_register_otp_custom_css', '' ) );
     }
@@ -507,7 +557,8 @@ class LimoSMS_Mobile_Auth {
             );
         }
 
-        $mobile = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
+        $mobile = wp_unslash( $_POST['mobile'] ?? '' );
+        $mobile = $this->api->normalize_mobile( $mobile, $this->get_allowed_country_codes() );
         $mode = $this->get_requested_mode();
         $registration_fields = $this->get_registration_fields_from_request();
         $registration_error = 'register' === $mode ? $this->validate_registration_fields( $registration_fields ) : '';
@@ -539,7 +590,16 @@ class LimoSMS_Mobile_Auth {
         if ( '' === $mobile ) {
             wp_send_json_error(
                 array(
-                    'message' => 'شماره موبایل معتبر نیست.',
+                    'message' => 'شماره موبایل معتبر نیست یا برای کشور انتخابی مجاز نیست.',
+                ),
+                400
+            );
+        }
+
+        if ( ! $this->is_mobile_allowed_for_selected_countries( $mobile ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'این شماره موبایل برای کشورهای مجاز انتخابی قابل استفاده نیست.',
                 ),
                 400
             );
@@ -629,7 +689,8 @@ class LimoSMS_Mobile_Auth {
             );
         }
 
-        $mobile          = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
+        $mobile_raw      = wp_unslash( $_POST['mobile'] ?? '' );
+        $mobile          = $this->api->normalize_mobile( $mobile_raw, $this->get_allowed_country_codes() );
         $code            = $this->api->normalize_code( wp_unslash( $_POST['code'] ?? '' ) );
         $challenge_token  = sanitize_text_field( wp_unslash( $_POST['challenge_token'] ?? '' ) );
         $mode            = $this->get_requested_mode();
@@ -637,7 +698,16 @@ class LimoSMS_Mobile_Auth {
         if ( '' === $mobile ) {
             wp_send_json_error(
                 array(
-                    'message' => 'شماره موبایل معتبر نیست.',
+                    'message' => 'شماره موبایل معتبر نیست یا برای کشور انتخابی مجاز نیست.',
+                ),
+                400
+            );
+        }
+
+        if ( ! $this->is_mobile_allowed_for_selected_countries( $mobile ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'این شماره موبایل برای کشورهای مجاز انتخابی قابل استفاده نیست.',
                 ),
                 400
             );
