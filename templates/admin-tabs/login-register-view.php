@@ -53,12 +53,14 @@ $max_attempts = ! empty( $settings['login_register_otp_max_attempts'] ) ? absint
 $lockout_minutes = ! empty( $settings['login_register_otp_lockout_minutes'] ) ? absint( $settings['login_register_otp_lockout_minutes'] ) : 15;
 $form_align = isset( $settings['login_register_otp_form_align'] ) ? $settings['login_register_otp_form_align'] : 'center';
 $form_direction = isset( $settings['login_register_otp_form_direction'] ) ? $settings['login_register_otp_form_direction'] : 'rtl';
+$form_font_family = isset( $settings['login_register_otp_font_family'] ) ? $settings['login_register_otp_font_family'] : 'Vazirmatn, Tahoma, Arial, sans-serif';
 $logo_url = isset( $settings['login_register_otp_logo_url'] ) ? $settings['login_register_otp_logo_url'] : '';
 $captcha_enabled = ! empty( $settings['login_register_otp_captcha_enabled'] ) && '1' === (string) $settings['login_register_otp_captcha_enabled'];
 $background_image_url = isset( $settings['login_register_otp_background_image_url'] ) ? $settings['login_register_otp_background_image_url'] : '';
 $background_color = isset( $settings['login_register_otp_background_color'] ) ? $settings['login_register_otp_background_color'] : '#ffffff';
 $form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
 $accent_color = isset( $settings['login_register_otp_accent_color'] ) ? $settings['login_register_otp_accent_color'] : '#2563eb';
+$custom_css = isset( $settings['login_register_otp_custom_css'] ) ? $settings['login_register_otp_custom_css'] : '';
 $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
 ?>
 
@@ -382,6 +384,22 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                     </select>
                 </div>
 
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label class="limoo-login-register-inline-label"><?php esc_html_e( 'فونت فرم', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'فونت موردنظر برای متن‌های فرم را انتخاب کنید.', 'limosms' ); ?></p>
+                    </div>
+                    <select id="limoo-login-register-font-family" name="login_register_otp_font_family" class="limoo-setting-row__input">
+                        <option value="Vazirmatn, Tahoma, Arial, sans-serif" <?php selected( $form_font_family, 'Vazirmatn, Tahoma, Arial, sans-serif' ); ?>>Vazirmatn / فارسی</option>
+                        <option value="IRANSans, Tahoma, Arial, sans-serif" <?php selected( $form_font_family, 'IRANSans, Tahoma, Arial, sans-serif' ); ?>>IRANSans / فارسی</option>
+                        <option value="Tahoma, Arial, sans-serif" <?php selected( $form_font_family, 'Tahoma, Arial, sans-serif' ); ?>>Tahoma</option>
+                        <option value="Arial, sans-serif" <?php selected( $form_font_family, 'Arial, sans-serif' ); ?>>Arial</option>
+                        <option value="Segoe UI, Tahoma, sans-serif" <?php selected( $form_font_family, 'Segoe UI, Tahoma, sans-serif' ); ?>>Segoe UI</option>
+                        <option value="Yekan, Tahoma, Arial, sans-serif" <?php selected( $form_font_family, 'Yekan, Tahoma, Arial, sans-serif' ); ?>>Yekan / فارسی</option>
+                        <option value="Times New Roman, serif" <?php selected( $form_font_family, 'Times New Roman, serif' ); ?>>Times New Roman</option>
+                    </select>
+                </div>
+
                 <div class="limoo-setting-row limoo-setting-row--media">
                     <div class="limoo-setting-row__content">
                         <label class="limoo-login-register-inline-label"><?php esc_html_e( 'لوگو فرم', 'limosms' ); ?></label>
@@ -427,6 +445,27 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                         <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
                     </div>
                     <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-custom-css" class="limoo-setting-row__label"><?php esc_html_e( 'CSS سفارشی فرم', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'کد CSS دلخواه خود را برای شخصی‌سازی فرم اینجا بنویسید.', 'limosms' ); ?></p>
+                    </div>
+                    <div class="limoo-setting-row__content limoo-setting-row__content--full">
+                        <div class="limoo-custom-css-editor">
+                            <div class="limoo-custom-css-editor__header">
+                                <span><?php esc_html_e( 'ویرایشگر سبک سفارشی', 'limosms' ); ?></span>
+                                <div class="limoo-custom-css-editor__dots" aria-hidden="true">
+                                    <span class="limoo-custom-css-editor__dot"></span>
+                                    <span class="limoo-custom-css-editor__dot"></span>
+                                    <span class="limoo-custom-css-editor__dot"></span>
+                                </div>
+                            </div>
+                            <textarea id="limoo-login-register-custom-css" name="login_register_otp_custom_css" class="limoo-custom-css-editor__textarea" rows="12" placeholder=".limosms-mobile-auth { ... }\n.limosms-mobile-auth__button { ... }"><?php echo esc_textarea( $custom_css ); ?></textarea>
+                            <div class="limoo-custom-css-editor__hint"><?php esc_html_e( 'مثال: .limosms-mobile-auth { border-radius: 24px; }', 'limosms' ); ?></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -67,11 +67,24 @@ class LimoSMS_Login_Register_Tab {
         $form_direction = sanitize_text_field( wp_unslash( $_POST['login_register_otp_form_direction'] ?? 'rtl' ) );
         $settings['login_register_otp_form_direction'] = in_array( $form_direction, array( 'rtl', 'ltr' ), true ) ? $form_direction : 'rtl';
 
+        $font_family = sanitize_text_field( wp_unslash( $_POST['login_register_otp_font_family'] ?? 'Vazirmatn, Tahoma, Arial, sans-serif' ) );
+        $allowed_font_families = array(
+            'Vazirmatn, Tahoma, Arial, sans-serif',
+            'IRANSans, Tahoma, Arial, sans-serif',
+            'Tahoma, Arial, sans-serif',
+            'Arial, sans-serif',
+            'Segoe UI, Tahoma, sans-serif',
+            'Yekan, Tahoma, Arial, sans-serif',
+            'Times New Roman, serif',
+        );
+        $settings['login_register_otp_font_family'] = in_array( $font_family, $allowed_font_families, true ) ? $font_family : 'Vazirmatn, Tahoma, Arial, sans-serif';
+
         $settings['login_register_otp_logo_url'] = esc_url_raw( wp_unslash( $_POST['login_register_otp_logo_url'] ?? '' ) );
         $settings['login_register_otp_background_image_url'] = esc_url_raw( wp_unslash( $_POST['login_register_otp_background_image_url'] ?? '' ) );
         $settings['login_register_otp_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_background_color'] ?? '#ffffff' ) );
         $settings['login_register_otp_form_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_form_background_color'] ?? '#ffffff' ) );
         $settings['login_register_otp_accent_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_accent_color'] ?? '#2563eb' ) );
+        $settings['login_register_otp_custom_css'] = sanitize_textarea_field( wp_unslash( $_POST['login_register_otp_custom_css'] ?? '' ) );
 
         $updated = update_option( 'limoo_sms_settings', $settings );
 

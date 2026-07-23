@@ -96,6 +96,25 @@ class LimoSMS_Mobile_Auth {
         return in_array( $direction, array( 'rtl', 'ltr' ), true ) ? $direction : 'rtl';
     }
 
+    private function get_custom_css() {
+        return sanitize_textarea_field( (string) $this->get_setting( 'login_register_otp_custom_css', '' ) );
+    }
+
+    private function get_form_font_family() {
+        $font_family = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_font_family', 'Vazirmatn, Tahoma, Arial, sans-serif' ) );
+        $allowed_font_families = array(
+            'Vazirmatn, Tahoma, Arial, sans-serif',
+            'IRANSans, Tahoma, Arial, sans-serif',
+            'Tahoma, Arial, sans-serif',
+            'Arial, sans-serif',
+            'Segoe UI, Tahoma, sans-serif',
+            'Yekan, Tahoma, Arial, sans-serif',
+            'Times New Roman, serif',
+        );
+
+        return in_array( $font_family, $allowed_font_families, true ) ? $font_family : 'Vazirmatn, Tahoma, Arial, sans-serif';
+    }
+
     private function get_logo_url() {
         return esc_url_raw( $this->get_setting( 'login_register_otp_logo_url', '' ) );
     }
@@ -369,6 +388,8 @@ class LimoSMS_Mobile_Auth {
             'accent_color'         => $this->get_accent_color(),
             'form_align'           => $this->get_form_align(),
             'form_direction'       => $this->get_form_direction(),
+            'font_family'          => $this->get_form_font_family(),
+            'custom_css'          => $this->get_custom_css(),
         );
 
         $registration_fields = $this->get_registration_fields_for_form();

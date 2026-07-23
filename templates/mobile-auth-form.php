@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div
     class="limosms-mobile-auth limosms-mobile-auth--align-<?php echo esc_attr( $form_style['form_align'] ); ?> limosms-mobile-auth--dir-<?php echo esc_attr( $form_style['form_direction'] ); ?>"
     dir="<?php echo esc_attr( $form_style['form_direction'] ); ?>"
-    style="background-color:<?php echo esc_attr( $form_style['background_color'] ); ?>;<?php echo ! empty( $form_style['background_image_url'] ) ? 'background-image:url(' . esc_url( $form_style['background_image_url'] ) . ');' : ''; ?>"
+    style="background-color:<?php echo esc_attr( $form_style['background_color'] ); ?>;font-family:<?php echo esc_attr( $form_style['font_family'] ); ?>;<?php echo ! empty( $form_style['background_image_url'] ) ? 'background-image:url(' . esc_url( $form_style['background_image_url'] ) . ');' : ''; ?>"
 >
     <div class="limosms-mobile-auth__wrap" style="background-color:<?php echo esc_attr( $form_style['form_background_color'] ); ?>;--limosms-accent-color:<?php echo esc_attr( $form_style['accent_color'] ); ?>;">
         <?php if ( ! empty( $form_style['logo_url'] ) ) : ?>
@@ -24,6 +24,12 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <div class="limosms-mobile-auth__message" aria-live="polite"></div>
+
+        <?php if ( ! empty( $form_style['custom_css'] ) ) : ?>
+            <style>
+                <?php echo $form_style['custom_css']; ?>
+            </style>
+        <?php endif; ?>
 
         <form class="limosms-mobile-auth__form" method="post" action="">
             <div class="limosms-mobile-auth__step limosms-mobile-auth__step--mobile is-active" data-step="mobile">
