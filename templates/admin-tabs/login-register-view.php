@@ -12,6 +12,7 @@ $lockout_minutes = ! empty( $settings['login_register_otp_lockout_minutes'] ) ? 
 $form_align = isset( $settings['login_register_otp_form_align'] ) ? $settings['login_register_otp_form_align'] : 'center';
 $form_direction = isset( $settings['login_register_otp_form_direction'] ) ? $settings['login_register_otp_form_direction'] : 'rtl';
 $logo_url = isset( $settings['login_register_otp_logo_url'] ) ? $settings['login_register_otp_logo_url'] : '';
+$captcha_enabled = ! empty( $settings['login_register_otp_captcha_enabled'] ) && '1' === (string) $settings['login_register_otp_captcha_enabled'];
 $background_image_url = isset( $settings['login_register_otp_background_image_url'] ) ? $settings['login_register_otp_background_image_url'] : '';
 $background_color = isset( $settings['login_register_otp_background_color'] ) ? $settings['login_register_otp_background_color'] : '#ffffff';
 $form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
@@ -59,6 +60,27 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                 class="limoo-otp-settings <?php echo $is_enabled ? 'is-visible' : ''; ?>"
                 <?php echo $is_enabled ? '' : 'hidden'; ?>
         >
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label for="limoo-login-register-captcha-enabled" class="limoo-setting-row__label">
+                        <?php esc_html_e( 'فعال‌سازی کپچا', 'limoo-sms' ); ?>
+                    </label>
+                    <p class="limoo-setting-row__description">
+                        <?php esc_html_e( 'در صورت فعال بودن، قبل از ارسال کد تایید یک کپچا ساده نمایش داده می‌شود.', 'limoo-sms' ); ?>
+                    </p>
+                </div>
+                <label class="limoo-switch" for="limoo-login-register-captcha-enabled">
+                    <input
+                            type="checkbox"
+                            id="limoo-login-register-captcha-enabled"
+                            name="login_register_otp_captcha_enabled"
+                            value="1"
+                            <?php checked( $captcha_enabled ); ?>
+                    />
+                    <span class="limoo-switch__slider"></span>
+                </label>
+            </div>
+
             <div class="limoo-setting-row">
                 <div class="limoo-setting-row__content">
                     <label for="limoo-login-register-redirect-url" class="limoo-setting-row__label">

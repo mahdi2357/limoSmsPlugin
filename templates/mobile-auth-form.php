@@ -37,6 +37,28 @@ if ( ! defined( 'ABSPATH' ) ) {
                     />
                 </div>
 
+                <?php if ( ! empty( $captcha['enabled'] ) ) : ?>
+                    <div class="limosms-mobile-auth__field">
+                        <label for="limosms_captcha"><?php esc_html_e( 'کپچا', 'limosms' ); ?></label>
+                        <div class="limosms-mobile-auth__captcha-row">
+                            <div class="limosms-mobile-auth__captcha-question"><?php echo esc_html( $captcha['question'] ); ?></div>
+                            <button type="button" class="limosms-mobile-auth__button limosms-mobile-auth__button--secondary" id="limosms-refresh-captcha">
+                                <?php esc_html_e( 'تازه‌سازی کپچا', 'limosms' ); ?>
+                            </button>
+                        </div>
+                        <input
+                                type="text"
+                                id="limosms_captcha"
+                                name="captcha_answer"
+                                class="limosms-mobile-auth__input"
+                                placeholder="<?php esc_attr_e( 'جواب را وارد کنید', 'limosms' ); ?>"
+                                autocomplete="off"
+                                dir="ltr"
+                        />
+                        <input type="hidden" id="limosms_captcha_token" name="captcha_token" value="<?php echo esc_attr( $captcha['token'] ); ?>" />
+                    </div>
+                <?php endif; ?>
+
                 <button
                         type="button"
                         class="limosms-mobile-auth__button limosms-mobile-auth__button--primary"

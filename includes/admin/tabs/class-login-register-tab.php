@@ -40,6 +40,11 @@ class LimoSMS_Login_Register_Tab {
         $settings['login_register_otp_max_attempts'] = max( 1, absint( $_POST['login_register_otp_max_attempts'] ?? 5 ) );
         $settings['login_register_otp_lockout_minutes'] = max( 1, absint( $_POST['login_register_otp_lockout_minutes'] ?? 15 ) );
 
+        $settings['login_register_otp_captcha_enabled'] = (
+            isset( $_POST['login_register_otp_captcha_enabled'] ) &&
+            '1' === sanitize_text_field( wp_unslash( $_POST['login_register_otp_captcha_enabled'] ) )
+        ) ? '1' : '0';
+
         $form_align = sanitize_text_field( wp_unslash( $_POST['login_register_otp_form_align'] ?? 'center' ) );
         $settings['login_register_otp_form_align'] = in_array( $form_align, array( 'left', 'center', 'right' ), true ) ? $form_align : 'center';
 

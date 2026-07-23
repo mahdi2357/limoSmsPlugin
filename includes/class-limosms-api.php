@@ -29,20 +29,45 @@ class LimoSMS_API {
 
         $url = untrailingslashit( $this->base_url ) . '/' . ltrim( $endpoint, '/' );
 
+        $timeout = apply_filters( 'limosms_api_request_timeout', 45, $method, $endpoint );
         $args = array(
-            'method'  => strtoupper( $method ),
-            'timeout' => 20,
-            'headers' => $this->get_headers(),
+            'method'      => strtoupper( $method ),
+            'timeout'     => $timeout,
+            'redirection' => 5,
+            'headers'     => $this->get_headers(),
+            'httpversion' => '1.1',
         );
 
         if ( ! empty( $payload ) && in_array( strtoupper( $method ), array( 'POST', 'PUT', 'PATCH' ), true ) ) {
             $args['body'] = wp_json_encode( $payload );
         }
 
-        $response = wp_remote_request( $url, $args );
+        $args = apply_filters( 'limosms_api_request_args', $args, $method, $endpoint, $payload );
+        $retries = max( 0, (int) apply_filters( 'limosms_api_request_retries', 1, $method, $endpoint ) );
+        $attempts = 0;
+        $response = null;
+
+        do {
+            $response = wp_remote_request( $url, $args );
+            $attempts++;
+        } while (
+            $attempts <= $retries &&
+            is_wp_error( $response ) &&
+            false !== stripos( $response->get_error_message(), 'cURL error 28' )
+        );
 
         if ( is_wp_error( $response ) ) {
-            error_log( 'LimoSMS API WP Error => ' . $response->get_error_message() );
+            $error_message = $response->get_error_message();
+            error_log( 'LimoSMS API WP Error => ' . $error_message );
+
+            if ( false !== stripos( $error_message, 'cURL error 28' ) ) {
+                return new WP_Error(
+                    'limosms_api_timeout',
+                    'درخواست به سرویس پیامکی با تاخیر مواجه شد. لطفا دوباره تلاش کنید.',
+                    array( 'raw' => $error_message )
+                );
+            }
+
             return $response;
         }
 

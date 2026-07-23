@@ -26,6 +26,9 @@ class LimoSMS_Mobile_Auth {
 
         add_action( 'wp_ajax_nopriv_limosms_verify_otp', array( $this, 'ajax_verify_otp' ) );
         add_action( 'wp_ajax_limosms_verify_otp', array( $this, 'ajax_verify_otp' ) );
+
+        add_action( 'wp_ajax_nopriv_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
+        add_action( 'wp_ajax_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
     }
 
     private function is_login_register_enabled() {
@@ -171,6 +174,7 @@ class LimoSMS_Mobile_Auth {
                 'backgroundColor' => $this->get_background_color(),
                 'formBackgroundColor' => $this->get_form_background_color(),
                 'accentColor'     => $this->get_accent_color(),
+                'captchaEnabled'  => $this->is_captcha_enabled(),
             )
         );
     }
@@ -211,9 +215,105 @@ class LimoSMS_Mobile_Auth {
             'form_direction'       => $this->get_form_direction(),
         );
 
+        $captcha = array(
+            'enabled'  => $this->is_captcha_enabled(),
+            'token'    => '',
+            'question' => '',
+        );
+
+        if ( $captcha['enabled'] ) {
+            $captcha_data = $this->generate_captcha_data();
+            $captcha['token'] = $captcha_data['token'];
+            $captcha['question'] = $captcha_data['question'];
+        }
+
         ob_start();
         include LIMOSMS_PATH . 'templates/mobile-auth-form.php';
         return ob_get_clean();
+    }
+
+    public function ajax_refresh_captcha() {
+        check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
+
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
+
+        if ( ! $this->is_captcha_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'کپچا فعال نیست.',
+                ),
+                400
+            );
+        }
+
+        $captcha_data = $this->generate_captcha_data();
+
+        wp_send_json_success(
+            array(
+                'question' => $captcha_data['question'],
+                'token'    => $captcha_data['token'],
+            )
+        );
+    }
+
+    private function is_captcha_enabled() {
+        $settings = $this->get_settings();
+        return ! empty( $settings['login_register_otp_captcha_enabled'] ) && '1' === (string) $settings['login_register_otp_captcha_enabled'];
+    }
+
+    private function get_captcha_key( $token ) {
+        return 'limosms_mobile_auth_captcha_' . md5( $token );
+    }
+
+    private function generate_captcha_data() {
+        $first = rand( 1, 9 );
+        $second = rand( 1, 9 );
+        $operators = array(
+            '+' => $first + $second,
+            '-' => $first - $second,
+            '*' => $first * $second,
+        );
+        $operator = array_rand( $operators );
+        $question = sprintf( '%d %s %d = ?', $first, $operator, $second );
+        $token = wp_generate_password( 40, false, false );
+
+        set_transient(
+            $this->get_captcha_key( $token ),
+            (string) $operators[ $operator ],
+            10 * MINUTE_IN_SECONDS
+        );
+
+        return array(
+            'token'    => $token,
+            'question' => $question,
+        );
+    }
+
+    private function validate_captcha( $token, $answer ) {
+        if ( '' === $token || '' === $answer ) {
+            return false;
+        }
+
+        $expected = get_transient( $this->get_captcha_key( $token ) );
+
+        if ( false === $expected ) {
+            return false;
+        }
+
+        $is_valid = sanitize_text_field( $answer ) === trim( $expected );
+
+        if ( $is_valid ) {
+            delete_transient( $this->get_captcha_key( $token ) );
+        }
+
+        return $is_valid;
     }
 
 
@@ -230,6 +330,20 @@ class LimoSMS_Mobile_Auth {
         }
 
         $mobile = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
+
+        if ( $this->is_captcha_enabled() ) {
+            $captcha_token = sanitize_text_field( wp_unslash( $_POST['captcha_token'] ?? '' ) );
+            $captcha_answer = sanitize_text_field( wp_unslash( $_POST['captcha_answer'] ?? '' ) );
+
+            if ( ! $this->validate_captcha( $captcha_token, $captcha_answer ) ) {
+                wp_send_json_error(
+                    array(
+                        'message' => 'کپچا صحیح نیست. لطفا دوباره تلاش کنید.',
+                    ),
+                    400
+                );
+            }
+        }
 
         if ( '' === $mobile ) {
             wp_send_json_error(

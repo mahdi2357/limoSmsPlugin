@@ -12,6 +12,9 @@
         var codeStep = authBox.querySelector('[data-step="code"]');
         var mobileInput = authBox.querySelector("#limosms_mobile");
         var mobileConfirmInput = authBox.querySelector("#limosms_mobile_confirm");
+        var captchaInput = authBox.querySelector("#limosms_captcha");
+        var captchaTokenInput = authBox.querySelector("#limosms_captcha_token");
+        var captchaRefreshButton = authBox.querySelector("#limosms-refresh-captcha");
         var codeInput = authBox.querySelector("#limosms_code");
         var sendCodeButton = authBox.querySelector("#limosms-send-code");
         var verifyCodeButton = authBox.querySelector("#limosms-verify-code");
@@ -23,6 +26,8 @@
 
         var sendButtonDefaultText = sendCodeButton ? sendCodeButton.textContent.trim() : "دریافت کد تایید";
         var verifyButtonDefaultText = verifyCodeButton ? verifyCodeButton.textContent.trim() : "ورود به حساب";
+
+        var captchaEnabled = Boolean( limosmsMobileAuth.captchaEnabled );
 
         if (
             !mobileStep ||
@@ -36,6 +41,49 @@
             !messageBox
         ) {
             return;
+        }
+
+        function refreshCaptcha() {
+            if ( ! captchaRefreshButton ) {
+                return;
+            }
+
+            setButtonState(captchaRefreshButton, true, 'در حال تازه‌سازی...');
+
+            postAjax({
+                action: 'limosms_refresh_captcha',
+                nonce: limosmsMobileAuth.nonce,
+            })
+                .then(function (data) {
+                    if ( data && data.success && data.data ) {
+                        if ( captchaInput ) {
+                            captchaInput.value = '';
+                        }
+                        if ( captchaTokenInput ) {
+                            captchaTokenInput.value = data.data.token || '';
+                        }
+                        var captchaQuestion = authBox.querySelector('.limosms-mobile-auth__captcha-question');
+                        if ( captchaQuestion ) {
+                            captchaQuestion.textContent = data.data.question || '';
+                        }
+                        setMessage('کپچا تازه شد. لطفا دوباره پاسخ را وارد کنید.', 'is-success');
+                    } else {
+                        setMessage(data && data.data && data.data.message ? data.data.message : 'خطا در تازه‌سازی کپچا.', 'is-error');
+                    }
+                })
+                .catch(function () {
+                    setMessage('خطا در ارتباط با سرور.', 'is-error');
+                })
+                .finally(function () {
+                    setButtonState(captchaRefreshButton, false, 'تازه‌سازی کپچا');
+                });
+        }
+
+        if ( captchaRefreshButton ) {
+            captchaRefreshButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                refreshCaptcha();
+            });
         }
 
         function setMessage(message, type) {
@@ -214,6 +262,8 @@
 
             var mobile = normalizeMobile(mobileInput.value);
             mobileInput.value = mobile;
+            var captchaAnswer = captchaEnabled && captchaInput ? normalizeDigits(captchaInput.value).replace(/[^\d]/g, "") : "";
+            var captchaToken = captchaEnabled && captchaTokenInput ? captchaTokenInput.value : "";
 
             if (!isValidMobile(mobile)) {
                 setMessage("شماره موبایل باید با 09 شروع شود و 11 رقم باشد.", "is-error");
@@ -221,14 +271,36 @@
                 return;
             }
 
+            if ( captchaEnabled ) {
+                if ( ! captchaAnswer ) {
+                    setMessage("لطفا پاسخ کپچا را وارد کنید.", "is-error");
+                    if ( captchaInput ) {
+                        captchaInput.focus();
+                    }
+                    return;
+                }
+
+                if ( ! captchaToken ) {
+                    setMessage("خطا در کپچا. صفحه را دوباره بارگذاری کنید.", "is-error");
+                    return;
+                }
+            }
+
             setMessage("در حال ارسال کد...", "is-info");
             setButtonState(sendCodeButton, true, "در حال ارسال...");
 
-            postAjax({
+            var requestData = {
                 action: "limosms_send_otp",
                 nonce: limosmsMobileAuth.nonce,
                 mobile: mobile
-            })
+            };
+
+            if ( captchaEnabled ) {
+                requestData.captcha_answer = captchaAnswer;
+                requestData.captcha_token = captchaToken;
+            }
+
+            postAjax(requestData)
                 .then(function (data) {
                     if (!data || !data.success) {
                         var errorMessage =
