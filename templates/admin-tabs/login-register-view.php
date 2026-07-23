@@ -71,287 +71,305 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                 class="limoo-otp-settings <?php echo $is_enabled ? 'is-visible' : ''; ?>"
                 <?php echo $is_enabled ? '' : 'hidden'; ?>
         >
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-captcha-enabled" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'فعال‌سازی کپچا', 'limoo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'در صورت فعال بودن، قبل از ارسال کد تایید یک کپچا ساده نمایش داده می‌شود.', 'limoo-sms' ); ?>
-                    </p>
-                </div>
-                <label class="limoo-switch" for="limoo-login-register-captcha-enabled">
-                    <input
-                            type="checkbox"
-                            id="limoo-login-register-captcha-enabled"
-                            name="login_register_otp_captcha_enabled"
-                            value="1"
-                            <?php checked( $captcha_enabled ); ?>
-                    />
-                    <span class="limoo-switch__slider"></span>
-                </label>
+            <div class="limoo-login-register-subtabs" role="tablist" aria-label="تنظیمات ورود و عضویت">
+                <button type="button" class="limoo-login-register-subtab is-active" data-panel="general" role="tab" aria-selected="true">
+                    <?php esc_html_e( 'تنظیمات عمومی', 'limoo-sms' ); ?>
+                </button>
+                <button type="button" class="limoo-login-register-subtab" data-panel="security" role="tab" aria-selected="false">
+                    <?php esc_html_e( 'امنیت', 'limoo-sms' ); ?>
+                </button>
+                <button type="button" class="limoo-login-register-subtab" data-panel="style" role="tab" aria-selected="false">
+                    <?php esc_html_e( 'استایل', 'limoo-sms' ); ?>
+                </button>
             </div>
 
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-redirect-url" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'آدرس بازگشت پس از ورود', 'limoo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'آدرس صفحه‌ای را وارد کنید که پس از ورود یا ثبت نام با موفقیت به آن هدایت شود. خالی بگذارید تا به صفحه اصلی برود.', 'limoo-sms' ); ?>
-                    </p>
-                </div>
-                <input
-                        type="text"
-                        id="limoo-login-register-redirect-url"
-                        name="login_register_otp_redirect_url"
-                        value="<?php echo esc_attr( $redirect_url ); ?>"
-                        class="limoo-setting-row__input"
-                        placeholder="<?php esc_attr_e( '/my-account', 'limo-sms' ); ?>"
-                />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-role" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'نقش کاربر جدید', 'limo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'نقشی را که برای کاربران جدید ایجاد می‌شود انتخاب کنید.', 'limo-sms' ); ?>
-                    </p>
-                </div>
-                <select id="limoo-login-register-role" name="login_register_otp_role" class="limoo-setting-row__input">
-                    <?php foreach ( $roles as $role_key => $role_data ) : ?>
-                        <option value="<?php echo esc_attr( $role_key ); ?>" <?php selected( $selected_role, $role_key ); ?>>
-                            <?php echo esc_html( $role_data['name'] ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-expiry" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'مدت اعتبار کد (دقیقه)', 'limo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'مدت زمان معتبر بودن کد تایید پس از ارسال.', 'limo-sms' ); ?>
-                    </p>
-                </div>
-                <input
-                        type="number"
-                        min="1"
-                        id="limoo-login-register-expiry"
-                        name="login_register_otp_expiry_minutes"
-                        value="<?php echo esc_attr( $expiry_minutes ); ?>"
-                        class="limoo-setting-row__input"
-                />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-resend" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'فاصله ارسال مجدد (ثانیه)', 'limo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'حداقل فاصله بین ارسال‌های دوباره کد به یک شماره تلفن.', 'limo-sms' ); ?>
-                    </p>
-                </div>
-                <input
-                        type="number"
-                        min="10"
-                        id="limoo-login-register-resend"
-                        name="login_register_otp_resend_seconds"
-                        value="<?php echo esc_attr( $resend_seconds ); ?>"
-                        class="limoo-setting-row__input"
-                />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-max-attempts" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'حداکثر تلاش‌های ناموفق', 'limo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'بعد از این تعداد تلاش ناموفق، کاربر باید دوباره کد دریافت کند.', 'limo-sms' ); ?>
-                    </p>
-                </div>
-                <input
-                        type="number"
-                        min="1"
-                        id="limoo-login-register-max-attempts"
-                        name="login_register_otp_max_attempts"
-                        value="<?php echo esc_attr( $max_attempts ); ?>"
-                        class="limoo-setting-row__input"
-                />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-lockout" class="limoo-setting-row__label">
-                        <?php esc_html_e( 'قفل پس از شکست', 'limo-sms' ); ?>
-                    </label>
-                    <p class="limoo-setting-row__description">
-                        <?php esc_html_e( 'مدت زمان قفل شدن ارسال/اعتبارسنجی پس از تلاش‌های ناموفق.', 'limosms' ); ?>
-                    </p>
-                </div>
-                <input
-                        type="number"
-                        min="1"
-                        id="limoo-login-register-lockout"
-                        name="login_register_otp_lockout_minutes"
-                        value="<?php echo esc_attr( $lockout_minutes ); ?>"
-                        class="limoo-setting-row__input"
-                />
-            </div>
-
-            <div class="limoo-login-register-card__section">
-                <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'شخصی‌سازی فرم', 'limosms' ); ?></h3>
-                <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'برای هر سایت ظاهر فرم را تنظیم کنید.', 'limosms' ); ?></p>
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'چیدمان فرم', 'limosms' ); ?></label>
-                    <p class="limoo-setting-row__description"><?php esc_html_e( 'موقعیت بلوک فرم را مشخص کنید.', 'limosms' ); ?></p>
-                </div>
-                <select id="limoo-login-register-align" name="login_register_otp_form_align" class="limoo-setting-row__input">
-                    <option value="left" <?php selected( $form_align, 'left' ); ?>><?php esc_html_e( 'چپ', 'limosms' ); ?></option>
-                    <option value="center" <?php selected( $form_align, 'center' ); ?>><?php esc_html_e( 'وسط', 'limosms' ); ?></option>
-                    <option value="right" <?php selected( $form_align, 'right' ); ?>><?php esc_html_e( 'راست', 'limosms' ); ?></option>
-                </select>
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'جهت متن', 'limosms' ); ?></label>
-                    <p class="limoo-setting-row__description"><?php esc_html_e( 'نمایش فرم را برای RTL یا LTR تنظیم کنید.', 'limosms' ); ?></p>
-                </div>
-                <select id="limoo-login-register-direction" name="login_register_otp_form_direction" class="limoo-setting-row__input">
-                    <option value="rtl" <?php selected( $form_direction, 'rtl' ); ?>><?php esc_html_e( 'راست‌چین', 'limosms' ); ?></option>
-                    <option value="ltr" <?php selected( $form_direction, 'ltr' ); ?>><?php esc_html_e( 'چپ‌چین', 'limosms' ); ?></option>
-                </select>
-            </div>
-
-            <div class="limoo-setting-row limoo-setting-row--media">
-                <div class="limoo-setting-row__content">
-                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'لوگو فرم', 'limosms' ); ?></label>
-                    <p class="limoo-setting-row__description"><?php esc_html_e( 'لوگوی کوچک بالای فرم را تنظیم کنید.', 'limosms' ); ?></p>
-                </div>
-                <div class="limoo-media-field">
-                    <input type="text" id="limoo-login-register-logo-url" name="login_register_otp_logo_url" value="<?php echo esc_attr( $logo_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
-                    <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
-                    <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
-                    <img data-preview="limoo-login-register-logo-url" src="<?php echo esc_url( $logo_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $logo_url ) ? 'hidden' : ''; ?> />
-                </div>
-            </div>
-
-            <div class="limoo-setting-row limoo-setting-row--media">
-                <div class="limoo-setting-row__content">
-                    <label class="limoo-login-register-inline-label"><?php esc_html_e( 'پس‌زمینه فرم', 'limosms' ); ?></label>
-                    <p class="limoo-setting-row__description"><?php esc_html_e( 'یک تصویر پس‌زمینه برای بخش فرم انتخاب کنید.', 'limosms' ); ?></p>
-                </div>
-                <div class="limoo-media-field">
-                    <input type="text" id="limoo-login-register-background-url" name="login_register_otp_background_image_url" value="<?php echo esc_attr( $background_image_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
-                    <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
-                    <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
-                    <img data-preview="limoo-login-register-background-url" src="<?php echo esc_url( $background_image_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $background_image_url ) ? 'hidden' : ''; ?> />
-                </div>
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه کلی', 'limosms' ); ?></label>
-                </div>
-                <input type="color" id="limoo-login-register-background-color" name="login_register_otp_background_color" value="<?php echo esc_attr( $background_color ); ?>" class="limoo-setting-row__input" />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-form-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه فرم', 'limosms' ); ?></label>
-                </div>
-                <input type="color" id="limoo-login-register-form-background-color" name="login_register_otp_form_background_color" value="<?php echo esc_attr( $form_background_color ); ?>" class="limoo-setting-row__input" />
-            </div>
-
-            <div class="limoo-setting-row">
-                <div class="limoo-setting-row__content">
-                    <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
-                </div>
-                <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
-            </div>
-        </div>
-
-        <div class="limoo-login-register-card__section">
-            <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'لاگ فعالیت‌های ورود و تایید', 'limoo-sms' ); ?></h3>
-            <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'آخرین تلاش‌های ارسال کد، ورود موفق و تلاش‌های ناموفق را در اینجا ببینید.', 'limoo-sms' ); ?></p>
-        </div>
-
-        <div class="limoo-setting-row">
-            <div class="limoo-setting-row__content limoo-setting-row__content--full">
-                <?php if ( empty( $activity_logs ) ) : ?>
-                    <p class="limoo-setting-row__description"><?php esc_html_e( 'هنوز رویدادی ثبت نشده است.', 'limoo-sms' ); ?></p>
-                <?php else : ?>
-                    <div class="limoo-activity-log-table-wrapper">
-                        <table class="limoo-activity-log-table">
-                            <thead>
-                                <tr>
-                                    <th><?php esc_html_e( 'زمان', 'limoo-sms' ); ?></th>
-                                    <th><?php esc_html_e( 'نوع رویداد', 'limoo-sms' ); ?></th>
-                                    <th><?php esc_html_e( 'موبایل', 'limoo-sms' ); ?></th>
-                                    <th><?php esc_html_e( 'توضیح', 'limoo-sms' ); ?></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ( $activity_logs_visible as $log ) : ?>
-                                    <?php
-                                    $type_label = array(
-                                        'otp_send_success' => __( 'ارسال کد موفق', 'limoo-sms' ),
-                                        'otp_send_failed'  => __( 'ارسال کد ناموفق', 'limoo-sms' ),
-                                        'captcha_failed'   => __( 'کپچا ناموفق', 'limoo-sms' ),
-                                        'verify_success'   => __( 'ورود موفق', 'limoo-sms' ),
-                                        'verify_failed'    => __( 'تلاش ناموفق', 'limoo-sms' ),
-                                        'rate_limited'     => __( 'محدودیت نرخ', 'limoo-sms' ),
-                                        'verify_locked'    => __( 'قفل کاربر', 'limoo-sms' ),
-                                    );
-                                    $log_type = isset( $log['type'] ) ? (string) $log['type'] : '';
-                                    $label = isset( $type_label[ $log_type ] ) ? $type_label[ $log_type ] : __( 'رویداد', 'limoo-sms' );
-                                    $message = isset( $log['message'] ) ? $log['message'] : '';
-                                    $mobile = isset( $log['mobile'] ) ? $log['mobile'] : '';
-                                    $timestamp = isset( $log['timestamp'] ) ? gmdate( 'Y-m-d H:i:s', (int) $log['timestamp'] ) : '';
-                                    $pill_class = 'limoo-activity-log-pill';
-                                    if ( 'verify_success' === $log_type || 'otp_send_success' === $log_type ) {
-                                        $pill_class .= ' limoo-activity-log-pill--success';
-                                    } elseif ( 'verify_failed' === $log_type || 'otp_send_failed' === $log_type || 'captcha_failed' === $log_type ) {
-                                        $pill_class .= ' limoo-activity-log-pill--danger';
-                                    } else {
-                                        $pill_class .= ' limoo-activity-log-pill--neutral';
-                                    }
-                                    ?>
-                                    <tr>
-                                        <td><?php echo esc_html( $timestamp ); ?></td>
-                                        <td><span class="<?php echo esc_attr( $pill_class ); ?>"><?php echo esc_html( $label ); ?></span></td>
-                                        <td><?php echo esc_html( $mobile ); ?></td>
-                                        <td><?php echo esc_html( $message ); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+            <div id="limoo-login-register-panel-general" class="limoo-login-register-panel is-active" role="tabpanel">
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-redirect-url" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'آدرس بازگشت پس از ورود', 'limoo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'آدرس صفحه‌ای را وارد کنید که پس از ورود یا ثبت نام با موفقیت به آن هدایت شود. خالی بگذارید تا به صفحه اصلی برود.', 'limoo-sms' ); ?>
+                        </p>
                     </div>
+                    <input
+                            type="text"
+                            id="limoo-login-register-redirect-url"
+                            name="login_register_otp_redirect_url"
+                            value="<?php echo esc_attr( $redirect_url ); ?>"
+                            class="limoo-setting-row__input"
+                            placeholder="<?php esc_attr_e( '/my-account', 'limo-sms' ); ?>"
+                    />
+                </div>
 
-                    <?php if ( $activity_logs_total_pages > 1 ) : ?>
-                        <div class="limoo-activity-log-pagination" role="navigation" aria-label="Pagination">
-                            <?php if ( $activity_logs_page > 1 ) : ?>
-                                <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', max( 1, $activity_logs_page - 1 ), $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'قبلی', 'limoo-sms' ); ?></a>
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-role" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'نقش کاربر جدید', 'limo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'نقشی را که برای کاربران جدید ایجاد می‌شود انتخاب کنید.', 'limo-sms' ); ?>
+                        </p>
+                    </div>
+                    <select id="limoo-login-register-role" name="login_register_otp_role" class="limoo-setting-row__input">
+                        <?php foreach ( $roles as $role_key => $role_data ) : ?>
+                            <option value="<?php echo esc_attr( $role_key ); ?>" <?php selected( $selected_role, $role_key ); ?>>
+                                <?php echo esc_html( $role_data['name'] ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-expiry" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'مدت اعتبار کد (دقیقه)', 'limo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'مدت زمان معتبر بودن کد تایید پس از ارسال.', 'limo-sms' ); ?>
+                        </p>
+                    </div>
+                    <input
+                            type="number"
+                            min="1"
+                            id="limoo-login-register-expiry"
+                            name="login_register_otp_expiry_minutes"
+                            value="<?php echo esc_attr( $expiry_minutes ); ?>"
+                            class="limoo-setting-row__input"
+                    />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-resend" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'فاصله ارسال مجدد (ثانیه)', 'limo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'حداقل فاصله بین ارسال‌های دوباره کد به یک شماره تلفن.', 'limo-sms' ); ?>
+                        </p>
+                    </div>
+                    <input
+                            type="number"
+                            min="10"
+                            id="limoo-login-register-resend"
+                            name="login_register_otp_resend_seconds"
+                            value="<?php echo esc_attr( $resend_seconds ); ?>"
+                            class="limoo-setting-row__input"
+                    />
+                </div>
+
+                <div class="limoo-login-register-card__section">
+                    <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'لاگ فعالیت‌های ورود و تایید', 'limoo-sms' ); ?></h3>
+                    <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'آخرین تلاش‌های ارسال کد، ورود موفق و تلاش‌های ناموفق را در اینجا ببینید.', 'limoo-sms' ); ?></p>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content limoo-setting-row__content--full">
+                        <?php if ( empty( $activity_logs ) ) : ?>
+                            <p class="limoo-setting-row__description"><?php esc_html_e( 'هنوز رویدادی ثبت نشده است.', 'limoo-sms' ); ?></p>
+                        <?php else : ?>
+                            <div class="limoo-activity-log-table-wrapper">
+                                <table class="limoo-activity-log-table">
+                                    <thead>
+                                        <tr>
+                                            <th><?php esc_html_e( 'زمان', 'limoo-sms' ); ?></th>
+                                            <th><?php esc_html_e( 'نوع رویداد', 'limoo-sms' ); ?></th>
+                                            <th><?php esc_html_e( 'موبایل', 'limoo-sms' ); ?></th>
+                                            <th><?php esc_html_e( 'توضیح', 'limoo-sms' ); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ( $activity_logs_visible as $log ) : ?>
+                                            <?php
+                                            $type_label = array(
+                                                'otp_send_success' => __( 'ارسال کد موفق', 'limoo-sms' ),
+                                                'otp_send_failed'  => __( 'ارسال کد ناموفق', 'limoo-sms' ),
+                                                'captcha_failed'   => __( 'کپچا ناموفق', 'limoo-sms' ),
+                                                'verify_success'   => __( 'ورود موفق', 'limoo-sms' ),
+                                                'verify_failed'    => __( 'تلاش ناموفق', 'limoo-sms' ),
+                                                'rate_limited'     => __( 'محدودیت نرخ', 'limoo-sms' ),
+                                                'verify_locked'    => __( 'قفل کاربر', 'limoo-sms' ),
+                                            );
+                                            $log_type = isset( $log['type'] ) ? (string) $log['type'] : '';
+                                            $label = isset( $type_label[ $log_type ] ) ? $type_label[ $log_type ] : __( 'رویداد', 'limoo-sms' );
+                                            $message = isset( $log['message'] ) ? $log['message'] : '';
+                                            $mobile = isset( $log['mobile'] ) ? $log['mobile'] : '';
+                                            $timestamp = isset( $log['timestamp'] ) ? gmdate( 'Y-m-d H:i:s', (int) $log['timestamp'] ) : '';
+                                            $pill_class = 'limoo-activity-log-pill';
+                                            if ( 'verify_success' === $log_type || 'otp_send_success' === $log_type ) {
+                                                $pill_class .= ' limoo-activity-log-pill--success';
+                                            } elseif ( 'verify_failed' === $log_type || 'otp_send_failed' === $log_type || 'captcha_failed' === $log_type ) {
+                                                $pill_class .= ' limoo-activity-log-pill--danger';
+                                            } else {
+                                                $pill_class .= ' limoo-activity-log-pill--neutral';
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td><?php echo esc_html( $timestamp ); ?></td>
+                                                <td><span class="<?php echo esc_attr( $pill_class ); ?>"><?php echo esc_html( $label ); ?></span></td>
+                                                <td><?php echo esc_html( $mobile ); ?></td>
+                                                <td><?php echo esc_html( $message ); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <?php if ( $activity_logs_total_pages > 1 ) : ?>
+                                <div class="limoo-activity-log-pagination" role="navigation" aria-label="Pagination">
+                                    <?php if ( $activity_logs_page > 1 ) : ?>
+                                        <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', max( 1, $activity_logs_page - 1 ), $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'قبلی', 'limoo-sms' ); ?></a>
+                                    <?php endif; ?>
+                                    <span class="limoo-activity-log-pagination__info">
+                                        <?php printf( esc_html__( 'صفحه %1$d از %2$d', 'limoo-sms' ), $activity_logs_page, $activity_logs_total_pages ); ?>
+                                    </span>
+                                    <?php if ( $activity_logs_page < $activity_logs_total_pages ) : ?>
+                                        <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', $activity_logs_page + 1, $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'بعدی', 'limoo-sms' ); ?></a>
+                                    <?php endif; ?>
+                                </div>
                             <?php endif; ?>
-                            <span class="limoo-activity-log-pagination__info">
-                                <?php printf( esc_html__( 'صفحه %1$d از %2$d', 'limoo-sms' ), $activity_logs_page, $activity_logs_total_pages ); ?>
-                            </span>
-                            <?php if ( $activity_logs_page < $activity_logs_total_pages ) : ?>
-                                <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', $activity_logs_page + 1, $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'بعدی', 'limoo-sms' ); ?></a>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <div id="limoo-login-register-panel-security" class="limoo-login-register-panel" role="tabpanel" hidden>
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-captcha-enabled" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'فعال‌سازی کپچا', 'limoo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'در صورت فعال بودن، قبل از ارسال کد تایید یک کپچا ساده نمایش داده می‌شود.', 'limoo-sms' ); ?>
+                        </p>
+                    </div>
+                    <label class="limoo-switch" for="limoo-login-register-captcha-enabled">
+                        <input
+                                type="checkbox"
+                                id="limoo-login-register-captcha-enabled"
+                                name="login_register_otp_captcha_enabled"
+                                value="1"
+                                <?php checked( $captcha_enabled ); ?>
+                        />
+                        <span class="limoo-switch__slider"></span>
+                    </label>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-max-attempts" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'حداکثر تلاش‌های ناموفق', 'limo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'بعد از این تعداد تلاش ناموفق، کاربر باید دوباره کد دریافت کند.', 'limo-sms' ); ?>
+                        </p>
+                    </div>
+                    <input
+                            type="number"
+                            min="1"
+                            id="limoo-login-register-max-attempts"
+                            name="login_register_otp_max_attempts"
+                            value="<?php echo esc_attr( $max_attempts ); ?>"
+                            class="limoo-setting-row__input"
+                    />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-lockout" class="limoo-setting-row__label">
+                            <?php esc_html_e( 'قفل پس از شکست', 'limo-sms' ); ?>
+                        </label>
+                        <p class="limoo-setting-row__description">
+                            <?php esc_html_e( 'مدت زمان قفل شدن ارسال/اعتبارسنجی پس از تلاش‌های ناموفق.', 'limosms' ); ?>
+                        </p>
+                    </div>
+                    <input
+                            type="number"
+                            min="1"
+                            id="limoo-login-register-lockout"
+                            name="login_register_otp_lockout_minutes"
+                            value="<?php echo esc_attr( $lockout_minutes ); ?>"
+                            class="limoo-setting-row__input"
+                    />
+                </div>
+            </div>
+
+            <div id="limoo-login-register-panel-style" class="limoo-login-register-panel" role="tabpanel" hidden>
+                <div class="limoo-login-register-card__section">
+                    <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'شخصی‌سازی فرم', 'limosms' ); ?></h3>
+                    <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'برای هر سایت ظاهر فرم را تنظیم کنید.', 'limosms' ); ?></p>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label class="limoo-login-register-inline-label"><?php esc_html_e( 'چیدمان فرم', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'موقعیت بلوک فرم را مشخص کنید.', 'limosms' ); ?></p>
+                    </div>
+                    <select id="limoo-login-register-align" name="login_register_otp_form_align" class="limoo-setting-row__input">
+                        <option value="left" <?php selected( $form_align, 'left' ); ?>><?php esc_html_e( 'چپ', 'limosms' ); ?></option>
+                        <option value="center" <?php selected( $form_align, 'center' ); ?>><?php esc_html_e( 'وسط', 'limosms' ); ?></option>
+                        <option value="right" <?php selected( $form_align, 'right' ); ?>><?php esc_html_e( 'راست', 'limosms' ); ?></option>
+                    </select>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label class="limoo-login-register-inline-label"><?php esc_html_e( 'جهت متن', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'نمایش فرم را برای RTL یا LTR تنظیم کنید.', 'limosms' ); ?></p>
+                    </div>
+                    <select id="limoo-login-register-direction" name="login_register_otp_form_direction" class="limoo-setting-row__input">
+                        <option value="rtl" <?php selected( $form_direction, 'rtl' ); ?>><?php esc_html_e( 'راست‌چین', 'limosms' ); ?></option>
+                        <option value="ltr" <?php selected( $form_direction, 'ltr' ); ?>><?php esc_html_e( 'چپ‌چین', 'limosms' ); ?></option>
+                    </select>
+                </div>
+
+                <div class="limoo-setting-row limoo-setting-row--media">
+                    <div class="limoo-setting-row__content">
+                        <label class="limoo-login-register-inline-label"><?php esc_html_e( 'لوگو فرم', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'لوگوی کوچک بالای فرم را تنظیم کنید.', 'limosms' ); ?></p>
+                    </div>
+                    <div class="limoo-media-field">
+                        <input type="text" id="limoo-login-register-logo-url" name="login_register_otp_logo_url" value="<?php echo esc_attr( $logo_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
+                        <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
+                        <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-logo-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
+                        <img data-preview="limoo-login-register-logo-url" src="<?php echo esc_url( $logo_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $logo_url ) ? 'hidden' : ''; ?> />
+                    </div>
+                </div>
+
+                <div class="limoo-setting-row limoo-setting-row--media">
+                    <div class="limoo-setting-row__content">
+                        <label class="limoo-login-register-inline-label"><?php esc_html_e( 'پس‌زمینه فرم', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'یک تصویر پس‌زمینه برای بخش فرم انتخاب کنید.', 'limosms' ); ?></p>
+                    </div>
+                    <div class="limoo-media-field">
+                        <input type="text" id="limoo-login-register-background-url" name="login_register_otp_background_image_url" value="<?php echo esc_attr( $background_image_url ); ?>" class="limoo-setting-row__input" placeholder="https://" />
+                        <button type="button" class="button limoo-media-upload-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'انتخاب', 'limosms' ); ?></button>
+                        <button type="button" class="button limoo-media-remove-button" data-target="limoo-login-register-background-url"><?php esc_html_e( 'پاک کردن', 'limosms' ); ?></button>
+                        <img data-preview="limoo-login-register-background-url" src="<?php echo esc_url( $background_image_url ); ?>" alt="" class="limoo-media-preview" <?php echo empty( $background_image_url ) ? 'hidden' : ''; ?> />
+                    </div>
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه کلی', 'limosms' ); ?></label>
+                    </div>
+                    <input type="color" id="limoo-login-register-background-color" name="login_register_otp_background_color" value="<?php echo esc_attr( $background_color ); ?>" class="limoo-setting-row__input" />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-form-background-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه فرم', 'limosms' ); ?></label>
+                    </div>
+                    <input type="color" id="limoo-login-register-form-background-color" name="login_register_otp_form_background_color" value="<?php echo esc_attr( $form_background_color ); ?>" class="limoo-setting-row__input" />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
+                    </div>
+                    <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
+                </div>
             </div>
         </div>
 

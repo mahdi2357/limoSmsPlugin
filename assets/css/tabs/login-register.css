@@ -118,6 +118,44 @@
     width: 100%;
 }
 
+.limoo-login-register-subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.limoo-login-register-subtab {
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.limoo-login-register-subtab:hover {
+    border-color: #2271b1;
+    color: #2271b1;
+}
+
+.limoo-login-register-subtab.is-active {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.limoo-login-register-panel {
+    display: none;
+}
+
+.limoo-login-register-panel.is-active {
+    display: block;
+}
+
 .limoo-activity-log-table-wrapper {
     width: 100%;
     overflow-x: auto;

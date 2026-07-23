@@ -88,8 +88,26 @@ jQuery(function ($) {
     });
 
 
+    function switchLoginRegisterPanel(targetPanel) {
+        $('.limoo-login-register-subtab').each(function () {
+            var isActive = $(this).attr('data-panel') === targetPanel;
+            $(this).toggleClass('is-active', isActive);
+            $(this).attr('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        $('.limoo-login-register-panel').each(function () {
+            var shouldShow = $(this).attr('id') === 'limoo-login-register-panel-' + targetPanel;
+            $(this).toggleClass('is-active', shouldShow);
+            $(this).attr('hidden', shouldShow ? null : 'hidden');
+        });
+    }
+
     $(document).on('change', '#limoo-login-register-otp-enabled', function () {
         syncOtpNotice(this.checked);
+    });
+
+    $(document).on('click', '.limoo-login-register-subtab', function () {
+        switchLoginRegisterPanel($(this).attr('data-panel'));
     });
 
     $(document).on('submit', '#limoo-login-register-form', function (e) {
