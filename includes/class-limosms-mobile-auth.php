@@ -123,6 +123,131 @@ class LimoSMS_Mobile_Auth {
         return isset( $roles[ $role ] ) ? $role : get_option( 'default_role', 'subscriber' );
     }
 
+    private function get_registration_fields_config() {
+        $defaults = array(
+            'username' => array(
+                'label' => __( 'نام کاربری', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'نام کاربری', 'limosms' ),
+            ),
+            'email' => array(
+                'label' => __( 'ایمیل', 'limosms' ),
+                'type' => 'email',
+                'placeholder' => 'name@example.com',
+            ),
+            'first_name' => array(
+                'label' => __( 'نام', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'نام', 'limosms' ),
+            ),
+            'last_name' => array(
+                'label' => __( 'نام خانوادگی', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'نام خانوادگی', 'limosms' ),
+            ),
+            'address' => array(
+                'label' => __( 'آدرس', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'آدرس', 'limosms' ),
+            ),
+            'city' => array(
+                'label' => __( 'شهر', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'شهر', 'limosms' ),
+            ),
+            'postcode' => array(
+                'label' => __( 'کد پستی', 'limosms' ),
+                'type' => 'text',
+                'placeholder' => __( 'کد پستی', 'limosms' ),
+            ),
+        );
+
+        $configured = $this->get_setting( 'login_register_otp_registration_fields', array() );
+        if ( ! is_array( $configured ) ) {
+            $configured = array();
+        }
+
+        $fields = array();
+
+        foreach ( $defaults as $key => $field ) {
+            $field_config = isset( $configured[ $key ] ) && is_array( $configured[ $key ] ) ? $configured[ $key ] : array();
+            $enabled = ! empty( $field_config['enabled'] ) && '1' === (string) $field_config['enabled'];
+            if ( ! $enabled ) {
+                continue;
+            }
+
+            $field['enabled'] = true;
+            $field['required'] = ! empty( $field_config['required'] ) && '1' === (string) $field_config['required'];
+            $field['key'] = $key;
+            $fields[ $key ] = $field;
+        }
+
+        return $fields;
+    }
+
+    private function get_registration_fields_for_form() {
+        $fields = $this->get_registration_fields_config();
+        $prepared = array();
+
+        foreach ( $fields as $key => $field ) {
+            $prepared[ $key ] = array(
+                'key' => $key,
+                'label' => isset( $field['label'] ) ? $field['label'] : '',
+                'type' => isset( $field['type'] ) ? $field['type'] : 'text',
+                'placeholder' => isset( $field['placeholder'] ) ? $field['placeholder'] : '',
+                'required' => ! empty( $field['required'] ),
+            );
+        }
+
+        return $prepared;
+    }
+
+    private function get_registration_fields_from_request() {
+        $raw_fields = isset( $_POST['registration_fields'] ) && is_array( $_POST['registration_fields'] ) ? wp_unslash( $_POST['registration_fields'] ) : array();
+        $fields = array();
+
+        foreach ( $this->get_registration_fields_config() as $key => $field ) {
+            if ( ! isset( $raw_fields[ $key ] ) ) {
+                continue;
+            }
+
+            $value = $raw_fields[ $key ];
+            switch ( $key ) {
+                case 'username':
+                    $fields[ $key ] = sanitize_user( (string) $value );
+                    break;
+                case 'email':
+                    $fields[ $key ] = sanitize_email( (string) $value );
+                    break;
+                default:
+                    $fields[ $key ] = sanitize_text_field( (string) $value );
+                    break;
+            }
+        }
+
+        return $fields;
+    }
+
+    private function validate_registration_fields( $fields ) {
+        foreach ( $this->get_registration_fields_config() as $key => $field ) {
+            if ( empty( $field['required'] ) ) {
+                continue;
+            }
+
+            $value = isset( $fields[ $key ] ) ? trim( (string) $fields[ $key ] ) : '';
+
+            if ( '' === $value ) {
+                return sprintf( __( 'فیلد %s الزامی است.', 'limosms' ), $field['label'] );
+            }
+
+            if ( 'email' === $key && ! is_email( $value ) ) {
+                return __( 'ایمیل وارد شده معتبر نیست.', 'limosms' );
+            }
+        }
+
+        return '';
+    }
+
     private function ensure_mobile_user_meta( WP_User $user, $mobile ) {
         if ( '' === $mobile ) {
             return $user;
@@ -246,6 +371,7 @@ class LimoSMS_Mobile_Auth {
             'form_direction'       => $this->get_form_direction(),
         );
 
+        $registration_fields = $this->get_registration_fields_for_form();
         $captcha = array(
             'enabled'  => $this->is_captcha_enabled(),
             'token'    => '',
@@ -361,6 +487,18 @@ class LimoSMS_Mobile_Auth {
         }
 
         $mobile = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
+        $mode = $this->get_requested_mode();
+        $registration_fields = $this->get_registration_fields_from_request();
+        $registration_error = 'register' === $mode ? $this->validate_registration_fields( $registration_fields ) : '';
+
+        if ( '' !== $registration_error ) {
+            wp_send_json_error(
+                array(
+                    'message' => $registration_error,
+                ),
+                400
+            );
+        }
 
         if ( $this->is_captcha_enabled() ) {
             $captcha_token = sanitize_text_field( wp_unslash( $_POST['captcha_token'] ?? '' ) );
@@ -430,9 +568,11 @@ class LimoSMS_Mobile_Auth {
 
         $challenge_token = wp_generate_password( 40, false, false );
         $challenge_data  = array(
-            'mobile'     => $mobile,
-            'created_at' => time(),
-            'attempts'   => 0,
+            'mobile'             => $mobile,
+            'created_at'         => time(),
+            'attempts'           => 0,
+            'mode'               => $mode,
+            'registration_fields'=> $registration_fields,
         );
 
         $challenge_ttl = $this->get_otp_expiry_seconds();
@@ -471,6 +611,7 @@ class LimoSMS_Mobile_Auth {
         $mobile          = $this->api->normalize_mobile( wp_unslash( $_POST['mobile'] ?? '' ) );
         $code            = $this->api->normalize_code( wp_unslash( $_POST['code'] ?? '' ) );
         $challenge_token  = sanitize_text_field( wp_unslash( $_POST['challenge_token'] ?? '' ) );
+        $mode            = $this->get_requested_mode();
 
         if ( '' === $mobile ) {
             wp_send_json_error(
@@ -601,7 +742,8 @@ class LimoSMS_Mobile_Auth {
         $this->clear_verify_lock( $mobile );
         $this->add_activity_log( 'verify_success', $mobile, 'ورود با کد تایید موفقیت‌آمیز بود' );
 
-        $user = $this->get_or_create_user_by_mobile( $mobile );
+        $challenge_mode = isset( $challenge['mode'] ) ? sanitize_key( (string) $challenge['mode'] ) : 'login';
+        $user = $this->get_or_create_user_by_mobile( $mobile, isset( $challenge['registration_fields'] ) && is_array( $challenge['registration_fields'] ) ? $challenge['registration_fields'] : array(), 'register' === $challenge_mode );
 
         if ( is_wp_error( $user ) ) {
             wp_send_json_error(
@@ -746,24 +888,60 @@ class LimoSMS_Mobile_Auth {
         return '';
     }
 
-    private function get_or_create_user_by_mobile( $mobile ) {
+    private function get_requested_mode() {
+        $mode = sanitize_key( wp_unslash( $_POST['mode'] ?? '' ) );
+        return 'register' === $mode ? 'register' : 'login';
+    }
+
+    private function get_or_create_user_by_mobile( $mobile, $registration_fields = array(), $allow_registration = false ) {
         $user = $this->find_user_by_mobile( $mobile );
 
         if ( $user instanceof WP_User ) {
             return $this->ensure_mobile_user_meta( $user, $mobile );
         }
 
-        $username = $this->generate_username_from_mobile( $mobile );
-        $email    = $username . '@limosms.local';
+        if ( ! $allow_registration ) {
+            return new WP_Error( 'user_not_found', __( 'کاربر با این شماره یافت نشد. برای ثبت‌نام، حالت ثبت‌نام را انتخاب کنید.', 'limosms' ) );
+        }
+
+        $username = isset( $registration_fields['username'] ) && '' !== trim( (string) $registration_fields['username'] )
+            ? trim( (string) $registration_fields['username'] )
+            : $this->generate_username_from_mobile( $mobile );
+        $email    = isset( $registration_fields['email'] ) && '' !== trim( (string) $registration_fields['email'] )
+            ? trim( (string) $registration_fields['email'] )
+            : $username . '@limosms.local';
+        $first_name = isset( $registration_fields['first_name'] ) ? trim( (string) $registration_fields['first_name'] ) : '';
+        $last_name = isset( $registration_fields['last_name'] ) ? trim( (string) $registration_fields['last_name'] ) : '';
         $password = wp_generate_password( 20, true, true );
+
+        $username = sanitize_user( $username, true );
+        $email    = sanitize_email( $email );
+
+        if ( '' === $username ) {
+            $username = $this->generate_username_from_mobile( $mobile );
+        }
+
+        if ( '' === $email ) {
+            $email = $username . '@limosms.local';
+        }
+
+        if ( username_exists( $username ) ) {
+            $username = $this->generate_username_from_mobile( $mobile );
+        }
+
+        if ( email_exists( $email ) ) {
+            return new WP_Error( 'email_exists', __( 'این ایمیل قبلاً ثبت شده است.', 'limosms' ) );
+        }
 
         $user_id = wp_insert_user(
             array(
                 'user_login'   => $username,
                 'user_pass'    => $password,
                 'user_email'   => $email,
-                'display_name' => $mobile,
-                'nickname'     => $mobile,
+                'first_name'   => $first_name,
+                'last_name'    => $last_name,
+                'display_name' => '' !== $first_name || '' !== $last_name ? trim( $first_name . ' ' . $last_name ) : $mobile,
+                'nickname'     => '' !== $first_name || '' !== $last_name ? trim( $first_name . ' ' . $last_name ) : $mobile,
                 'role'         => $this->get_new_user_role(),
             )
         );
@@ -774,6 +952,34 @@ class LimoSMS_Mobile_Auth {
 
         update_user_meta( $user_id, 'limosms_mobile', $mobile );
         update_user_meta( $user_id, 'billing_phone', $mobile );
+
+        if ( '' !== $first_name ) {
+            update_user_meta( $user_id, 'billing_first_name', $first_name );
+            update_user_meta( $user_id, 'shipping_first_name', $first_name );
+        }
+
+        if ( '' !== $last_name ) {
+            update_user_meta( $user_id, 'billing_last_name', $last_name );
+            update_user_meta( $user_id, 'shipping_last_name', $last_name );
+        }
+
+        if ( isset( $registration_fields['address'] ) && '' !== trim( (string) $registration_fields['address'] ) ) {
+            $address = trim( (string) $registration_fields['address'] );
+            update_user_meta( $user_id, 'billing_address_1', $address );
+            update_user_meta( $user_id, 'shipping_address_1', $address );
+        }
+
+        if ( isset( $registration_fields['city'] ) && '' !== trim( (string) $registration_fields['city'] ) ) {
+            $city = trim( (string) $registration_fields['city'] );
+            update_user_meta( $user_id, 'billing_city', $city );
+            update_user_meta( $user_id, 'shipping_city', $city );
+        }
+
+        if ( isset( $registration_fields['postcode'] ) && '' !== trim( (string) $registration_fields['postcode'] ) ) {
+            $postcode = trim( (string) $registration_fields['postcode'] );
+            update_user_meta( $user_id, 'billing_postcode', $postcode );
+            update_user_meta( $user_id, 'shipping_postcode', $postcode );
+        }
 
         return get_user_by( 'id', $user_id );
     }

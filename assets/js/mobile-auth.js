@@ -12,6 +12,10 @@
         var codeStep = authBox.querySelector('[data-step="code"]');
         var mobileInput = authBox.querySelector("#limosms_mobile");
         var mobileConfirmInput = authBox.querySelector("#limosms_mobile_confirm");
+        var authModeInput = authBox.querySelector("#limosms_auth_mode");
+        var modeButtons = authBox.querySelectorAll(".limosms-mobile-auth__mode-button");
+        var registrationFieldsContainer = authBox.querySelector("#limosms_register_fields");
+        var registrationFieldInputs = authBox.querySelectorAll(".limosms-mobile-auth__registration-field");
         var captchaInput = authBox.querySelector("#limosms_captcha");
         var captchaTokenInput = authBox.querySelector("#limosms_captcha_token");
         var captchaRefreshButton = authBox.querySelector("#limosms-refresh-captcha");
@@ -28,6 +32,7 @@
         var verifyButtonDefaultText = verifyCodeButton ? verifyCodeButton.textContent.trim() : "ورود به حساب";
 
         var captchaEnabled = Boolean( limosmsMobileAuth.captchaEnabled );
+        var currentMode = authModeInput && authModeInput.value ? authModeInput.value : "login";
 
         if (
             !mobileStep ||
@@ -92,6 +97,49 @@
 
             if (type) {
                 messageBox.classList.add(type);
+            }
+        }
+
+        function updateMode(mode) {
+            currentMode = mode === "register" ? "register" : "login";
+
+            if (authModeInput) {
+                authModeInput.value = currentMode;
+            }
+
+            if (registrationFieldsContainer) {
+                var shouldShowRegistrationFields = currentMode === "register";
+                registrationFieldsContainer.hidden = !shouldShowRegistrationFields;
+                registrationFieldsContainer.classList.toggle("is-hidden", !shouldShowRegistrationFields);
+                registrationFieldsContainer.setAttribute("aria-hidden", shouldShowRegistrationFields ? "false" : "true");
+            }
+
+            registrationFieldInputs.forEach(function (input) {
+                var shouldEnable = currentMode === "register";
+                input.disabled = !shouldEnable;
+                input.setAttribute("aria-hidden", shouldEnable ? "false" : "true");
+
+                if (shouldEnable) {
+                    if (input.getAttribute("data-required") === "1") {
+                        input.setAttribute("required", "");
+                    } else {
+                        input.removeAttribute("required");
+                    }
+                } else {
+                    input.removeAttribute("required");
+                }
+            });
+
+            modeButtons.forEach(function (button) {
+                var isActive = button.getAttribute("data-mode") === currentMode;
+                button.classList.toggle("is-active", isActive);
+                button.setAttribute("aria-pressed", isActive ? "true" : "false");
+            });
+
+            if (currentMode === "register") {
+                setMessage("برای ثبت‌نام، اطلاعات تکمیلی را وارد کنید.", "is-info");
+            } else {
+                setMessage("", "");
             }
         }
 
@@ -227,6 +275,13 @@
             }).then(parseJsonResponse);
         }
 
+        modeButtons.forEach(function (button) {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                updateMode(button.getAttribute("data-mode") || "login");
+            });
+        });
+
         mobileInput.addEventListener("input", function () {
             this.value = normalizeMobile(this.value).slice(0, 11);
         });
@@ -292,7 +347,8 @@
             var requestData = {
                 action: "limosms_send_otp",
                 nonce: limosmsMobileAuth.nonce,
-                mobile: mobile
+                mobile: mobile,
+                mode: currentMode
             };
 
             if ( captchaEnabled ) {
@@ -376,7 +432,8 @@
                 nonce: limosmsMobileAuth.nonce,
                 mobile: mobile,
                 code: code,
-                challenge_token: challengeToken
+                challenge_token: challengeToken,
+                mode: currentMode
             })
                 .then(function (data) {
                     if (!data || !data.success) {
@@ -416,6 +473,8 @@
             event.preventDefault();
             goToMobileStep();
         });
+
+        updateMode(currentMode);
 
         window.addEventListener("beforeunload", function () {
             clearSendCooldown();

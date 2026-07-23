@@ -19,10 +19,25 @@ if ( ! defined( 'ABSPATH' ) ) {
             <h2 class="limosms-mobile-auth__title"><?php echo esc_html( $title ); ?></h2>
         <?php endif; ?>
 
+        <div class="limosms-mobile-auth__subtitle">
+            <?php esc_html_e( 'ورود و ثبت‌نام سریع و امن با کد تأیید', 'limosms' ); ?>
+        </div>
+
         <div class="limosms-mobile-auth__message" aria-live="polite"></div>
 
         <form class="limosms-mobile-auth__form" method="post" action="">
             <div class="limosms-mobile-auth__step limosms-mobile-auth__step--mobile is-active" data-step="mobile">
+                <div class="limosms-mobile-auth__mode-switch" role="tablist" aria-label="حالت ورود">
+                    <button type="button" class="limosms-mobile-auth__mode-button is-active" data-mode="login">
+                        <?php esc_html_e( 'ورود', 'limosms' ); ?>
+                    </button>
+                    <button type="button" class="limosms-mobile-auth__mode-button" data-mode="register">
+                        <?php esc_html_e( 'ثبت نام', 'limosms' ); ?>
+                    </button>
+                </div>
+
+                <input type="hidden" id="limosms_auth_mode" name="mode" value="login" />
+
                 <div class="limosms-mobile-auth__field">
                     <label for="limosms_mobile"><?php esc_html_e( 'شماره موبایل خود را وارد کنید', 'limosms' ); ?></label>
                     <input
@@ -35,6 +50,28 @@ if ( ! defined( 'ABSPATH' ) ) {
                             autocomplete="tel"
                             dir="ltr"
                     />
+                </div>
+
+                <div id="limosms_register_fields" class="limosms-mobile-auth__register-fields is-hidden" hidden aria-hidden="true">
+                    <?php if ( ! empty( $registration_fields ) ) : ?>
+                        <?php foreach ( $registration_fields as $field ) : ?>
+                            <?php $field_key = isset( $field['key'] ) ? $field['key'] : ''; ?>
+                            <?php if ( '' === $field_key ) continue; ?>
+                            <div class="limosms-mobile-auth__field">
+                                <label for="limosms_registration_<?php echo esc_attr( $field_key ); ?>"><?php echo esc_html( $field['label'] ); ?><?php echo ! empty( $field['required'] ) ? ' *' : ''; ?></label>
+                                <input
+                                        type="<?php echo esc_attr( $field['type'] ); ?>"
+                                        id="limosms_registration_<?php echo esc_attr( $field_key ); ?>"
+                                        name="registration_fields[<?php echo esc_attr( $field_key ); ?>]"
+                                        class="limosms-mobile-auth__input limosms-mobile-auth__registration-field"
+                                        placeholder="<?php echo esc_attr( $field['placeholder'] ); ?>"
+                                        data-required="<?php echo ! empty( $field['required'] ) ? '1' : '0'; ?>"
+                                        <?php echo ! empty( $field['required'] ) ? 'required' : ''; ?>
+                                        autocomplete="off"
+                                />
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
 
                 <?php if ( ! empty( $captcha['enabled'] ) ) : ?>

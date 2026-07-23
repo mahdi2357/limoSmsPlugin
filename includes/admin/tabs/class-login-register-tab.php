@@ -45,6 +45,22 @@ class LimoSMS_Login_Register_Tab {
             '1' === sanitize_text_field( wp_unslash( $_POST['login_register_otp_captcha_enabled'] ) )
         ) ? '1' : '0';
 
+        $registration_fields = array();
+        if ( isset( $_POST['login_register_otp_registration_fields'] ) && is_array( $_POST['login_register_otp_registration_fields'] ) ) {
+            foreach ( wp_unslash( $_POST['login_register_otp_registration_fields'] ) as $field_key => $field_settings ) {
+                $field_key = sanitize_key( (string) $field_key );
+                if ( '' === $field_key ) {
+                    continue;
+                }
+
+                $registration_fields[ $field_key ] = array(
+                    'enabled' => isset( $field_settings['enabled'] ) && '1' === sanitize_text_field( (string) $field_settings['enabled'] ) ? '1' : '0',
+                    'required' => isset( $field_settings['required'] ) && '1' === sanitize_text_field( (string) $field_settings['required'] ) ? '1' : '0',
+                );
+            }
+        }
+        $settings['login_register_otp_registration_fields'] = $registration_fields;
+
         $form_align = sanitize_text_field( wp_unslash( $_POST['login_register_otp_form_align'] ?? 'center' ) );
         $settings['login_register_otp_form_align'] = in_array( $form_align, array( 'left', 'center', 'right' ), true ) ? $form_align : 'center';
 

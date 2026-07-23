@@ -2,6 +2,37 @@
 $settings   = get_option( 'limoo_sms_settings', array() );
 $is_enabled = ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
 $activity_logs = get_option( 'limoo_sms_auth_logs', array() );
+$registration_fields_config = isset( $settings['login_register_otp_registration_fields'] ) && is_array( $settings['login_register_otp_registration_fields'] ) ? $settings['login_register_otp_registration_fields'] : array();
+$registration_field_options = array(
+    'username' => array(
+        'label' => __( 'نام کاربری', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+    'email' => array(
+        'label' => __( 'ایمیل', 'limoo-sms' ),
+        'default_required' => true,
+    ),
+    'first_name' => array(
+        'label' => __( 'نام', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+    'last_name' => array(
+        'label' => __( 'نام خانوادگی', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+    'address' => array(
+        'label' => __( 'آدرس', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+    'city' => array(
+        'label' => __( 'شهر', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+    'postcode' => array(
+        'label' => __( 'کد پستی', 'limoo-sms' ),
+        'default_required' => false,
+    ),
+);
 $activity_logs = is_array( $activity_logs ) ? $activity_logs : array();
 $activity_logs_total = count( $activity_logs );
 $activity_logs_per_page = 10;
@@ -84,6 +115,33 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
             </div>
 
             <div id="limoo-login-register-panel-general" class="limoo-login-register-panel is-active" role="tabpanel">
+                <div class="limoo-login-register-card__section">
+                    <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'فیلدهای ثبت‌نام', 'limoo-sms' ); ?></h3>
+                    <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'فیلدهایی که هنگام ثبت‌نام از کاربر گرفته شود را انتخاب کنید و مشخص کنید کدام‌ها اجباری هستند.', 'limoo-sms' ); ?></p>
+                </div>
+
+                <?php foreach ( $registration_field_options as $field_key => $field_option ) : ?>
+                    <?php $field_config = isset( $registration_fields_config[ $field_key ] ) && is_array( $registration_fields_config[ $field_key ] ) ? $registration_fields_config[ $field_key ] : array(); ?>
+                    <?php $is_enabled = ! empty( $field_config['enabled'] ) && '1' === (string) $field_config['enabled']; ?>
+                    <?php $is_required = ! empty( $field_config['required'] ) && '1' === (string) $field_config['required']; ?>
+                    <div class="limoo-setting-row">
+                        <div class="limoo-setting-row__content">
+                            <label class="limoo-setting-row__label" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-enabled"><?php echo esc_html( $field_option['label'] ); ?></label>
+                            <p class="limoo-setting-row__description"><?php esc_html_e( 'فعال بودن این فیلد در فرم ثبت‌نام', 'limoo-sms' ); ?></p>
+                        </div>
+                        <div class="limoo-setting-row__controls">
+                            <label class="limoo-switch" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-enabled">
+                                <input type="checkbox" id="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-enabled" name="login_register_otp_registration_fields[<?php echo esc_attr( $field_key ); ?>][enabled]" value="1" <?php checked( $is_enabled ); ?> />
+                                <span class="limoo-switch__slider"></span>
+                            </label>
+                            <label class="limoo-setting-row__inline-checkbox" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required">
+                                <input type="checkbox" id="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required" name="login_register_otp_registration_fields[<?php echo esc_attr( $field_key ); ?>][required]" value="1" <?php checked( $is_required ); ?> />
+                                <?php esc_html_e( 'اجباری', 'limoo-sms' ); ?>
+                            </label>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+
                 <div class="limoo-setting-row">
                     <div class="limoo-setting-row__content">
                         <label for="limoo-login-register-redirect-url" class="limoo-setting-row__label">
