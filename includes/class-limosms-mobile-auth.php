@@ -139,6 +139,37 @@ class LimoSMS_Mobile_Auth {
         return $user;
     }
 
+    private function get_activity_logs() {
+        $logs = get_option( 'limoo_sms_auth_logs', array() );
+        return is_array( $logs ) ? $logs : array();
+    }
+
+    private function add_activity_log( $type, $mobile = '', $message = '', $details = array() ) {
+        $logs = $this->get_activity_logs();
+
+        $entry = array(
+            'timestamp' => current_time( 'timestamp' ),
+            'type'      => sanitize_key( (string) $type ),
+            'mobile'    => sanitize_text_field( (string) $mobile ),
+            'message'   => sanitize_text_field( (string) $message ),
+            'ip'        => sanitize_text_field( (string) $this->get_client_ip() ),
+            'details'   => array(),
+        );
+
+        if ( is_array( $details ) ) {
+            foreach ( $details as $key => $value ) {
+                if ( is_scalar( $value ) ) {
+                    $entry['details'][ sanitize_key( (string) $key ) ] = sanitize_text_field( (string) $value );
+                }
+            }
+        }
+
+        array_unshift( $logs, $entry );
+        $logs = array_slice( $logs, 0, 50 );
+
+        update_option( 'limoo_sms_auth_logs', $logs );
+    }
+
     public function register_assets() {
         wp_register_style(
             'limosms-mobile-auth',
@@ -336,6 +367,7 @@ class LimoSMS_Mobile_Auth {
             $captcha_answer = sanitize_text_field( wp_unslash( $_POST['captcha_answer'] ?? '' ) );
 
             if ( ! $this->validate_captcha( $captcha_token, $captcha_answer ) ) {
+                $this->add_activity_log( 'captcha_failed', $mobile, 'تلاش ناموفق برای کپچا', array( 'token' => $captcha_token ) );
                 wp_send_json_error(
                     array(
                         'message' => 'کپچا صحیح نیست. لطفا دوباره تلاش کنید.',
@@ -355,6 +387,7 @@ class LimoSMS_Mobile_Auth {
         }
 
         if ( $this->is_send_rate_limited( $mobile ) ) {
+            $this->add_activity_log( 'rate_limited', $mobile, 'ارسال کد مسدود شد؛ نرخ بیش از حد', array( 'reason' => 'rate_limit' ) );
             wp_send_json_error(
                 array(
                     'message' => 'تعداد درخواست‌ها بیش از حد مجاز است. لطفا کمی بعد دوباره تلاش کنید.',
@@ -364,6 +397,7 @@ class LimoSMS_Mobile_Auth {
         }
 
         if ( $this->is_verify_locked( $mobile ) ) {
+            $this->add_activity_log( 'verify_locked', $mobile, 'ارسال کد متوقف شد؛ کاربر قفل شده است', array( 'reason' => 'verify_lock' ) );
             wp_send_json_error(
                 array(
                     'message' => 'به دلیل تلاش‌های ناموفق، موقتا امکان دریافت کد وجود ندارد. کمی بعد دوباره تلاش کنید.',
@@ -375,6 +409,7 @@ class LimoSMS_Mobile_Auth {
         $response = $this->api->send_verification_code( $mobile );
 
         if ( is_wp_error( $response ) ) {
+            $this->add_activity_log( 'otp_send_failed', $mobile, 'ارسال کد با خطا مواجه شد', array( 'error' => $response->get_error_message() ) );
             wp_send_json_error(
                 array(
                     'message' => $response->get_error_message(),
@@ -384,6 +419,7 @@ class LimoSMS_Mobile_Auth {
         }
 
         if ( ! $this->api->is_send_successful( $response ) ) {
+            $this->add_activity_log( 'otp_send_failed', $mobile, 'ارسال کد توسط API ناموفق بود', array( 'response' => $this->api->get_response_message( $response, 'ارسال کد انجام نشد.' ) ) );
             wp_send_json_error(
                 array(
                     'message' => $this->api->get_response_message( $response, 'ارسال کد انجام نشد.' ),
@@ -409,6 +445,7 @@ class LimoSMS_Mobile_Auth {
 
         $this->mark_send_request( $mobile );
         $this->clear_verify_lock( $mobile );
+        $this->add_activity_log( 'otp_send_success', $mobile, 'کد تایید با موفقیت ارسال شد' );
 
         wp_send_json_success(
             array(
@@ -463,6 +500,7 @@ class LimoSMS_Mobile_Auth {
         }
 
         if ( $this->is_verify_locked( $mobile ) ) {
+            $this->add_activity_log( 'verify_locked', $mobile, 'تلاش برای ورود مسدود شد؛ کاربر قفل شده است', array( 'reason' => 'verify_lock' ) );
             wp_send_json_error(
                 array(
                     'message' => 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفا دوباره کد دریافت کنید.',
@@ -531,6 +569,7 @@ class LimoSMS_Mobile_Auth {
 
         if ( ! $this->api->is_verification_successful( $response ) ) {
             $challenge['attempts'] = $attempts + 1;
+            $this->add_activity_log( 'verify_failed', $mobile, 'کد تایید نامعتبر بود', array( 'attempt' => $challenge['attempts'] ) );
 
             set_transient(
                 $this->get_challenge_key( $challenge_token ),
@@ -560,6 +599,7 @@ class LimoSMS_Mobile_Auth {
 
         delete_transient( $this->get_challenge_key( $challenge_token ) );
         $this->clear_verify_lock( $mobile );
+        $this->add_activity_log( 'verify_success', $mobile, 'ورود با کد تایید موفقیت‌آمیز بود' );
 
         $user = $this->get_or_create_user_by_mobile( $mobile );
 

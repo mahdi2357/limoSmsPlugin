@@ -1,6 +1,17 @@
 <?php
 $settings   = get_option( 'limoo_sms_settings', array() );
 $is_enabled = ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
+$activity_logs = get_option( 'limoo_sms_auth_logs', array() );
+$activity_logs = is_array( $activity_logs ) ? $activity_logs : array();
+$activity_logs_total = count( $activity_logs );
+$activity_logs_per_page = 10;
+$activity_logs_page = isset( $_GET['limoo_logs_page'] ) ? max( 1, absint( wp_unslash( $_GET['limoo_logs_page'] ) ) ) : 1;
+$activity_logs_total_pages = max( 1, (int) ceil( $activity_logs_total / $activity_logs_per_page ) );
+$activity_logs_page = min( $activity_logs_page, $activity_logs_total_pages );
+$activity_logs_start = ( $activity_logs_page - 1 ) * $activity_logs_per_page;
+$activity_logs_visible = array_slice( $activity_logs, $activity_logs_start, $activity_logs_per_page );
+$page_slug = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+$activity_logs_base_url = $page_slug ? admin_url( 'admin.php?page=' . rawurlencode( $page_slug ) ) : admin_url();
 
 $redirect_url  = isset( $settings['login_register_otp_redirect_url'] ) ? $settings['login_register_otp_redirect_url'] : '';
 $default_role  = get_option( 'default_role', 'subscriber' );
@@ -267,6 +278,80 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                     <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
                 </div>
                 <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
+            </div>
+        </div>
+
+        <div class="limoo-login-register-card__section">
+            <h3 class="limoo-login-register-card__section-title"><?php esc_html_e( 'لاگ فعالیت‌های ورود و تایید', 'limoo-sms' ); ?></h3>
+            <p class="limoo-login-register-card__section-description"><?php esc_html_e( 'آخرین تلاش‌های ارسال کد، ورود موفق و تلاش‌های ناموفق را در اینجا ببینید.', 'limoo-sms' ); ?></p>
+        </div>
+
+        <div class="limoo-setting-row">
+            <div class="limoo-setting-row__content limoo-setting-row__content--full">
+                <?php if ( empty( $activity_logs ) ) : ?>
+                    <p class="limoo-setting-row__description"><?php esc_html_e( 'هنوز رویدادی ثبت نشده است.', 'limoo-sms' ); ?></p>
+                <?php else : ?>
+                    <div class="limoo-activity-log-table-wrapper">
+                        <table class="limoo-activity-log-table">
+                            <thead>
+                                <tr>
+                                    <th><?php esc_html_e( 'زمان', 'limoo-sms' ); ?></th>
+                                    <th><?php esc_html_e( 'نوع رویداد', 'limoo-sms' ); ?></th>
+                                    <th><?php esc_html_e( 'موبایل', 'limoo-sms' ); ?></th>
+                                    <th><?php esc_html_e( 'توضیح', 'limoo-sms' ); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $activity_logs_visible as $log ) : ?>
+                                    <?php
+                                    $type_label = array(
+                                        'otp_send_success' => __( 'ارسال کد موفق', 'limoo-sms' ),
+                                        'otp_send_failed'  => __( 'ارسال کد ناموفق', 'limoo-sms' ),
+                                        'captcha_failed'   => __( 'کپچا ناموفق', 'limoo-sms' ),
+                                        'verify_success'   => __( 'ورود موفق', 'limoo-sms' ),
+                                        'verify_failed'    => __( 'تلاش ناموفق', 'limoo-sms' ),
+                                        'rate_limited'     => __( 'محدودیت نرخ', 'limoo-sms' ),
+                                        'verify_locked'    => __( 'قفل کاربر', 'limoo-sms' ),
+                                    );
+                                    $log_type = isset( $log['type'] ) ? (string) $log['type'] : '';
+                                    $label = isset( $type_label[ $log_type ] ) ? $type_label[ $log_type ] : __( 'رویداد', 'limoo-sms' );
+                                    $message = isset( $log['message'] ) ? $log['message'] : '';
+                                    $mobile = isset( $log['mobile'] ) ? $log['mobile'] : '';
+                                    $timestamp = isset( $log['timestamp'] ) ? gmdate( 'Y-m-d H:i:s', (int) $log['timestamp'] ) : '';
+                                    $pill_class = 'limoo-activity-log-pill';
+                                    if ( 'verify_success' === $log_type || 'otp_send_success' === $log_type ) {
+                                        $pill_class .= ' limoo-activity-log-pill--success';
+                                    } elseif ( 'verify_failed' === $log_type || 'otp_send_failed' === $log_type || 'captcha_failed' === $log_type ) {
+                                        $pill_class .= ' limoo-activity-log-pill--danger';
+                                    } else {
+                                        $pill_class .= ' limoo-activity-log-pill--neutral';
+                                    }
+                                    ?>
+                                    <tr>
+                                        <td><?php echo esc_html( $timestamp ); ?></td>
+                                        <td><span class="<?php echo esc_attr( $pill_class ); ?>"><?php echo esc_html( $label ); ?></span></td>
+                                        <td><?php echo esc_html( $mobile ); ?></td>
+                                        <td><?php echo esc_html( $message ); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <?php if ( $activity_logs_total_pages > 1 ) : ?>
+                        <div class="limoo-activity-log-pagination" role="navigation" aria-label="Pagination">
+                            <?php if ( $activity_logs_page > 1 ) : ?>
+                                <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', max( 1, $activity_logs_page - 1 ), $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'قبلی', 'limoo-sms' ); ?></a>
+                            <?php endif; ?>
+                            <span class="limoo-activity-log-pagination__info">
+                                <?php printf( esc_html__( 'صفحه %1$d از %2$d', 'limoo-sms' ), $activity_logs_page, $activity_logs_total_pages ); ?>
+                            </span>
+                            <?php if ( $activity_logs_page < $activity_logs_total_pages ) : ?>
+                                <a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'limoo_logs_page', $activity_logs_page + 1, $activity_logs_base_url ) ); ?>"><?php esc_html_e( 'بعدی', 'limoo-sms' ); ?></a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
 
