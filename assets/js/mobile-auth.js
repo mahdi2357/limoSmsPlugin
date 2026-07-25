@@ -15,6 +15,21 @@
         var mobileConfirmInput = authBox.querySelector("#limosms_mobile_confirm");
         var authModeInput = authBox.querySelector("#limosms_auth_mode");
         var modeButtons = authBox.querySelectorAll(".limosms-mobile-auth__mode-button");
+        var authTabButtons = authBox.querySelectorAll(".limosms-mobile-auth__tab-button");
+        var authPanels = authBox.querySelectorAll(".limosms-mobile-auth__panel");
+        var passwordLoginButton = authBox.querySelector("#limosms-password-login");
+        var passwordIdentifierInput = authBox.querySelector("#limosms_identifier");
+        var passwordInput = authBox.querySelector("#limosms_password");
+        var rememberInput = authBox.querySelector("#limosms_remember");
+        var resetMobileInput = authBox.querySelector("#limosms_reset_mobile");
+        var resetCodeInput = authBox.querySelector("#limosms_reset_code");
+        var resetCodeField = authBox.querySelector("#limosms_reset_code_field");
+        var resetPasswordField = authBox.querySelector("#limosms_reset_password_field");
+        var resetConfirmField = authBox.querySelector("#limosms_reset_confirm_field");
+        var resetRequestButton = authBox.querySelector("#limosms-reset-request");
+        var resetConfirmButton = authBox.querySelector("#limosms-reset-confirm");
+        var newPasswordInput = authBox.querySelector("#limosms_new_password");
+        var confirmPasswordInput = authBox.querySelector("#limosms_confirm_password");
         var registrationFieldsContainer = authBox.querySelector("#limosms_register_fields");
         var registrationFieldInputs = authBox.querySelectorAll(".limosms-mobile-auth__registration-field");
         var captchaInput = authBox.querySelector("#limosms_captcha");
@@ -99,6 +114,19 @@
             if (type) {
                 messageBox.classList.add(type);
             }
+        }
+
+        function updateAuthPanel(panel) {
+            authPanels.forEach(function (panelElement) {
+                var isActive = panelElement.getAttribute("data-auth-panel") === panel;
+                panelElement.classList.toggle("limosms-mobile-auth__panel--active", isActive);
+            });
+
+            authTabButtons.forEach(function (button) {
+                var isActive = button.getAttribute("data-auth-tab") === panel;
+                button.classList.toggle("is-active", isActive);
+                button.setAttribute("aria-selected", isActive ? "true" : "false");
+            });
         }
 
         function updateMode(mode) {
@@ -316,6 +344,13 @@
             }).then(parseJsonResponse);
         }
 
+        authTabButtons.forEach(function (button) {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                updateAuthPanel(button.getAttribute("data-auth-tab") || "otp");
+            });
+        });
+
         modeButtons.forEach(function (button) {
             button.addEventListener("click", function (event) {
                 event.preventDefault();
@@ -513,11 +548,169 @@
                 });
         });
 
+        passwordLoginButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            if (!passwordIdentifierInput || !passwordInput) {
+                return;
+            }
+
+            var identifier = passwordIdentifierInput.value.trim();
+            var password = passwordInput.value;
+
+            if (!identifier || !password) {
+                setMessage("شماره موبایل/نام کاربری و رمز عبور را وارد کنید.", "is-error");
+                return;
+            }
+
+            setMessage("در حال ورود...", "is-info");
+            setButtonState(passwordLoginButton, true, "در حال ورود...");
+
+            postAjax({
+                action: "limosms_password_login",
+                nonce: limosmsMobileAuth.nonce,
+                identifier: identifier,
+                password: password,
+                remember: rememberInput && rememberInput.checked ? 1 : 0
+            })
+                .then(function (data) {
+                    if (!data || !data.success) {
+                        var errorMessage = data && data.data && data.data.message ? data.data.message : "ورود انجام نشد.";
+                        setMessage(errorMessage, "is-error");
+                        setButtonState(passwordLoginButton, false, "ورود");
+                        return;
+                    }
+
+                    var redirectUrl = data.data && data.data.redirectUrl ? data.data.redirectUrl : limosmsMobileAuth.redirectUrl;
+                    setMessage(data.data && data.data.message ? data.data.message : "ورود با موفقیت انجام شد.", "is-success");
+                    setButtonState(passwordLoginButton, false, "ورود");
+
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    }
+                })
+                .catch(function () {
+                    setMessage("خطا در ارتباط با سرور.", "is-error");
+                    setButtonState(passwordLoginButton, false, "ورود");
+                });
+        });
+
+        resetRequestButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            if (!resetMobileInput) {
+                return;
+            }
+
+            var mobile = normalizeMobile(resetMobileInput.value, countryCodeInput ? countryCodeInput.value : "");
+            resetMobileInput.value = mobile;
+
+            if (!isValidMobile(mobile, countryCodeInput ? countryCodeInput.value : "")) {
+                setMessage("شماره موبایل معتبر نیست.", "is-error");
+                return;
+            }
+
+            setMessage("در حال ارسال کد بازیابی...", "is-info");
+            setButtonState(resetRequestButton, true, "در حال ارسال...");
+
+            postAjax({
+                action: "limosms_password_reset_request",
+                nonce: limosmsMobileAuth.nonce,
+                mobile: mobile
+            })
+                .then(function (data) {
+                    if (!data || !data.success) {
+                        var errorMessage = data && data.data && data.data.message ? data.data.message : "ارسال کد بازیابی انجام نشد.";
+                        setMessage(errorMessage, "is-error");
+                        setButtonState(resetRequestButton, false, "ارسال کد بازیابی");
+                        return;
+                    }
+
+                    if (resetCodeField) {
+                        resetCodeField.hidden = false;
+                        resetCodeField.classList.remove("limosms-mobile-auth__field--hidden");
+                    }
+
+                    if (resetPasswordField) {
+                        resetPasswordField.hidden = false;
+                        resetPasswordField.classList.remove("limosms-mobile-auth__field--hidden");
+                    }
+
+                    if (resetConfirmField) {
+                        resetConfirmField.hidden = false;
+                        resetConfirmField.classList.remove("limosms-mobile-auth__field--hidden");
+                    }
+
+                    if (resetConfirmButton) {
+                        resetConfirmButton.hidden = false;
+                    }
+
+                    setMessage(data.data && data.data.message ? data.data.message : "کد بازیابی ارسال شد.", "is-success");
+                    setButtonState(resetRequestButton, false, "ارسال کد بازیابی");
+                })
+                .catch(function () {
+                    setMessage("خطا در ارتباط با سرور.", "is-error");
+                    setButtonState(resetRequestButton, false, "ارسال کد بازیابی");
+                });
+        });
+
+        resetConfirmButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            if (!resetCodeInput || !newPasswordInput || !confirmPasswordInput) {
+                return;
+            }
+
+            var mobile = normalizeMobile(resetMobileInput ? resetMobileInput.value : "", countryCodeInput ? countryCodeInput.value : "");
+            var code = normalizeCode(resetCodeInput.value);
+            var newPassword = newPasswordInput.value;
+            var confirmPassword = confirmPasswordInput.value;
+
+            if (!mobile || !code || !newPassword || !confirmPassword) {
+                setMessage("کد بازیابی و رمز عبور جدید را کامل وارد کنید.", "is-error");
+                return;
+            }
+
+            setMessage("در حال تغییر رمز عبور...", "is-info");
+            setButtonState(resetConfirmButton, true, "در حال تغییر...");
+
+            postAjax({
+                action: "limosms_password_reset_confirm",
+                nonce: limosmsMobileAuth.nonce,
+                mobile: mobile,
+                code: code,
+                new_password: newPassword,
+                confirm_password: confirmPassword,
+                challenge_token: challengeToken
+            })
+                .then(function (data) {
+                    if (!data || !data.success) {
+                        var errorMessage = data && data.data && data.data.message ? data.data.message : "تغییر رمز عبور انجام نشد.";
+                        setMessage(errorMessage, "is-error");
+                        setButtonState(resetConfirmButton, false, "تغییر رمز عبور");
+                        return;
+                    }
+
+                    var redirectUrl = data.data && data.data.redirectUrl ? data.data.redirectUrl : limosmsMobileAuth.redirectUrl;
+                    setMessage(data.data && data.data.message ? data.data.message : "رمز عبور با موفقیت تغییر کرد.", "is-success");
+                    setButtonState(resetConfirmButton, false, "تغییر رمز عبور");
+
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    }
+                })
+                .catch(function () {
+                    setMessage("خطا در ارتباط با سرور.", "is-error");
+                    setButtonState(resetConfirmButton, false, "تغییر رمز عبور");
+                });
+        });
+
         editMobileButton.addEventListener("click", function (event) {
             event.preventDefault();
             goToMobileStep();
         });
 
+        updateAuthPanel("otp");
         updateMode(currentMode);
 
         window.addEventListener("beforeunload", function () {

@@ -25,6 +25,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="limosms-mobile-auth__message" aria-live="polite"></div>
 
+        <div class="limosms-mobile-auth__tab-switch" role="tablist" aria-label="روش ورود">
+            <button type="button" class="limosms-mobile-auth__tab-button is-active" data-auth-tab="otp">
+                <?php esc_html_e( 'ورود با کد', 'limosms' ); ?>
+            </button>
+            <button type="button" class="limosms-mobile-auth__tab-button" data-auth-tab="password">
+                <?php esc_html_e( 'ورود با رمز عبور', 'limosms' ); ?>
+            </button>
+            <button type="button" class="limosms-mobile-auth__tab-button" data-auth-tab="reset">
+                <?php esc_html_e( 'بازیابی رمز عبور', 'limosms' ); ?>
+            </button>
+        </div>
+
         <?php if ( ! empty( $form_style['custom_css'] ) ) : ?>
             <style>
                 <?php echo $form_style['custom_css']; ?>
@@ -32,6 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <?php endif; ?>
 
         <form class="limosms-mobile-auth__form" method="post" action="">
+            <div class="limosms-mobile-auth__panel limosms-mobile-auth__panel--active" data-auth-panel="otp">
             <div class="limosms-mobile-auth__step limosms-mobile-auth__step--mobile is-active" data-step="mobile">
                 <div class="limosms-mobile-auth__mode-switch" role="tablist" aria-label="حالت ورود">
                     <button type="button" class="limosms-mobile-auth__mode-button is-active" data-mode="login">
@@ -162,6 +175,100 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <?php esc_html_e( 'ورود به حساب', 'limosms' ); ?>
                     </button>
                 </div>
+            </div>
+
+            </div>
+
+            <div class="limosms-mobile-auth__panel" data-auth-panel="password">
+                <div class="limosms-mobile-auth__field">
+                    <label for="limosms_identifier"><?php esc_html_e( 'شماره موبایل، ایمیل یا نام کاربری', 'limosms' ); ?></label>
+                    <input
+                            type="text"
+                            id="limosms_identifier"
+                            name="identifier"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( 'مثال: 9123456789 یا example@email.com', 'limosms' ); ?>"
+                            autocomplete="username"
+                    />
+                </div>
+
+                <div class="limosms-mobile-auth__field">
+                    <label for="limosms_password"><?php esc_html_e( 'رمز عبور', 'limosms' ); ?></label>
+                    <input
+                            type="password"
+                            id="limosms_password"
+                            name="password"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( 'رمز عبور خود را وارد کنید', 'limosms' ); ?>"
+                            autocomplete="current-password"
+                    />
+                </div>
+
+                <label class="limosms-mobile-auth__checkbox">
+                    <input type="checkbox" id="limosms_remember" name="remember" value="1" />
+                    <span><?php esc_html_e( 'مرا به خاطر بسپار', 'limosms' ); ?></span>
+                </label>
+
+                <button type="button" class="limosms-mobile-auth__button limosms-mobile-auth__button--primary" id="limosms-password-login">
+                    <?php esc_html_e( 'ورود', 'limosms' ); ?>
+                </button>
+            </div>
+
+            <div class="limosms-mobile-auth__panel" data-auth-panel="reset">
+                <div class="limosms-mobile-auth__field">
+                    <label for="limosms_reset_mobile"><?php esc_html_e( 'شماره موبایل برای بازیابی رمز عبور', 'limosms' ); ?></label>
+                    <input
+                            type="text"
+                            id="limosms_reset_mobile"
+                            name="reset_mobile"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( '9123456789', 'limosms' ); ?>"
+                            autocomplete="tel"
+                    />
+                </div>
+
+                <div class="limosms-mobile-auth__field limosms-mobile-auth__field--hidden" id="limosms_reset_code_field" hidden>
+                    <label for="limosms_reset_code"><?php esc_html_e( 'کد دریافتی', 'limosms' ); ?></label>
+                    <input
+                            type="text"
+                            id="limosms_reset_code"
+                            name="reset_code"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( '123456', 'limosms' ); ?>"
+                            autocomplete="one-time-code"
+                    />
+                </div>
+
+                <div class="limosms-mobile-auth__field limosms-mobile-auth__field--hidden" id="limosms_reset_password_field" hidden>
+                    <label for="limosms_new_password"><?php esc_html_e( 'رمز عبور جدید', 'limosms' ); ?></label>
+                    <input
+                            type="password"
+                            id="limosms_new_password"
+                            name="new_password"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( 'حداقل 6 کاراکتر', 'limosms' ); ?>"
+                            autocomplete="new-password"
+                    />
+                </div>
+
+                <div class="limosms-mobile-auth__field limosms-mobile-auth__field--hidden" id="limosms_reset_confirm_field" hidden>
+                    <label for="limosms_confirm_password"><?php esc_html_e( 'تکرار رمز عبور جدید', 'limosms' ); ?></label>
+                    <input
+                            type="password"
+                            id="limosms_confirm_password"
+                            name="confirm_password"
+                            class="limosms-mobile-auth__input"
+                            placeholder="<?php esc_attr_e( 'تکرار رمز عبور', 'limosms' ); ?>"
+                            autocomplete="new-password"
+                    />
+                </div>
+
+                <button type="button" class="limosms-mobile-auth__button limosms-mobile-auth__button--primary" id="limosms-reset-request">
+                    <?php esc_html_e( 'ارسال کد بازیابی', 'limosms' ); ?>
+                </button>
+                <button type="button" class="limosms-mobile-auth__button limosms-mobile-auth__button--secondary" id="limosms-reset-confirm" hidden>
+                    <?php esc_html_e( 'تغییر رمز عبور', 'limosms' ); ?>
+                </button>
             </div>
 
             <?php wp_nonce_field( 'limosms_mobile_auth_nonce', 'limosms_mobile_auth_nonce' ); ?>

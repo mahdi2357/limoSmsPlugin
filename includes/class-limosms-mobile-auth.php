@@ -30,6 +30,15 @@ class LimoSMS_Mobile_Auth {
         add_action( 'wp_ajax_nopriv_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
         add_action( 'wp_ajax_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
 
+        add_action( 'wp_ajax_nopriv_limosms_password_login', array( $this, 'ajax_password_login' ) );
+        add_action( 'wp_ajax_limosms_password_login', array( $this, 'ajax_password_login' ) );
+
+        add_action( 'wp_ajax_nopriv_limosms_password_reset_request', array( $this, 'ajax_password_reset_request' ) );
+        add_action( 'wp_ajax_limosms_password_reset_request', array( $this, 'ajax_password_reset_request' ) );
+
+        add_action( 'wp_ajax_nopriv_limosms_password_reset_confirm', array( $this, 'ajax_password_reset_confirm' ) );
+        add_action( 'wp_ajax_limosms_password_reset_confirm', array( $this, 'ajax_password_reset_confirm' ) );
+
         add_action( 'login_init', array( $this, 'block_default_login_page' ) );
         add_action( 'template_redirect', array( $this, 'block_woocommerce_account_access' ) );
         add_filter( 'authenticate', array( $this, 'block_default_authentication' ), 100, 3 );
@@ -46,6 +55,60 @@ class LimoSMS_Mobile_Auth {
         $settings = $this->get_settings();
 
         return ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
+    }
+
+    private function authenticate_with_password( $identifier, $password, $remember = false ) {
+        $user = $this->get_user_by_identifier( $identifier );
+
+        if ( ! $user instanceof WP_User ) {
+            return new WP_Error( 'limosms_invalid_identifier', __( 'کاربر با این شماره یا نام کاربری یافت نشد.', 'limosms' ) );
+        }
+
+        remove_filter( 'authenticate', array( $this, 'block_default_authentication' ), 100 );
+
+        $authenticated_user = wp_authenticate_username_password( null, $user->user_login, $password );
+
+        add_filter( 'authenticate', array( $this, 'block_default_authentication' ), 100, 3 );
+
+        if ( is_wp_error( $authenticated_user ) ) {
+            return $authenticated_user;
+        }
+
+        if ( ! $authenticated_user instanceof WP_User ) {
+            return new WP_Error( 'limosms_invalid_password', __( 'نام کاربری یا رمز عبور اشتباه است.', 'limosms' ) );
+        }
+
+        wp_clear_auth_cookie();
+        wp_set_current_user( $authenticated_user->ID );
+        wp_set_auth_cookie( $authenticated_user->ID, (bool) $remember );
+        do_action( 'wp_login', $authenticated_user->user_login, $authenticated_user );
+
+        return $authenticated_user;
+    }
+
+    private function get_user_by_identifier( $identifier ) {
+        $identifier = trim( (string) $identifier );
+
+        if ( '' === $identifier ) {
+            return false;
+        }
+
+        $user = get_user_by( 'email', $identifier );
+        if ( $user instanceof WP_User ) {
+            return $user;
+        }
+
+        $user = get_user_by( 'login', $identifier );
+        if ( $user instanceof WP_User ) {
+            return $user;
+        }
+
+        $normalized_mobile = $this->api->normalize_mobile( $identifier, $this->get_allowed_country_codes() );
+        if ( '' !== $normalized_mobile ) {
+            return $this->find_user_by_mobile( $normalized_mobile );
+        }
+
+        return false;
     }
 
     private function should_disable_default_auth() {
@@ -609,6 +672,242 @@ class LimoSMS_Mobile_Auth {
         return ob_get_clean();
     }
 
+    public function ajax_password_login() {
+        check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
+
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
+
+        $identifier = trim( wp_unslash( $_POST['identifier'] ?? '' ) );
+        $password = wp_unslash( $_POST['password'] ?? '' );
+        $remember = ! empty( $_POST['remember'] );
+
+        if ( '' === $identifier || '' === $password ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'شماره موبایل/نام کاربری و رمز عبور را وارد کنید.',
+                ),
+                400
+            );
+        }
+
+        $user = $this->authenticate_with_password( $identifier, $password, $remember );
+
+        if ( is_wp_error( $user ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => $user->get_error_message(),
+                ),
+                401
+            );
+        }
+
+        wp_send_json_success(
+            array(
+                'message'     => 'ورود با موفقیت انجام شد.',
+                'redirectUrl' => $this->get_redirect_url(),
+            )
+        );
+    }
+
+    public function ajax_password_reset_request() {
+        check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
+
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
+
+        $mobile_raw = wp_unslash( $_POST['mobile'] ?? '' );
+        $mobile = $this->api->normalize_mobile( $mobile_raw, $this->get_allowed_country_codes() );
+
+        if ( '' === $mobile ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'شماره موبایل معتبر نیست.',
+                ),
+                400
+            );
+        }
+
+        $user = $this->find_user_by_mobile( $mobile );
+
+        if ( ! $user instanceof WP_User ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'کاربری با این شماره یافت نشد.',
+                ),
+                404
+            );
+        }
+
+        $response = $this->api->send_verification_code( $mobile );
+
+        if ( is_wp_error( $response ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => $response->get_error_message(),
+                ),
+                400
+            );
+        }
+
+        if ( ! $this->api->is_send_successful( $response ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => $this->api->get_response_message( $response, 'ارسال کد بازنشانی انجام نشد.' ),
+                ),
+                400
+            );
+        }
+
+        $challenge_token = wp_generate_password( 40, false, false );
+        $challenge_data = array(
+            'mobile'     => $mobile,
+            'created_at' => time(),
+            'attempts'   => 0,
+            'user_id'    => $user->ID,
+        );
+
+        set_transient(
+            $this->get_password_reset_key( $challenge_token ),
+            $challenge_data,
+            $this->get_otp_expiry_seconds()
+        );
+
+        wp_send_json_success(
+            array(
+                'message'        => 'کد بازیابی ارسال شد. لطفاً کد را وارد کنید.',
+                'challengeToken' => $challenge_token,
+                'expiresIn'      => $this->get_otp_expiry_seconds(),
+            )
+        );
+    }
+
+    public function ajax_password_reset_confirm() {
+        check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
+
+        if ( ! $this->is_login_register_enabled() ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'ورود و ثبت‌نام با کد تایید غیرفعال است.',
+                ),
+                403
+            );
+        }
+
+        $mobile_raw      = wp_unslash( $_POST['mobile'] ?? '' );
+        $mobile          = $this->api->normalize_mobile( $mobile_raw, $this->get_allowed_country_codes() );
+        $code            = $this->api->normalize_code( wp_unslash( $_POST['code'] ?? '' ) );
+        $challenge_token = sanitize_text_field( wp_unslash( $_POST['challenge_token'] ?? '' ) );
+        $new_password    = wp_unslash( $_POST['new_password'] ?? '' );
+        $confirm_password = wp_unslash( $_POST['confirm_password'] ?? '' );
+
+        if ( '' === $mobile || '' === $code || '' === $challenge_token ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'اطلاعات بازیابی ناقص است.',
+                ),
+                400
+            );
+        }
+
+        if ( '' === $new_password || $new_password !== $confirm_password ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'رمز عبور جدید و تکرار آن باید یکسان باشد.',
+                ),
+                400
+            );
+        }
+
+        if ( strlen( $new_password ) < 6 ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'رمز عبور باید حداقل 6 کاراکتر باشد.',
+                ),
+                400
+            );
+        }
+
+        $challenge = get_transient( $this->get_password_reset_key( $challenge_token ) );
+
+        if ( ! is_array( $challenge ) || empty( $challenge['mobile'] ) || empty( $challenge['created_at'] ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'کد بازیابی منقضی شده یا نامعتبر است.',
+                ),
+                400
+            );
+        }
+
+        if ( $mobile !== $challenge['mobile'] ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'شماره موبایل با کد بازیابی مطابقت ندارد.',
+                ),
+                400
+            );
+        }
+
+        if ( time() - absint( $challenge['created_at'] ) > $this->get_otp_expiry_seconds() ) {
+            delete_transient( $this->get_password_reset_key( $challenge_token ) );
+            wp_send_json_error(
+                array(
+                    'message' => 'زمان کد بازیابی به پایان رسیده است.',
+                ),
+                400
+            );
+        }
+
+        $response = $this->api->check_verification_code( $mobile, $code );
+
+        if ( is_wp_error( $response ) || ! $this->api->is_verification_successful( $response ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => $this->api->get_response_message( $response, 'کد بازیابی معتبر نیست.' ),
+                ),
+                400
+            );
+        }
+
+        $user = get_user_by( 'id', absint( $challenge['user_id'] ) );
+
+        if ( ! $user instanceof WP_User ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'کاربر مربوطه یافت نشد.',
+                ),
+                404
+            );
+        }
+
+        wp_set_password( $new_password, $user->ID );
+        delete_transient( $this->get_password_reset_key( $challenge_token ) );
+
+        wp_clear_auth_cookie();
+        wp_set_current_user( $user->ID );
+        wp_set_auth_cookie( $user->ID, true );
+        do_action( 'wp_login', $user->user_login, $user );
+
+        wp_send_json_success(
+            array(
+                'message'     => 'رمز عبور با موفقیت تغییر کرد.',
+                'redirectUrl' => $this->get_redirect_url(),
+            )
+        );
+    }
+
     public function ajax_refresh_captcha() {
         check_ajax_referer( 'limosms_mobile_auth_nonce', 'nonce' );
 
@@ -1090,6 +1389,10 @@ class LimoSMS_Mobile_Auth {
 
     private function get_challenge_key( $token ) {
         return 'limosms_otp_challenge_' . md5( $token );
+    }
+
+    private function get_password_reset_key( $token ) {
+        return 'limosms_password_reset_' . md5( $token );
     }
 
     private function get_send_cooldown_key( $type, $value ) {

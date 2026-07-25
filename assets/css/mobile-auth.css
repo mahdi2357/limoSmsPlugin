@@ -88,6 +88,59 @@
     color: #64748b;
 }
 
+.limosms-mobile-auth__tab-switch {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+}
+
+.limosms-mobile-auth__tab-button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.limosms-mobile-auth__tab-button.is-active {
+    background: linear-gradient(135deg, var(--limosms-accent-color, #2563eb), #3b82f6);
+    color: #ffffff;
+}
+
+.limosms-mobile-auth__panel {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.limosms-mobile-auth__panel--active {
+    display: flex;
+}
+
+.limosms-mobile-auth__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.limosms-mobile-auth__checkbox input {
+    margin: 0;
+}
+
+.limosms-mobile-auth__field--hidden {
+    display: none !important;
+}
+
 .limosms-mobile-auth__message.is-error {
     color: #ef4444;
 }
@@ -141,7 +194,7 @@
     border: 1px solid #dbe4f0;
     border-radius: 14px;
     background: #f8fbff;
-    color: #0f172a;
+    color: #0f172a !important;
     font-size: 15px;
     line-height: 1.2;
     transition: all 0.25s ease;
