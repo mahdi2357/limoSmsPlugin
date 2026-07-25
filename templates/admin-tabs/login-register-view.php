@@ -8,6 +8,10 @@ $registration_field_options = array(
         'label' => __( 'نام کاربری', 'limoo-sms' ),
         'default_required' => false,
     ),
+    'password' => array(
+        'label' => __( 'رمز عبور', 'limoo-sms' ),
+        'default_required' => false,
+    ),
     'email' => array(
         'label' => __( 'ایمیل', 'limoo-sms' ),
         'default_required' => true,

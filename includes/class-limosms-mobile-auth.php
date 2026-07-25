@@ -411,6 +411,11 @@ class LimoSMS_Mobile_Auth {
                 'type' => 'text',
                 'placeholder' => __( 'نام کاربری', 'limosms' ),
             ),
+            'password' => array(
+                'label' => __( 'رمز عبور', 'limosms' ),
+                'type' => 'password',
+                'placeholder' => __( 'رمز عبور', 'limosms' ),
+            ),
             'email' => array(
                 'label' => __( 'ایمیل', 'limosms' ),
                 'type' => 'email',
@@ -499,6 +504,9 @@ class LimoSMS_Mobile_Auth {
                     break;
                 case 'email':
                     $fields[ $key ] = sanitize_email( (string) $value );
+                    break;
+                case 'password':
+                    $fields[ $key ] = sanitize_text_field( (string) $value );
                     break;
                 default:
                     $fields[ $key ] = sanitize_text_field( (string) $value );
@@ -1455,7 +1463,10 @@ class LimoSMS_Mobile_Auth {
             : $username . '@limosms.local';
         $first_name = isset( $registration_fields['first_name'] ) ? trim( (string) $registration_fields['first_name'] ) : '';
         $last_name = isset( $registration_fields['last_name'] ) ? trim( (string) $registration_fields['last_name'] ) : '';
-        $password = wp_generate_password( 20, true, true );
+        $password = isset( $registration_fields['password'] ) ? trim( (string) $registration_fields['password'] ) : '';
+        if ( '' === $password ) {
+            $password = wp_generate_password( 20, true, true );
+        }
 
         $username = sanitize_user( $username, true );
         $email    = sanitize_email( $email );
