@@ -56,6 +56,7 @@ $form_direction = isset( $settings['login_register_otp_form_direction'] ) ? $set
 $form_font_family = isset( $settings['login_register_otp_font_family'] ) ? $settings['login_register_otp_font_family'] : 'Vazirmatn, Tahoma, Arial, sans-serif';
 $logo_url = isset( $settings['login_register_otp_logo_url'] ) ? $settings['login_register_otp_logo_url'] : '';
 $captcha_enabled = ! empty( $settings['login_register_otp_captcha_enabled'] ) && '1' === (string) $settings['login_register_otp_captcha_enabled'];
+$disable_default_auth = ! empty( $settings['login_register_disable_default_auth'] ) && '1' === (string) $settings['login_register_disable_default_auth'];
 $background_image_url = isset( $settings['login_register_otp_background_image_url'] ) ? $settings['login_register_otp_background_image_url'] : '';
 $background_color = isset( $settings['login_register_otp_background_color'] ) ? $settings['login_register_otp_background_color'] : '#ffffff';
 $form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
@@ -108,6 +109,28 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                 class="limoo-otp-settings <?php echo $is_enabled ? 'is-visible' : ''; ?>"
                 <?php echo $is_enabled ? '' : 'hidden'; ?>
         >
+            <div class="limoo-setting-row">
+                <div class="limoo-setting-row__content">
+                    <label for="limoo-login-register-disable-default-auth" class="limoo-setting-row__label">
+                        <?php esc_html_e( 'غیرفعال کردن ورود و عضویت وردپرس و ووکامرس', 'limoo-sms' ); ?>
+                    </label>
+                    <p class="limoo-setting-row__description">
+                        <?php esc_html_e( 'در صورت فعال بودن این گزینه و فعال بودن ورود با افزونه، ورود و ثبت‌نام پیش‌فرض وردپرس و ووکامرس مسدود می‌شود.', 'limoo-sms' ); ?>
+                    </p>
+                </div>
+
+                <label class="limoo-switch" for="limoo-login-register-disable-default-auth">
+                    <input
+                            type="checkbox"
+                            id="limoo-login-register-disable-default-auth"
+                            name="login_register_disable_default_auth"
+                            value="1"
+                            <?php checked( $disable_default_auth ); ?>
+                    />
+                    <span class="limoo-switch__slider"></span>
+                </label>
+            </div>
+
             <div class="limoo-login-register-subtabs" role="tablist" aria-label="تنظیمات ورود و عضویت">
                 <button type="button" class="limoo-login-register-subtab is-active" data-panel="general" role="tab" aria-selected="true">
                     <?php esc_html_e( 'تنظیمات عمومی', 'limoo-sms' ); ?>

@@ -100,7 +100,7 @@ $digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( ge
             autocomplete="off"
     >
 
-    <div class="limosms-toggle-group" style="margin-top:20px;padding:16px;border:1px solid #dcdcde;background:#fafafa;border-radius:8px;">
+    <div class="limosms-toggle-group" style="width:100%;margin-top:20px;padding:16px;border:1px solid #dcdcde;background:#fafafa;border-radius:8px;">
         <label style="display:block;margin-bottom:10px;font-weight:700;">وضعیت سرویس‌های فعال</label>
 
         <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">

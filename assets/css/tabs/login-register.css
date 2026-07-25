@@ -245,6 +245,7 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 16px;
+    margin-top: 20px;
 }
 
 .limoo-login-register-subtab {

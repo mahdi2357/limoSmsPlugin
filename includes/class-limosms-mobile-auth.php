@@ -29,6 +29,13 @@ class LimoSMS_Mobile_Auth {
 
         add_action( 'wp_ajax_nopriv_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
         add_action( 'wp_ajax_limosms_refresh_captcha', array( $this, 'ajax_refresh_captcha' ) );
+
+        add_action( 'login_init', array( $this, 'block_default_login_page' ) );
+        add_action( 'template_redirect', array( $this, 'block_woocommerce_account_access' ) );
+        add_filter( 'authenticate', array( $this, 'block_default_authentication' ), 100, 3 );
+        add_filter( 'registration_errors', array( $this, 'block_default_registration' ), 10, 3 );
+        add_filter( 'woocommerce_process_login_errors', array( $this, 'block_woocommerce_login' ), 10, 3 );
+        add_filter( 'woocommerce_registration_errors', array( $this, 'block_woocommerce_registration' ), 10, 3 );
     }
 
     private function is_login_register_enabled() {
@@ -39,6 +46,144 @@ class LimoSMS_Mobile_Auth {
         $settings = $this->get_settings();
 
         return ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];
+    }
+
+    private function should_disable_default_auth() {
+        if ( ! $this->is_login_register_enabled() ) {
+            return false;
+        }
+
+        $settings = $this->get_settings();
+
+        return ! empty( $settings['login_register_disable_default_auth'] ) && '1' === (string) $settings['login_register_disable_default_auth'];
+    }
+
+    public function block_default_authentication( $user, $username, $password ) {
+        if ( ! $this->should_disable_default_auth() ) {
+            return $user;
+        }
+
+        if ( is_a( $user, 'WP_User' ) ) {
+            return $user;
+        }
+
+        if ( is_admin() || is_network_admin() || defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+            return $user;
+        }
+
+        if ( empty( $username ) && empty( $password ) ) {
+            return $user;
+        }
+
+        return new WP_Error(
+            'limosms_default_auth_disabled',
+            __( 'ورود با حساب وردپرس/ووکامرس غیرفعال است. لطفاً از فرم ورود با کد تأیید استفاده کنید.', 'limosms' )
+        );
+    }
+
+    public function block_default_registration( $errors, $sanitized_user_login, $user_email ) {
+        if ( ! $this->should_disable_default_auth() ) {
+            return $errors;
+        }
+
+        if ( is_admin() || is_network_admin() ) {
+            return $errors;
+        }
+
+        if ( ! $errors instanceof WP_Error ) {
+            $errors = new WP_Error();
+        }
+
+        $errors->add(
+            'limosms_default_registration_disabled',
+            __( 'ثبت‌نام با حساب وردپرس غیرفعال است. لطفاً از فرم ورود و عضویت با کد تأیید استفاده کنید.', 'limosms' )
+        );
+
+        return $errors;
+    }
+
+    public function block_default_login_page() {
+        if ( ! $this->should_disable_default_auth() || is_user_logged_in() ) {
+            return;
+        }
+
+        if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+            return;
+        }
+
+        $request_uri = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+        $is_login_page = false !== strpos( $request_uri, 'wp-login.php' ) || false !== strpos( $request_uri, '/wp-admin/' );
+
+        if ( ! $is_login_page ) {
+            return;
+        }
+
+        $redirect_to = $this->get_redirect_url();
+
+        wp_safe_redirect( $redirect_to );
+        exit;
+    }
+
+    public function block_woocommerce_login( $errors, $username, $password ) {
+        if ( ! $this->should_disable_default_auth() ) {
+            return $errors;
+        }
+
+        if ( is_admin() || is_network_admin() ) {
+            return $errors;
+        }
+
+        if ( ! $errors instanceof WP_Error ) {
+            $errors = new WP_Error();
+        }
+
+        $errors->add(
+            'limosms_woocommerce_login_disabled',
+            __( 'ورود ووکامرس غیرفعال است. لطفاً از فرم ورود با کد تأیید استفاده کنید.', 'limosms' )
+        );
+
+        return $errors;
+    }
+
+    public function block_woocommerce_registration( $errors, $username, $email ) {
+        if ( ! $this->should_disable_default_auth() ) {
+            return $errors;
+        }
+
+        if ( is_admin() || is_network_admin() ) {
+            return $errors;
+        }
+
+        if ( ! $errors instanceof WP_Error ) {
+            $errors = new WP_Error();
+        }
+
+        $errors->add(
+            'limosms_woocommerce_registration_disabled',
+            __( 'ثبت‌نام ووکامرس غیرفعال است. لطفاً از فرم ورود و عضویت با کد تأیید استفاده کنید.', 'limosms' )
+        );
+
+        return $errors;
+    }
+
+    public function block_woocommerce_account_access() {
+        if ( ! $this->should_disable_default_auth() || is_user_logged_in() ) {
+            return;
+        }
+
+        if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
+            return;
+        }
+
+        $redirect_to = $this->get_redirect_url();
+
+        if ( ! empty( $redirect_to ) ) {
+            wp_safe_redirect( $redirect_to );
+            exit;
+        }
+
+        wp_safe_redirect( home_url( '/' ) );
+        exit;
     }
 
     private function get_settings() {

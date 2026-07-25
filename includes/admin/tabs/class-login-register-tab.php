@@ -45,6 +45,11 @@ class LimoSMS_Login_Register_Tab {
             '1' === sanitize_text_field( wp_unslash( $_POST['login_register_otp_captcha_enabled'] ) )
         ) ? '1' : '0';
 
+        $settings['login_register_disable_default_auth'] = (
+            isset( $_POST['login_register_disable_default_auth'] ) &&
+            '1' === sanitize_text_field( wp_unslash( $_POST['login_register_disable_default_auth'] ) )
+        ) ? '1' : '0';
+
         $registration_fields = array();
         if ( isset( $_POST['login_register_otp_registration_fields'] ) && is_array( $_POST['login_register_otp_registration_fields'] ) ) {
             foreach ( wp_unslash( $_POST['login_register_otp_registration_fields'] ) as $field_key => $field_settings ) {
