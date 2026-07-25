@@ -265,6 +265,17 @@ class LimoSMS_Admin {
             $tab = 'connection-settings';
         }
 
+        $woocommerce_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option( 'limosms_woocommerce_sms_enabled', 'yes' ) );
+        $digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option( 'limosms_digits_sms_enabled', 'yes' ) );
+
+        if ( in_array( $tab, array( 'admin-sms', 'customer-sms', 'seller-sms' ), true ) && 'yes' !== $woocommerce_sms_enabled ) {
+            $tab = 'connection-settings';
+        }
+
+        if ( 'login-register' === $tab && 'yes' !== $digits_sms_enabled ) {
+            $tab = 'connection-settings';
+        }
+
         $file_path = LIMOSMS_PATH . 'templates/admin-tabs/' . $tab . '-view.php';
 
         // server-side gate: if connection not available, show notice instead of other tabs

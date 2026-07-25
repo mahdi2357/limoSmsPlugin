@@ -41,6 +41,10 @@ class LimoSMS_WooCommerce_Customer_SMS {
     }
 
     private function send_customer_order_sms($order_id, $event_key) {
+        if ( ! LimoSMS_Connection_Settings::is_woocommerce_sms_enabled() ) {
+            return;
+        }
+
         if (!$order_id || !function_exists('wc_get_order')) {
             return;
         }

@@ -56,6 +56,10 @@ class LimoSMS_WooCommerce_SMS {
     }
 
     private function send_order_event_sms($order_id,$event_key){
+        if ( ! LimoSMS_Connection_Settings::is_woocommerce_sms_enabled() ) {
+            return;
+        }
+
         $events_settings = get_option('limosms_admin_sms_events',[]);
 
         if(!$order_id || !function_exists('wc_get_order')){
@@ -264,6 +268,9 @@ class LimoSMS_WooCommerce_SMS {
     }
 
     private function send_stock_event_sms($product,$event_key){
+        if ( ! LimoSMS_Connection_Settings::is_woocommerce_sms_enabled() ) {
+            return;
+        }
 
         if(!$product instanceof WC_Product){
             return;

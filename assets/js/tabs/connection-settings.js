@@ -1,13 +1,20 @@
 (function ($) {
     "use strict";
 
-    // بررسی تغییرات فیلد API Key جهت فعال/غیرفعال کردن دکمه ذخیره
-    function checkChanges($apiKey, $button) {
-        const initialValue = ($apiKey.data("initial") || "").toString().trim();
-        const currentValue = ($apiKey.val() || "").toString().trim();
+    function checkChanges($form, $button) {
+        const $apiKey = $form.find("#limosms_api_key");
+        const $woocommerceToggle = $form.find("#limosms_woocommerce_sms_enabled");
+        const $digitsToggle = $form.find("#limosms_digits_sms_enabled");
 
-        // دکمه فقط زمانی فعال است که فیلد خالی نبوده و مقدار آن با مقدار ذخیره‌شده اولیه متفاوت باشد
-        $button.prop("disabled", !(currentValue && currentValue !== initialValue));
+        const initialApiKey = ($apiKey.data("initial") || "").toString().trim();
+        const currentApiKey = ($apiKey.val() || "").toString().trim();
+        const initialWooCommerce = ($woocommerceToggle.attr("data-initial") || "0") === "1";
+        const currentWooCommerce = $woocommerceToggle.is(":checked");
+        const initialDigits = ($digitsToggle.attr("data-initial") || "0") === "1";
+        const currentDigits = $digitsToggle.is(":checked");
+
+        const changed = currentApiKey !== initialApiKey || initialWooCommerce !== currentWooCommerce || initialDigits !== currentDigits;
+        $button.prop("disabled", !(currentApiKey && changed));
     }
 
     // کنترل ورودی کاربر بر روی فیلد کلید API
@@ -26,7 +33,13 @@
         }
 
         $apiKey.val(value);
-        checkChanges($apiKey, $button);
+        checkChanges($form, $button);
+    });
+
+    $(document).on("change", "#limosms_woocommerce_sms_enabled, #limosms_digits_sms_enabled", function () {
+        const $form = $(this).closest("form");
+        const $button = $form.find("button[type='submit']");
+        checkChanges($form, $button);
     });
 
     // مدیریت ارسال فرم به صورت AJAX
@@ -40,6 +53,8 @@
 
         const apiKeyVal = $("#limosms_api_key").val();
         const senderNumVal = $("#limosms_sender_number").val();
+        const woocommerceEnabledVal = $("#limosms_woocommerce_sms_enabled").is(":checked") ? "1" : "0";
+        const digitsEnabledVal = $("#limosms_digits_sms_enabled").is(":checked") ? "1" : "0";
         const originalText = $button.text();
 
         // تغییر وضعیت دکمه به حالت ذخیره‌سازی
@@ -50,7 +65,9 @@
             action: "limosms_save_connection_settings",
             security: limosms_ajax.nonce,
             limosms_api_key: apiKeyVal,
-            limosms_sender_number: senderNumVal
+            limosms_sender_number: senderNumVal,
+            limosms_woocommerce_sms_enabled: woocommerceEnabledVal,
+            limosms_digits_sms_enabled: digitsEnabledVal
         };
 
         $.post(limosms_ajax.url, formData, function (response) {
@@ -60,32 +77,12 @@
 
                 // بروزرسانی مقدار اولیه محلی برای مدیریت وضعیت دکمه
                 $("#limosms_api_key").data("initial", apiKeyVal);
+                $("#limosms_woocommerce_sms_enabled").attr("data-initial", woocommerceEnabledVal === "1" ? "1" : "0");
+                $("#limosms_digits_sms_enabled").attr("data-initial", digitsEnabledVal === "1" ? "1" : "0");
 
-                // لود مجدد محتوای تب اتصال جهت همگام‌سازی بخش‌های دیگر (مانند وضعیت اتصال پنل)
                 setTimeout(function () {
-                    $.post(limosms_ajax.url, {
-                        action: "limosms_load_tab",
-                        tab: "connection-settings",
-                        nonce: limosms_ajax.nonce
-                    }, function (html) {
-                        $("#limosms-tab-content").html(html);
-                        $(document).trigger("limosms:tab-loaded", ["connection-settings"]);
-                        // بعد از لود مجدد تب، بررسی وضعیت اتصال از سرور و بروزرسانی وضعیت کلاینت
-                        $.post(limosms_ajax.url, { action: 'limosms_check_connection', nonce: limosms_ajax.nonce }, function (res) {
-                            if (res && res.success) {
-                                window.limosms_connection_status = !!res.data.connected;
-                                console.log('limosms:checkedConnection', window.limosms_connection_status);
-
-                                if (window.limosms_connection_status) {
-                                    window.LimoSMS.showToast('اتصال برقرار شد.', 'success');
-                                    // حذف اورلِی در صورت وجود
-                                    var node = document.querySelector('.limosms-connection-required-overlay');
-                                    if (node) node.remove();
-                                }
-                            }
-                        });
-                    });
-                }, 1000);
+                    window.location.reload();
+                }, 700);
             } else {
                 // نمایش توست خطا
                 window.LimoSMS.showToast(response.data.message || 'خطا در ذخیره تنظیمات.', 'error');

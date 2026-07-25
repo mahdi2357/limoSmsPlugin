@@ -15,6 +15,8 @@ $credit    = isset($status['result']['credit']) ? $status['result']['credit'] : 
 $sms_count = isset($status['result']['smsCount']) ? $status['result']['smsCount'] : 0;
 
 $api_key = get_option('limosms_api_key', '');
+$woocommerce_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_woocommerce_sms_enabled', 'yes') );
+$digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_digits_sms_enabled', 'yes') );
 
 ?>
 
@@ -98,15 +100,29 @@ $api_key = get_option('limosms_api_key', '');
             autocomplete="off"
     >
 
+    <div class="limosms-toggle-group" style="margin-top:20px;padding:16px;border:1px solid #dcdcde;background:#fafafa;border-radius:8px;">
+        <label style="display:block;margin-bottom:10px;font-weight:700;">وضعیت سرویس‌های فعال</label>
+
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <input type="checkbox" id="limosms_woocommerce_sms_enabled" name="limosms_woocommerce_sms_enabled" value="1" data-initial="<?php echo esc_attr( $woocommerce_sms_enabled === 'yes' ? '1' : '0' ); ?>" <?php checked( $woocommerce_sms_enabled, 'yes' ); ?>>
+            <span>فعال‌سازی پیامک ووکامرس (پیامک مدیر / مشتری / فروشنده)</span>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="limosms_digits_sms_enabled" name="limosms_digits_sms_enabled" value="1" data-initial="<?php echo esc_attr( $digits_sms_enabled === 'yes' ? '1' : '0' ); ?>" <?php checked( $digits_sms_enabled, 'yes' ); ?>>
+            <span>فعال‌سازی ورود و عضویت دیجیتس</span>
+        </label>
+    </div>
+
+    <div style="margin-top:16px;display:flex;justify-content:flex-end;">
+        <button type="submit" class="button button-primary" disabled>
+            ذخیره تنظیمات
+        </button>
+    </div>
+
     <?php wp_nonce_field('limosms_admin_nonce', 'security'); ?>
 
     <input type="hidden" name="action" value="limosms_save_connection_settings">
-
-    <br>
-
-    <button type="submit" class="button button-primary" disabled>
-        ذخیره تنظیمات
-    </button>
 
     <div id="limosms-settings-result" style="margin-top:15px;"></div>
 

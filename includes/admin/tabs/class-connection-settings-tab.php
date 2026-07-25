@@ -25,6 +25,32 @@ class LimoSMS_Connection_Settings
         add_action('wp_ajax_limosms_check_connection', array($this, 'ajax_check_connection'));
     }
 
+    public static function normalize_enabled_setting( $value, $default = 'yes' )
+    {
+        if ( is_bool( $value ) ) {
+            return $value ? 'yes' : 'no';
+        }
+
+        if ( is_numeric( $value ) ) {
+            return (int) $value > 0 ? 'yes' : 'no';
+        }
+
+        $clean_value = sanitize_text_field( (string) $value );
+        $enabled_values = array( '1', 'yes', 'on', 'true' );
+
+        return in_array( $clean_value, $enabled_values, true ) ? 'yes' : 'no';
+    }
+
+    public static function is_woocommerce_sms_enabled()
+    {
+        return self::normalize_enabled_setting( get_option( 'limosms_woocommerce_sms_enabled', 'yes' ), 'yes' ) === 'yes';
+    }
+
+    public static function is_digits_sms_enabled()
+    {
+        return self::normalize_enabled_setting( get_option( 'limosms_digits_sms_enabled', 'yes' ), 'yes' ) === 'yes';
+    }
+
     /**
      * ذخیره تنظیمات اتصال
      */
@@ -43,6 +69,8 @@ class LimoSMS_Connection_Settings
         // ۳. دریافت و پاکسازی ورودی‌ها (مطابق با نام فیلدهای فرم)
         $api_key = isset($_POST['limosms_api_key']) ? sanitize_text_field(wp_unslash($_POST['limosms_api_key'])) : '';
         $sender  = isset($_POST['limosms_sender_number']) ? sanitize_text_field(wp_unslash($_POST['limosms_sender_number'])) : '';
+        $woocommerce_enabled = isset($_POST['limosms_woocommerce_sms_enabled']) && '1' === sanitize_text_field(wp_unslash($_POST['limosms_woocommerce_sms_enabled'])) ? 'yes' : 'no';
+        $digits_enabled = isset($_POST['limosms_digits_sms_enabled']) && '1' === sanitize_text_field(wp_unslash($_POST['limosms_digits_sms_enabled'])) ? 'yes' : 'no';
 
         if (empty($api_key)) {
             wp_send_json_error(array(
@@ -56,6 +84,8 @@ class LimoSMS_Connection_Settings
         // ۵. ذخیره‌سازی تنظیمات
         update_option('limosms_api_key', $api_key);
         update_option('limosms_sender_number', $sender);
+        update_option('limosms_woocommerce_sms_enabled', $woocommerce_enabled);
+        update_option('limosms_digits_sms_enabled', $digits_enabled);
 
         // ۶. حذف کش یا ترنزینت‌های مرتبط
         delete_transient('limosms_connection_status');

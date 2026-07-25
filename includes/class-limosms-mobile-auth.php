@@ -32,6 +32,10 @@ class LimoSMS_Mobile_Auth {
     }
 
     private function is_login_register_enabled() {
+        if ( ! LimoSMS_Connection_Settings::is_digits_sms_enabled() ) {
+            return false;
+        }
+
         $settings = $this->get_settings();
 
         return ! empty( $settings['login_register_otp_enabled'] ) && '1' === (string) $settings['login_register_otp_enabled'];

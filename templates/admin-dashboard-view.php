@@ -3,6 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+$woocommerce_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_woocommerce_sms_enabled', 'yes') );
+$digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_digits_sms_enabled', 'yes') );
+
 $menu_items = array(
         'connection-settings'    => array(
                 'label' => 'تنظیمات اتصال',
@@ -11,30 +14,37 @@ $menu_items = array(
         'admin-sms'              => array(
                 'label' => 'پیامک مدیر',
                 'icon'  => 'admin-users',
+                'enabled' => $woocommerce_sms_enabled === 'yes',
         ),
         'customer-sms'           => array(
                 'label' => 'پیامک مشتری',
                 'icon'  => 'businessperson',
+                'enabled' => $woocommerce_sms_enabled === 'yes',
         ),
         'seller-sms'             => array(
                 'label' => 'پیامک فروشنده',
                 'icon'  => 'businessman',
+                'enabled' => $woocommerce_sms_enabled === 'yes',
         ),
         'sent-sms'               => array(
                 'label' => 'پیام های ارسال شده',
                 'icon'  => 'email-alt',
+                'enabled' => true,
         ),
         'send-test-sms'          => array(
                 'label' => 'ارسال پیامک تست',
                 'icon'  => 'email-alt',
+                'enabled' => true,
         ),
         'sms-pattern-management' => array(
                 'label' => 'الگوهای پیامک',
                 'icon'  => 'text',
+                'enabled' => true,
         ),
         'login-register' => array(
                 'label' => 'ورود و عضویت',
                 'icon'  => 'unlock',
+                'enabled' => $digits_sms_enabled === 'yes',
         ),
 );
 
@@ -57,6 +67,10 @@ if ( ! array_key_exists( $active_tab, $menu_items ) ) {
     $active_tab = 'connection-settings';
 }
 
+if ( isset( $menu_items[ $active_tab ]['enabled'] ) && ! $menu_items[ $active_tab ]['enabled'] ) {
+    $active_tab = 'connection-settings';
+}
+
 $tab_file = LIMOSMS_PATH . 'templates/admin-tabs/' . $active_tab . '-view.php';
 
 // expose connection status to JS so tabs can be gated when API is not configured/connected
@@ -75,6 +89,7 @@ $is_connected = !empty($connection_status['success']);
 
         <ul>
             <?php foreach ( $menu_items as $key => $item ) : ?>
+            <?php if ( ! empty( $item['enabled'] ) || ! isset( $item['enabled'] ) ) : ?>
             <li class="<?php echo esc_attr( $active_tab === $key ? 'active' : '' ); ?>">
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=limosms&tab=' . $key ) ); ?>"
                     class="limosms-tab-link" data-tab="<?php echo esc_attr( $key ); ?>">
@@ -82,6 +97,7 @@ $is_connected = !empty($connection_status['success']);
                     <?php echo esc_html( $item['label'] ); ?>
                 </a>
             </li>
+            <?php endif; ?>
             <?php endforeach; ?>
         </ul>
     </div>

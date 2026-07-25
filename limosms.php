@@ -2,7 +2,7 @@
 /**
  * Plugin Name: لیمو اس ام اس
  * Description: اتصال وردپرس به سامانه پیامکی لیمو اس ام اس
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: LimoSMS
  * Author URI: https://limosms.com
  * Text Domain: limosms
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('LIMOSMS_VERSION', '1.0.0');
+define('LIMOSMS_VERSION', '1.1.0');
 define('LIMOSMS_PATH', plugin_dir_path(__FILE__));
 define('LIMOSMS_URL', plugin_dir_url(__FILE__));
 
