@@ -521,6 +521,8 @@
                 dir: 'rtl',
                 placeholder: 'انتخاب الگو...',
                 allowClear: true,
+                dropdownParent: select.parent(),
+                dropdownCssClass: 'limosms-select2',
                 templateResult: function (item) {
                     if (!item.id) {
                         return item.text;
@@ -545,6 +547,98 @@
                 },
                 escapeMarkup: function (markup) {
                     return markup;
+                }
+            });
+        });
+    }
+
+    function initCustomPatternSelects(context) {
+        const container = context ? $(context) : $(document);
+
+        container.find('.limosms-pattern-selector').each(function () {
+            const select = $(this);
+
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            if (select.data('customized')) {
+                return;
+            }
+
+            const options = [];
+            select.find('option').each(function () {
+                const opt = $(this);
+                options.push({ value: opt.attr('value') || '', label: opt.text() || '', disabled: opt.prop('disabled') });
+            });
+
+            const wrapper = $('<div class="limosms-custom-select" aria-hidden="false"></div>');
+            const button = $('<button type="button" class="limosms-custom-select__button" aria-haspopup="listbox"></button>');
+            const list = $('<div class="limosms-custom-select__list" role="listbox"></div>');
+
+            const searchInput = $('<input type="text" class="limosms-custom-select__search" placeholder="جستجو...">');
+            list.append(searchInput);
+
+            if (options.length === 0) {
+                list.append('<div class="limosms-custom-select__noresults">هیچ گزینه‌ای نیست</div>');
+            } else {
+                options.forEach(function (opt) {
+                    const item = $('<div class="limosms-custom-select__item" data-value="' + opt.value.replace(/"/g, '&quot;') + '"></div>');
+                    item.text(opt.label);
+                    if (opt.disabled) {
+                        item.attr('aria-disabled', 'true').addClass('is-disabled');
+                    }
+                    list.append(item);
+                });
+            }
+
+            searchInput.on('input', function () {
+                const q = String(this.value || '').toLowerCase().trim();
+                let visible = 0;
+                list.find('.limosms-custom-select__item').each(function () {
+                    const it = $(this);
+                    const text = (it.text() || '').toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        it.show();
+                        visible++;
+                    } else {
+                        it.hide();
+                    }
+                });
+                list.find('.limosms-custom-select__noresults').toggle(visible === 0);
+            });
+
+            const selectedOption = select.find('option:selected');
+            const selectedLabel = selectedOption.length ? selectedOption.text() : select.attr('placeholder') || 'انتخاب الگو...';
+            button.text(selectedLabel);
+
+            wrapper.append(button).append(list);
+            select.after(wrapper);
+
+            select.addClass('limosms-native-hidden');
+            select.data('customized', true);
+
+            button.on('click', function (e) {
+                e.preventDefault();
+                list.toggle();
+            });
+
+            list.on('click', '.limosms-custom-select__item', function () {
+                const item = $(this);
+                if (item.is('.is-disabled')) {
+                    return;
+                }
+                const val = item.data('value') || '';
+                select.val(val).trigger('change');
+                button.text(item.text());
+                list.hide();
+                list.find('.limosms-custom-select__item').removeClass('is-active');
+                item.addClass('is-active');
+            });
+
+            $(document).on('click.limosmsCustomSelect', function (e) {
+                if (!wrapper.is(e.target) && wrapper.has(e.target).length === 0) {
+                    list.hide();
                 }
             });
         });
@@ -614,6 +708,9 @@
                 });
 
                 maybeInitSelect2($(document));
+                if (typeof initCustomPatternSelects === 'function') {
+                    initCustomPatternSelects($(document));
+                }
                 if (typeof callback === 'function') {
                     callback();
                 }
