@@ -86,6 +86,7 @@ class LimoSMS_Admin {
             'admin-sms',
             'customer-sms',
             'seller-sms',
+            'gravity-forms-sms',
             'sent-sms',
             'send-test-sms',
             'pattern-management',
@@ -161,6 +162,20 @@ class LimoSMS_Admin {
                 $seller_tokens['common'] = $all_tokens;
 
                 wp_localize_script( $js_handle, 'limosmsSellerTokens', $seller_tokens );
+            }
+
+            // Gravity Forms SMS tab data.
+            if ( 'gravity-forms-sms' === $tab && wp_script_is( $js_handle, 'enqueued' ) ) {
+                wp_localize_script(
+                    $js_handle,
+                    'limosmsGravityFormsSmsData',
+                    array(
+                        'ajax_url' => admin_url( 'admin-ajax.php' ),
+                        'nonce'    => wp_create_nonce( 'limosms_gravity_forms_sms_nonce' ),
+                        'forms'    => class_exists( 'LimoSMS_Gravity_Forms_SMS_Events' ) ? LimoSMS_Gravity_Forms_SMS_Events::get_forms() : array(),
+                        'tokens'   => class_exists( 'LimoSMS_Gravity_Forms_SMS_Events' ) ? LimoSMS_Gravity_Forms_SMS_Events::get_all_form_tokens() : array(),
+                    )
+                );
             }
 
             // Sent SMS tab data (important: dedicated nonce).
@@ -255,6 +270,7 @@ class LimoSMS_Admin {
             'admin-sms',
             'customer-sms',
             'seller-sms',
+            'gravity-forms-sms',
             'sent-sms',
             'send-test-sms',
             'sms-pattern-management',

@@ -26,6 +26,11 @@ $menu_items = array(
                 'icon'  => 'businessman',
                 'enabled' => $woocommerce_sms_enabled === 'yes',
         ),
+        'gravity-forms-sms'      => array(
+                'label' => 'پیامک فرم های Gravity',
+                'icon'  => 'feedback',
+                'enabled' => true,
+        ),
         'sent-sms'               => array(
                 'label' => 'پیام های ارسال شده',
                 'icon'  => 'email-alt',
@@ -53,6 +58,7 @@ $tab_titles = array(
         'admin-sms'              => 'پیامک مدیر',
         'customer-sms'           => 'پیامک مشتری',
         'seller-sms'             => 'پیامک فروشنده',
+        'gravity-forms-sms'      => 'پیامک فرم های Gravity',
         'sent-sms'               => 'پیام های ارسال شده',
         'send-test-sms'          => 'ارسال پیامک تست',
         'sms-pattern-management' => 'الگوهای پیامک',

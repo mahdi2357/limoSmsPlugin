@@ -1,0 +1,64 @@
+/* gravity-forms-sms.css */
+@import url("../tabs/admin-sms.css");
+
+.limosms-form-card {
+    margin-bottom: 20px;
+}
+
+.limosms-form-card .limosms-form-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.limosms-form-card .limosms-form-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.limosms-form-card .limosms-form-fields {
+    display: grid;
+    gap: 16px;
+}
+
+.limosms-form-card .limosms-pattern-box {
+    margin-top: 8px;
+}
+
+.limosms-form-card .limosms-pattern-text {
+    min-height: 96px;
+}
+
+.limosms-form-card .limosms-pattern-mapping-wrap {
+    margin-top: 8px;
+}
+
+.limosms-form-card .limosms-mapping-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+
+.limosms-form-card .limosms-token-chip {
+    background: #814DD5;
+    color: #fff;
+    border-color: #814DD5;
+}
+
+.limosms-form-card .limosms-toggle-tokens-btn {
+    margin-top: 8px;
+}
+
+.limosms-admin-phone-chip .limosms-remove-admin-phone {
+    color: #fff;
+    opacity: 0.9;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.limosms-admin-phone-chip .limosms-remove-admin-phone:hover {
+    color: #fff;
+    opacity: 1;
+}

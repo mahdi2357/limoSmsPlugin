@@ -87,6 +87,12 @@ class LimoSMS {
         require_once LIMOSMS_PATH . 'includes/admin/class-seller-sms-settings.php';
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-seller-sms-tab.php';
 
+        // Gravity Forms SMS
+        require_once LIMOSMS_PATH . 'includes/admin/class-gravity-forms-sms-events.php';
+        require_once LIMOSMS_PATH . 'includes/admin/class-gravity-forms-sms-settings.php';
+        require_once LIMOSMS_PATH . 'includes/admin/tabs/class-gravity-forms-sms-tab.php';
+        require_once LIMOSMS_PATH . 'includes/class-limosms-gravity-forms-sms.php';
+
         require_once LIMOSMS_PATH . 'includes/class-limosms-mobile-auth.php';
         require_once LIMOSMS_PATH . 'includes/admin/tabs/class-login-register-tab.php';
 
@@ -96,6 +102,8 @@ class LimoSMS {
             new LimoSMS_Admin_SMS_Settings();
             new LimoSMS_Customer_SMS_Settings();
             new LimoSMS_Customer_SMS();
+            new LimoSMS_Gravity_Forms_SMS_Settings();
+            new LimoSMS_Gravity_Forms_SMS_Tab();
 
             if ( class_exists( 'LimoSMS_Seller_SMS_Settings' ) ) {
                 new LimoSMS_Seller_SMS_Settings();
@@ -107,6 +115,11 @@ class LimoSMS {
                 if ( method_exists( $this->seller_sms, 'init' ) ) {
                     $this->seller_sms->init();
                 }
+            }
+        } else {
+            // Initialize Gravity Forms SMS on frontend
+            if ( class_exists( 'LimoSMS_Gravity_Forms_SMS' ) ) {
+                new LimoSMS_Gravity_Forms_SMS();
             }
         }
     }

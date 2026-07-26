@@ -81,7 +81,7 @@
         return toSafeString(
             item.mobile ||
             item.phone ||
-            item.to ||
+            item.mobileNumber ||
             item.receiver ||
             item.receptor ||
             item.recipient ||
