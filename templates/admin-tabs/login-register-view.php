@@ -45,8 +45,25 @@ $activity_logs_total_pages = max( 1, (int) ceil( $activity_logs_total / $activit
 $activity_logs_page = min( $activity_logs_page, $activity_logs_total_pages );
 $activity_logs_start = ( $activity_logs_page - 1 ) * $activity_logs_per_page;
 $activity_logs_visible = array_slice( $activity_logs, $activity_logs_start, $activity_logs_per_page );
-$page_slug = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-$activity_logs_base_url = $page_slug ? admin_url( 'admin.php?page=' . rawurlencode( $page_slug ) ) : admin_url();
+$page_slug = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+$tab_slug  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
+
+$activity_logs_base_url = admin_url( 'admin.php' );
+
+$query_args = array();
+
+if ( '' !== $page_slug ) {
+    $query_args['page'] = $page_slug;
+}
+
+if ( '' !== $tab_slug ) {
+    $query_args['tab'] = $tab_slug;
+}
+
+if ( ! empty( $query_args ) ) {
+    $activity_logs_base_url = add_query_arg( $query_args, $activity_logs_base_url );
+}
+
 
 $redirect_url  = isset( $settings['login_register_otp_redirect_url'] ) ? $settings['login_register_otp_redirect_url'] : '';
 $default_role  = get_option( 'default_role', 'subscriber' );

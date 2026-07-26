@@ -4,21 +4,23 @@ class LimoSMS_WooCommerce_SMS {
 
     public function __construct() {
 
-        add_action(
-            'woocommerce_checkout_order_processed',
-            [$this,'send_admin_sms_on_new_order'],
-            10,
-            1
-        );
+        // add_action(
+        //     'woocommerce_checkout_order_processed',
+        //     [$this,'send_admin_sms_on_new_order'],
+        //     10,
+        //     1
+        // );
 
-        add_action('woocommerce_order_status_pending', [$this,'send_admin_sms_on_status_pending'],10,1);
+        // add_action('woocommerce_order_status_pending', [$this,'send_admin_sms_on_status_pending'],10,1);
         add_action('woocommerce_order_status_processing', [$this,'send_admin_sms_on_status_processing'],10,1);
         add_action('woocommerce_order_status_on-hold', [$this,'send_admin_sms_on_status_on_hold'],10,1);
         add_action('woocommerce_order_status_completed', [$this,'send_admin_sms_on_status_completed'],10,1);
+
+
+
         add_action('woocommerce_order_status_cancelled', [$this,'send_admin_sms_on_status_cancelled'],10,1);
         add_action('woocommerce_order_status_refunded', [$this,'send_admin_sms_on_status_refunded'],10,1);
         add_action('woocommerce_order_status_failed', [$this,'send_admin_sms_on_status_failed'],10,1);
-
         add_action('woocommerce_low_stock', [$this,'send_admin_sms_on_low_stock'],10,1);
         add_action('woocommerce_no_stock', [$this,'send_admin_sms_on_out_of_stock'],10,1);
     }
