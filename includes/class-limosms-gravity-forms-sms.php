@@ -57,8 +57,10 @@ class LimoSMS_Gravity_Forms_SMS
             $pattern_map = array();
         }
 
+        $entry_array = $this->normalize_entry($entry);
+
         // دریافت شماره تلفن
-        $phone = $this->get_phone_number_from_entry($entry, $form);
+        $phone = $this->get_phone_number_from_entry($entry_array, $form);
 
         if (!$phone) {
             return;
@@ -71,7 +73,7 @@ class LimoSMS_Gravity_Forms_SMS
         }
 
         // دریافت داده های فرم
-        $data = $this->get_form_sms_data_source($entry, $form);
+        $data = $this->get_form_sms_data_source($entry_array, $form);
 
         $values = array();
 
@@ -122,11 +124,17 @@ class LimoSMS_Gravity_Forms_SMS
             $field_id = $field['id'] ?? '';
             $field_label = isset($field['label']) ? strtolower((string) $field['label']) : '';
 
-            if (in_array($field_type, array('phone', 'telephone'), true) || strpos($field_label, 'phone') !== false || strpos($field_label, 'mobile') !== false) {
+            if (in_array($field_type, array('phone', 'telephone'), true) || strpos($field_label, 'phone') !== false || strpos($field_label, 'mobile') !== false || strpos($field_label, 'تلفن') !== false || strpos($field_label, 'موبایل') !== false) {
                 $phone = rgar($entry, $field_id);
                 if (!empty($phone)) {
                     return $phone;
                 }
+            }
+        }
+
+        foreach ($entry as $key => $value) {
+            if (is_scalar($value) && preg_match('/^(\+98|98|0)?9\d{9}$/', (string) $value)) {
+                return (string) $value;
             }
         }
 
@@ -177,9 +185,26 @@ class LimoSMS_Gravity_Forms_SMS
         return $data;
     }
 
+    private function normalize_entry($entry)
+    {
+        if (is_object($entry)) {
+            $entry = (array) $entry;
+        }
+
+        if (!is_array($entry)) {
+            return array();
+        }
+
+        return $entry;
+    }
+
     private function normalize_form_fields($form)
     {
         $fields = array();
+
+        if (is_object($form)) {
+            $form = (array) $form;
+        }
 
         if (empty($form['fields']) || !is_iterable($form['fields'])) {
             return $fields;
