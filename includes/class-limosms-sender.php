@@ -184,6 +184,9 @@ class LimoSMS_Sender
         $api = new LimoSMS_API();
         $response = $api->send_pattern_message($body['MobileNumber'], $body['OtpId'], $body['ReplaceToken'] ?? array());
 
+        error_log('LimoSMS Sender request => ' . wp_json_encode($body));
+        error_log('LimoSMS Sender response => ' . wp_json_encode($response));
+
         if (is_wp_error($response)) {
             return array(
                 'success' => false,

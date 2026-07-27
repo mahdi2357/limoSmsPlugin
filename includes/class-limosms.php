@@ -98,6 +98,10 @@ class LimoSMS {
 
 
 
+        if ( class_exists( 'LimoSMS_Gravity_Forms_SMS' ) ) {
+            new LimoSMS_Gravity_Forms_SMS();
+        }
+
         if ( is_admin() ) {
             new LimoSMS_Admin_SMS_Settings();
             new LimoSMS_Customer_SMS_Settings();
@@ -115,11 +119,6 @@ class LimoSMS {
                 if ( method_exists( $this->seller_sms, 'init' ) ) {
                     $this->seller_sms->init();
                 }
-            }
-        } else {
-            // Initialize Gravity Forms SMS on frontend
-            if ( class_exists( 'LimoSMS_Gravity_Forms_SMS' ) ) {
-                new LimoSMS_Gravity_Forms_SMS();
             }
         }
     }
