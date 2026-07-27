@@ -17,6 +17,7 @@ $sms_count = isset($status['result']['smsCount']) ? $status['result']['smsCount'
 $api_key = get_option('limosms_api_key', '');
 $woocommerce_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_woocommerce_sms_enabled', 'yes') );
 $digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_digits_sms_enabled', 'yes') );
+$gravity_forms_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_gravity_forms_sms_enabled', 'yes') );
 
 ?>
 
@@ -108,9 +109,14 @@ $digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( ge
             <span>فعال‌سازی پیامک ووکامرس (پیامک مدیر / مشتری / فروشنده)</span>
         </label>
 
-        <label style="display:flex;align-items:center;gap:8px;">
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <input type="checkbox" id="limosms_digits_sms_enabled" name="limosms_digits_sms_enabled" value="1" data-initial="<?php echo esc_attr( $digits_sms_enabled === 'yes' ? '1' : '0' ); ?>" <?php checked( $digits_sms_enabled, 'yes' ); ?>>
             <span>فعال‌سازی ورود و عضویت دیجیتس</span>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="limosms_gravity_forms_sms_enabled" name="limosms_gravity_forms_sms_enabled" value="1" data-initial="<?php echo esc_attr( $gravity_forms_sms_enabled === 'yes' ? '1' : '0' ); ?>" <?php checked( $gravity_forms_sms_enabled, 'yes' ); ?>>
+            <span>فعال‌سازی پیامک Gravity Forms</span>
         </label>
     </div>
 

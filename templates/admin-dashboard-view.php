@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $woocommerce_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_woocommerce_sms_enabled', 'yes') );
 $digits_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_digits_sms_enabled', 'yes') );
+$gravity_forms_sms_enabled = LimoSMS_Connection_Settings::normalize_enabled_setting( get_option('limosms_gravity_forms_sms_enabled', 'yes') );
 
 $menu_items = array(
         'connection-settings'    => array(
@@ -29,7 +30,7 @@ $menu_items = array(
         'gravity-forms-sms'      => array(
                 'label' => 'پیامک فرم های Gravity',
                 'icon'  => 'feedback',
-                'enabled' => true,
+                'enabled' => $gravity_forms_sms_enabled === 'yes',
         ),
         'sent-sms'               => array(
                 'label' => 'پیام های ارسال شده',

@@ -100,6 +100,7 @@ class LimoSMS_Gravity_Forms_SMS_Tab
             foreach ($pattern_map as $param => $token) {
                 $param = absint($param);
                 $token = sanitize_text_field($token);
+                $token = trim($token, "{} \t\n\r\0\x0B");
 
                 if ('' !== $token) {
                     $clean_map[$param] = $token;

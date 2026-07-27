@@ -51,6 +51,11 @@ class LimoSMS_Connection_Settings
         return self::normalize_enabled_setting( get_option( 'limosms_digits_sms_enabled', 'yes' ), 'yes' ) === 'yes';
     }
 
+    public static function is_gravity_forms_sms_enabled()
+    {
+        return self::normalize_enabled_setting( get_option( 'limosms_gravity_forms_sms_enabled', 'yes' ), 'yes' ) === 'yes';
+    }
+
     /**
      * ذخیره تنظیمات اتصال
      */
@@ -71,6 +76,7 @@ class LimoSMS_Connection_Settings
         $sender  = isset($_POST['limosms_sender_number']) ? sanitize_text_field(wp_unslash($_POST['limosms_sender_number'])) : '';
         $woocommerce_enabled = isset($_POST['limosms_woocommerce_sms_enabled']) && '1' === sanitize_text_field(wp_unslash($_POST['limosms_woocommerce_sms_enabled'])) ? 'yes' : 'no';
         $digits_enabled = isset($_POST['limosms_digits_sms_enabled']) && '1' === sanitize_text_field(wp_unslash($_POST['limosms_digits_sms_enabled'])) ? 'yes' : 'no';
+        $gravity_forms_enabled = isset($_POST['limosms_gravity_forms_sms_enabled']) && '1' === sanitize_text_field(wp_unslash($_POST['limosms_gravity_forms_sms_enabled'])) ? 'yes' : 'no';
 
         if (empty($api_key)) {
             wp_send_json_error(array(
@@ -86,6 +92,7 @@ class LimoSMS_Connection_Settings
         update_option('limosms_sender_number', $sender);
         update_option('limosms_woocommerce_sms_enabled', $woocommerce_enabled);
         update_option('limosms_digits_sms_enabled', $digits_enabled);
+        update_option('limosms_gravity_forms_sms_enabled', $gravity_forms_enabled);
 
         // ۶. حذف کش یا ترنزینت‌های مرتبط
         delete_transient('limosms_connection_status');

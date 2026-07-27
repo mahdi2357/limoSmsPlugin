@@ -268,6 +268,152 @@
         return 'بدون عنوان';
     }
 
+    function maybeInitGravityPatternSelect2(context) {
+        const container = context ? $(context) : $(document);
+        if (!$.fn.select2) {
+            return;
+        }
+
+        const selects = container
+            .filter('.limosms-pattern-selector')
+            .add(container.find('.limosms-pattern-selector'));
+
+        selects.each(function () {
+            const select = $(this);
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            select.select2({
+                width: '100%',
+                dir: 'rtl',
+                placeholder: 'انتخاب الگو...',
+                allowClear: true,
+                dropdownParent: select.parent(),
+                dropdownCssClass: 'limosms-select2',
+                templateResult: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    const element = item.element ? $(item.element) : null;
+                    const title = element ? element.data('title') || '' : '';
+                    if (title) {
+                        return item.id + ' | ' + title;
+                    }
+                    return item.text;
+                },
+                templateSelection: function (item) {
+                    if (!item.id) {
+                        return item.text;
+                    }
+                    const element = item.element ? $(item.element) : null;
+                    const title = element ? element.data('title') || '' : '';
+                    if (title) {
+                        return item.id + ' | ' + title;
+                    }
+                    return item.text;
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
+            });
+        });
+    }
+
+    function initCustomPatternSelects(context) {
+        const container = context ? $(context) : $(document);
+        const selects = container.filter('.limosms-pattern-selector')
+            .add(container.find('.limosms-pattern-selector'));
+
+        selects.each(function () {
+            const select = $(this);
+
+            if (select.hasClass('select2-hidden-accessible')) {
+                return;
+            }
+
+            if (select.data('customized')) {
+                return;
+            }
+
+            const options = [];
+            select.find('option').each(function () {
+                const opt = $(this);
+                options.push({ value: opt.attr('value') || '', label: opt.text() || '', disabled: opt.prop('disabled') });
+            });
+
+            const wrapper = $('<div class="limosms-custom-select" aria-hidden="false"></div>');
+            const button = $('<button type="button" class="limosms-custom-select__button" aria-haspopup="listbox"></button>');
+            const list = $('<div class="limosms-custom-select__list" role="listbox"></div>');
+            const searchInput = $('<input type="text" class="limosms-custom-select__search" placeholder="جستجو...">');
+
+            list.append(searchInput);
+
+            if (options.length === 0) {
+                list.append('<div class="limosms-custom-select__noresults">هیچ گزینه‌ای نیست</div>');
+            } else {
+                options.forEach(function (opt) {
+                    const item = $('<div class="limosms-custom-select__item" data-value="' + opt.value.replace(/"/g, '&quot;') + '"></div>');
+                    item.text(opt.label);
+                    if (opt.disabled) {
+                        item.attr('aria-disabled', 'true').addClass('is-disabled');
+                    }
+                    list.append(item);
+                });
+            }
+
+            searchInput.on('input', function () {
+                const q = String(this.value || '').toLowerCase().trim();
+                let visible = 0;
+                list.find('.limosms-custom-select__item').each(function () {
+                    const it = $(this);
+                    const text = (it.text() || '').toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        it.show();
+                        visible++;
+                    } else {
+                        it.hide();
+                    }
+                });
+                list.find('.limosms-custom-select__noresults').toggle(visible === 0);
+            });
+
+            const selectedOption = select.find('option:selected');
+            const selectedLabel = selectedOption.length ? selectedOption.text() : select.attr('placeholder') || 'انتخاب الگو...';
+            button.text(selectedLabel);
+
+            wrapper.append(button).append(list);
+            select.after(wrapper);
+
+            select.addClass('limosms-native-hidden');
+            select.data('customized', true);
+
+            button.on('click', function (e) {
+                e.preventDefault();
+                list.toggle();
+            });
+
+            list.on('click', '.limosms-custom-select__item', function () {
+                const item = $(this);
+                if (item.is('.is-disabled')) {
+                    return;
+                }
+                const val = item.data('value') || '';
+                select.val(val).trigger('change');
+                button.text(item.text());
+                list.hide();
+                list.find('.limosms-custom-select__item').removeClass('is-active');
+                item.addClass('is-active');
+            });
+
+            $(document).on('click.limosmsCustomSelect', function (e) {
+                if (!wrapper.is(e.target) && wrapper.has(e.target).length === 0) {
+                    list.hide();
+                }
+            });
+        });
+    }
+
     function renderPatternMapping(card) {
         const textBox = card.find('.limosms-pattern-text');
         const formId = card.data('form') || '';
@@ -417,6 +563,16 @@
                         const selectedValue = String(selector.data('saved') || '').trim();
                         const options = buildPatternOptions(patterns, selectedValue);
                         console.log('Setting options on selector:', options);
+
+                        if ($.fn.select2 && selector.hasClass('select2-hidden-accessible')) {
+                            selector.select2('destroy');
+                        }
+
+                        if (selector.data('customized')) {
+                            selector.next('.limosms-custom-select').remove();
+                            selector.removeData('customized').removeClass('limosms-native-hidden');
+                        }
+
                         selector.html(options);
                     });
 
@@ -429,14 +585,8 @@
                         }
                     });
 
-                    // Initialize Select2 if available
-                    if (typeof $.fn.select2 === 'function') {
-                        $('.limosms-gravity-pattern-selector').select2({
-                            dir: 'rtl',
-                            language: 'fa',
-                            width: '100%'
-                        });
-                    }
+                    maybeInitGravityPatternSelect2('.limosms-gravity-pattern-selector');
+                    initCustomPatternSelects('.limosms-gravity-pattern-selector');
                     showNotification('الگوها با موفقیت دریافت شدند.', 'success');
                 } else {
                     const errorMsg = (response && response.data && response.data.message) ? response.data.message : 'دریافت الگوها ناموفق بود.';
@@ -678,7 +828,12 @@
     $(document).ready(function () {
         init();
 
-        // بارگذاری مجدد هنگام تغییر تب
+        $(document).on('limosms:tab-loaded limosms_tab_loaded', function (event, activeTab) {
+            if (!activeTab || activeTab === 'gravity-forms-sms') {
+                init();
+            }
+        });
+
         if (typeof window.limosmLoadTabCallback !== 'function') {
             window.limosmLoadTabCallback = function (tabName) {
                 if (tabName === 'gravity-forms-sms') {

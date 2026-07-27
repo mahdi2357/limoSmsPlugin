@@ -5,6 +5,7 @@
         const $apiKey = $form.find("#limosms_api_key");
         const $woocommerceToggle = $form.find("#limosms_woocommerce_sms_enabled");
         const $digitsToggle = $form.find("#limosms_digits_sms_enabled");
+        const $gravityFormsToggle = $form.find("#limosms_gravity_forms_sms_enabled");
 
         const initialApiKey = ($apiKey.data("initial") || "").toString().trim();
         const currentApiKey = ($apiKey.val() || "").toString().trim();
@@ -12,8 +13,10 @@
         const currentWooCommerce = $woocommerceToggle.is(":checked");
         const initialDigits = ($digitsToggle.attr("data-initial") || "0") === "1";
         const currentDigits = $digitsToggle.is(":checked");
+        const initialGravityForms = ($gravityFormsToggle.attr("data-initial") || "0") === "1";
+        const currentGravityForms = $gravityFormsToggle.is(":checked");
 
-        const changed = currentApiKey !== initialApiKey || initialWooCommerce !== currentWooCommerce || initialDigits !== currentDigits;
+        const changed = currentApiKey !== initialApiKey || initialWooCommerce !== currentWooCommerce || initialDigits !== currentDigits || initialGravityForms !== currentGravityForms;
         $button.prop("disabled", !(currentApiKey && changed));
     }
 
@@ -36,7 +39,7 @@
         checkChanges($form, $button);
     });
 
-    $(document).on("change", "#limosms_woocommerce_sms_enabled, #limosms_digits_sms_enabled", function () {
+    $(document).on("change", "#limosms_woocommerce_sms_enabled, #limosms_digits_sms_enabled, #limosms_gravity_forms_sms_enabled", function () {
         const $form = $(this).closest("form");
         const $button = $form.find("button[type='submit']");
         checkChanges($form, $button);
@@ -55,6 +58,7 @@
         const senderNumVal = $("#limosms_sender_number").val();
         const woocommerceEnabledVal = $("#limosms_woocommerce_sms_enabled").is(":checked") ? "1" : "0";
         const digitsEnabledVal = $("#limosms_digits_sms_enabled").is(":checked") ? "1" : "0";
+        const gravityFormsEnabledVal = $("#limosms_gravity_forms_sms_enabled").is(":checked") ? "1" : "0";
         const originalText = $button.text();
 
         // تغییر وضعیت دکمه به حالت ذخیره‌سازی
@@ -67,7 +71,8 @@
             limosms_api_key: apiKeyVal,
             limosms_sender_number: senderNumVal,
             limosms_woocommerce_sms_enabled: woocommerceEnabledVal,
-            limosms_digits_sms_enabled: digitsEnabledVal
+            limosms_digits_sms_enabled: digitsEnabledVal,
+            limosms_gravity_forms_sms_enabled: gravityFormsEnabledVal
         };
 
         $.post(limosms_ajax.url, formData, function (response) {
@@ -79,6 +84,7 @@
                 $("#limosms_api_key").data("initial", apiKeyVal);
                 $("#limosms_woocommerce_sms_enabled").attr("data-initial", woocommerceEnabledVal === "1" ? "1" : "0");
                 $("#limosms_digits_sms_enabled").attr("data-initial", digitsEnabledVal === "1" ? "1" : "0");
+                $("#limosms_gravity_forms_sms_enabled").attr("data-initial", gravityFormsEnabledVal === "1" ? "1" : "0");
 
                 setTimeout(function () {
                     window.location.reload();

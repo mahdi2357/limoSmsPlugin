@@ -9,8 +9,6 @@ class LimoSMS_Gravity_Forms_SMS
     public function __construct()
     {
         add_action('plugins_loaded', array($this, 'register_gravity_forms_hooks'), 20);
-        add_action('init', array($this, 'register_gravity_forms_hooks'), 20);
-        add_action('wp_loaded', array($this, 'register_gravity_forms_hooks'), 20);
     }
 
     public function register_gravity_forms_hooks()
@@ -22,7 +20,6 @@ class LimoSMS_Gravity_Forms_SMS
         }
 
         $registered = true;
-        error_log('LimoSMS Gravity Forms SMS: registering submission hook');
         add_action('gform_after_submission', array($this, 'send_gravity_forms_sms'), 10, 2);
     }
 
@@ -35,11 +32,9 @@ class LimoSMS_Gravity_Forms_SMS
     public function send_gravity_forms_sms($entry, $form)
     {
         $form_id = (int)($form['id'] ?? 0);
-        error_log('LimoSMS Gravity Forms SMS hook triggered for form ' . $form_id);
 
         // بررسی اینکه پیامک Gravity Forms فعال است یا نه
         if (!$this->is_gravity_forms_sms_enabled()) {
-            error_log('LimoSMS Gravity Forms SMS: feature disabled');
             return;
         }
 
@@ -65,7 +60,6 @@ class LimoSMS_Gravity_Forms_SMS
         $pattern_id = sanitize_text_field((string)($form_settings['otp_id'] ?? ''));
 
         if ('' === $pattern_id) {
-            error_log('LimoSMS Gravity Forms SMS: no pattern selected for form ' . $form_id);
             return;
         }
 
@@ -77,15 +71,13 @@ class LimoSMS_Gravity_Forms_SMS
 
         $entry_array = $this->normalize_entry($entry);
 
-        error_log('LimoSMS Gravity Forms SMS: raw entry => ' . wp_json_encode($entry_array));
-
         $data = $this->get_form_sms_data_source($entry_array, $form);
 
         $values = array();
 
         foreach ($pattern_map as $index => $token) {
             $token = trim((string)$token, "{} \t\n\r\0\x0B");
-            $value = $data[$token] ?? '-';
+            $value = $this->resolve_token_value($token, $entry_array, $form, $data);
 
             if ($value === '') {
                 $value = '-';
@@ -97,15 +89,12 @@ class LimoSMS_Gravity_Forms_SMS
         $phone = $this->get_phone_number_from_entry($entry_array, $form);
 
         if (!$phone) {
-            error_log('LimoSMS Gravity Forms SMS: no phone number found for form ' . $form_id . '; using configured admin phones instead');
-
             $admin_phones = get_option('limosms_gravity_forms_admin_phones', array());
             if (!empty($admin_phones) && is_array($admin_phones)) {
                 foreach ($admin_phones as $admin_phone) {
                     $admin_phone = LimoSMS_Sender::normalize_mobile_number($admin_phone);
                     if ($admin_phone) {
                         $admin_result = LimoSMS_Sender::send_pattern_sms($admin_phone, $pattern_id, $values);
-                        error_log('LimoSMS Gravity Forms SMS: admin fallback result => ' . wp_json_encode($admin_result));
                     }
                 }
             }
@@ -119,10 +108,7 @@ class LimoSMS_Gravity_Forms_SMS
             return;
         }
 
-        error_log('LimoSMS Gravity Forms SMS: sending pattern ' . $pattern_id . ' to ' . $phone . ' for form ' . $form_id);
-
         $result = LimoSMS_Sender::send_pattern_sms($phone, $pattern_id, $values);
-        error_log('LimoSMS Gravity Forms SMS: recipient result => ' . wp_json_encode($result));
 
         $admin_phones = get_option('limosms_gravity_forms_admin_phones', array());
         if (!empty($admin_phones) && is_array($admin_phones)) {
@@ -130,7 +116,6 @@ class LimoSMS_Gravity_Forms_SMS
                 $admin_phone = LimoSMS_Sender::normalize_mobile_number($admin_phone);
                 if ($admin_phone) {
                     $admin_result = LimoSMS_Sender::send_pattern_sms($admin_phone, $pattern_id, $values);
-                    error_log('LimoSMS Gravity Forms SMS: admin result => ' . wp_json_encode($admin_result));
                 }
             }
         }
@@ -141,6 +126,10 @@ class LimoSMS_Gravity_Forms_SMS
      */
     private function is_gravity_forms_sms_enabled()
     {
+        if (class_exists('LimoSMS_Connection_Settings')) {
+            return LimoSMS_Connection_Settings::is_gravity_forms_sms_enabled();
+        }
+
         $gravity_forms_enabled = get_option('limosms_gravity_forms_sms_enabled', 'yes');
         return ('yes' === $gravity_forms_enabled);
     }
@@ -263,27 +252,12 @@ class LimoSMS_Gravity_Forms_SMS
         $fields = $this->normalize_form_fields($form);
 
         foreach ($fields as $field) {
-            $field_id = $field['id'] ?? '';
-            $field_label = $field['label'] ?? '';
-
-            if (empty($field_id)) {
-                continue;
-            }
-
-            $value = rgar($entry, $field_id);
-
-            if (is_array($value)) {
-                $value = implode(', ', $value);
-            }
-
-            $data['field_' . $field_id] = (string)$value;
-            $data['field_' . $field_label] = (string)$value;
+            $this->populate_data_source_from_field($data, $entry, $field);
         }
 
-        // اضافه کردن توکن های عمومی
         $data['submission_date'] = date('Y/m/d H:i');
 
-        $user_id = (int)rgar($entry, 'created_by');
+        $user_id = (int)$this->get_entry_value($entry, 'created_by');
         if ($user_id > 0) {
             $user = get_user_by('id', $user_id);
             if ($user) {
@@ -296,6 +270,220 @@ class LimoSMS_Gravity_Forms_SMS
         }
 
         return $data;
+    }
+
+    private function resolve_token_value($token, $entry, $form, $data)
+    {
+        if ($token === '') {
+            return '';
+        }
+
+        $base_token = trim((string) $token, "{} \t\n\r\0\x0B");
+        $candidates = array();
+        $candidates[] = $base_token;
+        $candidates[] = 'field_' . $base_token;
+        $candidates[] = 'field_' . trim($base_token, '{}');
+        $candidates[] = trim($base_token, '{}');
+        $candidates[] = str_replace('field_', '', $base_token);
+        $candidates[] = $this->normalize_token_label($base_token);
+        $candidates[] = $this->normalize_token_label('field_' . $base_token);
+        $candidates[] = strtolower(str_replace(array(' ', '_', '-'), '', $base_token));
+        $candidates[] = strtolower(str_replace(array(' ', '_', '-'), '', 'field_' . $base_token));
+        $candidates[] = 'input_' . $base_token;
+        $candidates[] = 'input_' . str_replace('field_', '', $base_token);
+
+        $fields = $this->normalize_form_fields($form);
+        foreach ($fields as $field) {
+            $field_id = (string)($field['id'] ?? '');
+            $field_label = (string)($field['label'] ?? '');
+
+            $this->add_resolver_candidate($candidates, $field_id);
+            $this->add_resolver_candidate($candidates, 'field_' . $field_id);
+            $this->add_resolver_candidate($candidates, 'input_' . $field_id);
+            $this->add_resolver_candidate($candidates, $field_label);
+            $this->add_resolver_candidate($candidates, 'field_' . $field_label);
+            $this->add_resolver_candidate($candidates, $this->normalize_token_label($field_label));
+            $this->add_resolver_candidate($candidates, strtolower(str_replace(array(' ', '_', '-'), '', $field_label)));
+
+            if (!empty($field['inputs']) && is_array($field['inputs'])) {
+                foreach ($field['inputs'] as $input) {
+                    $input_id = (string)($input['id'] ?? '');
+                    $input_label = (string)($input['label'] ?? '');
+
+                    $this->add_resolver_candidate($candidates, $input_id);
+                    $this->add_resolver_candidate($candidates, 'field_' . $input_id);
+                    $this->add_resolver_candidate($candidates, 'input_' . $input_id);
+                    $this->add_resolver_candidate($candidates, $input_label);
+                    $this->add_resolver_candidate($candidates, 'field_' . $input_label);
+                    $this->add_resolver_candidate($candidates, $this->normalize_token_label($input_label));
+                    $this->add_resolver_candidate($candidates, strtolower(str_replace(array(' ', '_', '-'), '', $input_label)));
+                }
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            if (isset($data[$candidate]) && $data[$candidate] !== '') {
+                return $data[$candidate];
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            if (isset($entry[$candidate]) && $entry[$candidate] !== '') {
+                return $this->stringify_value($entry[$candidate]);
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            $value = $this->get_entry_value($entry, $candidate);
+            if ($value !== '' && $value !== null) {
+                return $this->stringify_value($value);
+            }
+        }
+
+        foreach ($entry as $entry_key => $entry_value) {
+            $normalized_entry_key = strtolower(str_replace(array(' ', '_', '-'), '', (string) $entry_key));
+            $normalized_candidate = strtolower(str_replace(array(' ', '_', '-'), '', (string) $base_token));
+            if ($normalized_entry_key === $normalized_candidate || $normalized_entry_key === $normalized_candidate . 'value' || $normalized_entry_key === 'field' . $normalized_candidate) {
+                return $this->stringify_value($entry_value);
+            }
+        }
+
+        return '';
+    }
+
+    private function get_entry_value($entry, $key)
+    {
+        if (!is_array($entry)) {
+            return '';
+        }
+
+        $candidates = array();
+        $candidates[] = (string) $key;
+        $candidates[] = 'input_' . (string) $key;
+        $candidates[] = 'field_' . (string) $key;
+        $candidates[] = '1.' . (string) $key;
+        $candidates[] = 'input_' . ltrim((string) $key, '0');
+        $candidates[] = strtolower(str_replace(array(' ', '_', '-'), '', (string) $key));
+
+        foreach ($candidates as $candidate) {
+            if (array_key_exists($candidate, $entry)) {
+                return $entry[$candidate];
+            }
+        }
+
+        foreach ($entry as $entry_key => $entry_value) {
+            $normalized_entry_key = strtolower(str_replace(array(' ', '_', '-'), '', (string) $entry_key));
+            $normalized_key = strtolower(str_replace(array(' ', '_', '-'), '', (string) $key));
+
+            if (is_string($entry_key) && ($normalized_entry_key === $normalized_key || stripos($entry_key, (string) $key) !== false || stripos($normalized_entry_key, $normalized_key) !== false)) {
+                return $entry_value;
+            }
+        }
+
+        return '';
+    }
+
+    private function populate_data_source_from_field(&$data, $entry, $field)
+    {
+        $field_id = (string) ($field['id'] ?? '');
+        $field_label = (string) ($field['label'] ?? '');
+
+        if ($field_id === '' && $field_label === '') {
+            return;
+        }
+
+        $value = $this->get_entry_value($entry, $field_id);
+        if (is_array($value)) {
+            $value = implode(', ', $value);
+        }
+
+        $string_value = (string) $value;
+
+        $this->set_data_source_value($data, $field_id, $string_value);
+        $this->set_data_source_value($data, 'field_' . $field_id, $string_value);
+        $this->set_data_source_value($data, 'input_' . $field_id, $string_value);
+        $this->set_data_source_value($data, $field_label, $string_value);
+        $this->set_data_source_value($data, 'field_' . $field_label, $string_value);
+        $this->set_data_source_value($data, $this->normalize_token_label($field_label), $string_value);
+        $this->set_data_source_value($data, strtolower(str_replace(array(' ', '_', '-'), '', $field_label)), $string_value);
+
+        if (!empty($field['inputs']) && is_array($field['inputs'])) {
+            foreach ($field['inputs'] as $input) {
+                $input_id = (string) ($input['id'] ?? '');
+                $input_label = (string) ($input['label'] ?? '');
+
+                if ($input_id === '' && $input_label === '') {
+                    continue;
+                }
+
+                $input_value = $this->get_entry_value($entry, $input_id);
+                if (is_array($input_value)) {
+                    $input_value = implode(', ', $input_value);
+                }
+
+                $input_string_value = (string) $input_value;
+
+                $this->set_data_source_value($data, $input_id, $input_string_value);
+                $this->set_data_source_value($data, 'field_' . $input_id, $input_string_value);
+                $this->set_data_source_value($data, 'input_' . $input_id, $input_string_value);
+                $this->set_data_source_value($data, $input_label, $input_string_value);
+                $this->set_data_source_value($data, 'field_' . $input_label, $input_string_value);
+                $this->set_data_source_value($data, $this->normalize_token_label($input_label), $input_string_value);
+                $this->set_data_source_value($data, strtolower(str_replace(array(' ', '_', '-'), '', $input_label)), $input_string_value);
+            }
+        }
+    }
+
+    private function set_data_source_value(&$data, $key, $value)
+    {
+        if ($key === '') {
+            return;
+        }
+
+        if ($value === '') {
+            if (!isset($data[$key])) {
+                $data[$key] = '';
+            }
+            return;
+        }
+
+        $data[$key] = $value;
+    }
+
+    private function add_resolver_candidate(array &$candidates, $candidate)
+    {
+        $candidate = trim((string) $candidate);
+        if ($candidate === '') {
+            return;
+        }
+
+        if (!in_array($candidate, $candidates, true)) {
+            $candidates[] = $candidate;
+        }
+    }
+
+    private function normalize_token_label($token)
+    {
+        $token = trim((string) $token, "{} \t\n\r\0\x0B");
+        return str_replace(array('field_', 'input_'), '', $token);
+    }
+
+    private function stringify_value($value)
+    {
+        if (is_array($value)) {
+            return implode(', ', array_filter(array_map(function ($item) {
+                return is_scalar($item) ? (string) $item : '';
+            }, $value)));
+        }
+
+        if (is_object($value)) {
+            if (method_exists($value, '__toString')) {
+                return (string) $value;
+            }
+            return '';
+        }
+
+        return (string) $value;
     }
 
     private function normalize_entry($entry)
