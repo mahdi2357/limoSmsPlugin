@@ -112,10 +112,10 @@
             return;
         }
         if (type === 'success') {
-            console.log(message);
-        } else {
-            alert(message);
+            // success silently ignored if toast unavailable
+            return;
         }
+        alert(message);
     }
 
     function getCustomerSmsData() {

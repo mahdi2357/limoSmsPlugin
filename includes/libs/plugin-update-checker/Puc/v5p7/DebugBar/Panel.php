@@ -168,9 +168,13 @@ if ( !class_exists(Panel::class, false) && class_exists('Debug_Bar_Panel', false
 
 		public function row($name, $value) {
 			if ( is_object($value) || is_array($value) ) {
-				//This is specifically for debugging, so print_r() is fine.
-				//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				$value = '<pre>' . esc_html(print_r($value, true)) . '</pre>';
+				if ( defined('WP_DEBUG') && WP_DEBUG ) {
+					//This is specifically for debugging, so print_r() is fine.
+					//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+					$value = '<pre>' . esc_html(print_r($value, true)) . '</pre>';
+				} else {
+					$value = '<code>array/object</code>';
+				}
 			} else if ($value === null) {
 				$value = '<code>null</code>';
 			}

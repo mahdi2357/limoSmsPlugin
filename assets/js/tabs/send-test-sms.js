@@ -339,8 +339,7 @@
                     }
                 },
                 error: (xhr) => {
-                    console.error("LimoSMS send test sms error:", xhr);
-
+                    // AJAX error details suppressed in production
                     if (window.LimoSMS && typeof window.LimoSMS.showToast === "function") {
                         window.LimoSMS.showToast("خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.", "error");
                     }

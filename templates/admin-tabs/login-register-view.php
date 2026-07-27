@@ -48,21 +48,13 @@ $activity_logs_visible = array_slice( $activity_logs, $activity_logs_start, $act
 $page_slug = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 $tab_slug  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 
-$activity_logs_base_url = admin_url( 'admin.php' );
-
-$query_args = array();
-
-if ( '' !== $page_slug ) {
-    $query_args['page'] = $page_slug;
-}
-
-if ( '' !== $tab_slug ) {
-    $query_args['tab'] = $tab_slug;
-}
-
-if ( ! empty( $query_args ) ) {
-    $activity_logs_base_url = add_query_arg( $query_args, $activity_logs_base_url );
-}
+$activity_logs_base_url = add_query_arg(
+    array(
+        'page' => 'limosms',
+        'tab'  => 'login-register',
+    ),
+    admin_url( 'admin.php' )
+);
 
 
 $redirect_url  = isset( $settings['login_register_otp_redirect_url'] ) ? $settings['login_register_otp_redirect_url'] : '';

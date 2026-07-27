@@ -59,7 +59,9 @@ class LimoSMS_Gravity_Forms_SMS_Settings
         $response = $this->api->get_patterns();
 
         if (is_wp_error($response)) {
-            error_log('LimoSMS Gravity Forms Get Patterns Error: ' . $response->get_error_message());
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log('LimoSMS Gravity Forms Get Patterns Error: ' . $response->get_error_message());
+            }
             wp_send_json_error(array('message' => $response->get_error_message()), 500);
         }
 

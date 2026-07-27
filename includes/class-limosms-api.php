@@ -58,7 +58,9 @@ class LimoSMS_API {
 
         if ( is_wp_error( $response ) ) {
             $error_message = $response->get_error_message();
-            error_log( 'LimoSMS API WP Error => ' . $error_message );
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log( 'LimoSMS API WP Error => ' . $error_message );
+            }
 
             if ( false !== stripos( $error_message, 'cURL error 28' ) ) {
                 return new WP_Error(
@@ -76,7 +78,9 @@ class LimoSMS_API {
         $json   = json_decode( $body, true );
 
         if ( $status < 200 || $status >= 300 ) {
-            error_log( 'LimoSMS API Error => URL: ' . $url . ' | Status: ' . $status . ' | Body: ' . $body );
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log( 'LimoSMS API Error => URL: ' . $url . ' | Status: ' . $status . ' | Body: ' . $body );
+            }
 
             $message = is_array( $json ) ? ( $json['message'] ?? $json['Message'] ?? $json['error'] ?? $json['Error'] ?? 'API Error' ) : 'API Error';
 

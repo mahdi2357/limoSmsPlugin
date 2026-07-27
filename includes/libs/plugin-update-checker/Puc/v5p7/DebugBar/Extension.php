@@ -73,11 +73,19 @@ if ( !class_exists(Extension::class, false) ):
 			$this->preAjaxRequest();
 			$update = $this->updateChecker->checkForUpdates();
 			if ( $update !== null ) {
-				echo "An update is available:";
-				//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- For debugging output.
-				echo '<pre>', esc_html(print_r($update, true)), '</pre>';
+				if ( defined('WP_DEBUG') && WP_DEBUG ) {
+					echo "An update is available:";
+					//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- For debugging output.
+					echo '<pre>', esc_html(print_r($update, true)), '</pre>';
+				} else {
+					echo 'Debug output suppressed. Enable WP_DEBUG to view details.';
+				}
 			} else {
-				echo 'No updates found.';
+				if ( defined('WP_DEBUG') && WP_DEBUG ) {
+					echo 'No updates found.';
+				} else {
+					echo 'Debug output suppressed. Enable WP_DEBUG to view details.';
+				}
 			}
 
 			$errors = $this->updateChecker->getLastRequestApiErrors();
@@ -149,10 +157,12 @@ if ( !class_exists(Extension::class, false) ):
 			}
 			check_ajax_referer('puc-ajax');
 
-			//phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting -- Part of a debugging feature.
-			error_reporting(E_ALL);
-			//phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
-			@ini_set('display_errors', 'On');
+			if ( defined('WP_DEBUG') && WP_DEBUG ) {
+				//phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting -- Part of a debugging feature.
+				error_reporting(E_ALL);
+				//phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
+				@ini_set('display_errors', 'On');
+			}
 		}
 
 		/**

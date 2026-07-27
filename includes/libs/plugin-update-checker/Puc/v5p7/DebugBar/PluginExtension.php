@@ -27,11 +27,19 @@ if ( !class_exists(PluginExtension::class, false) ):
 			$this->preAjaxRequest();
 			$info = $this->updateChecker->requestInfo();
 			if ( $info !== null ) {
-				echo 'Successfully retrieved plugin info from the metadata URL:';
-				//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- For debugging output.
-				echo '<pre>', esc_html(print_r($info, true)), '</pre>';
+				if ( defined('WP_DEBUG') && WP_DEBUG ) {
+					echo 'Successfully retrieved plugin info from the metadata URL:';
+					//phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- For debugging output.
+					echo '<pre>', esc_html(print_r($info, true)), '</pre>';
+				} else {
+					echo 'Debug output suppressed. Enable WP_DEBUG to view details.';
+				}
 			} else {
-				echo 'Failed to retrieve plugin info from the metadata URL.';
+				if ( defined('WP_DEBUG') && WP_DEBUG ) {
+					echo 'Failed to retrieve plugin info from the metadata URL.';
+				} else {
+					echo 'Debug output suppressed. Enable WP_DEBUG to view details.';
+				}
 			}
 			exit;
 		}

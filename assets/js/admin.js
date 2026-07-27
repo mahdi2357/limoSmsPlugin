@@ -2,7 +2,9 @@ jQuery(document).ready(function ($) {
     'use strict';
 
     if (typeof limosms_ajax === 'undefined') {
-        console.error('LimoSMS ajax object not found');
+        if (window.LimoSMS && typeof window.LimoSMS.showToast === 'function') {
+            window.LimoSMS.showToast('AJAX configuration missing for LimoSMS admin.', 'error');
+        }
         return;
     }
 
@@ -202,7 +204,7 @@ jQuery(document).ready(function ($) {
         return (typeof limosms_connection_status !== 'undefined') ? Boolean(limosms_connection_status) : true;
     }
 
-    console.log('limosms:connectionAvailable', isConnectionAvailable());
+    // connection availability logged suppressed in production
 
     setActiveTab(currentTab);
     setPageTitle(currentTab);
@@ -253,7 +255,7 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        console.log('limosms:tab-click', tab);
+        // tab click debug log suppressed in production
 
         if (!isConnectionAvailable() && tab !== 'connection-settings') {
             if (window.LimoSMS && typeof window.LimoSMS.showToast === 'function') {

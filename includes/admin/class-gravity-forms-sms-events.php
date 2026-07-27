@@ -46,7 +46,9 @@ class LimoSMS_Gravity_Forms_SMS_Events
                 );
             }
         } catch (Exception $e) {
-            error_log('LimoSMS Gravity Forms Error: ' . $e->getMessage());
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log('LimoSMS Gravity Forms Error: ' . $e->getMessage());
+            }
         }
 
         return $forms;
@@ -76,7 +78,9 @@ class LimoSMS_Gravity_Forms_SMS_Events
         }
 
         if (!is_iterable($form_fields)) {
-            error_log('GF Form fields is not iterable. Type: ' . gettype($form_fields));
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log('GF Form fields is not iterable. Type: ' . gettype($form_fields));
+            }
             return $fields;
         }
 
@@ -99,7 +103,9 @@ class LimoSMS_Gravity_Forms_SMS_Events
             $fields[$field_id] = $field_array['label'];
         }
 
-        error_log('GF Form fields extracted: ' . json_encode($fields));
+        if ( defined('WP_DEBUG') && WP_DEBUG ) {
+            error_log('GF Form fields extracted: ' . json_encode($fields));
+        }
         return $fields;
     }
 

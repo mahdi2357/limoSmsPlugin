@@ -85,10 +85,10 @@
             return;
         }
         if (type === 'success') {
-            console.log(message);
-        } else {
-            alert(message);
+            // silently ignore success message when no toast available
+            return;
         }
+        alert(message);
     }
 
     function getGravityFormsSmsData() {
@@ -108,7 +108,7 @@
         try {
             savedMap = JSON.parse(mappingContainer.attr('data-saved-map') || '{}');
         } catch (error) {
-            console.error('Failed to parse saved map JSON', error);
+            // parse error suppressed in production
             savedMap = {};
         }
         return savedMap && typeof savedMap === 'object' ? savedMap : {};
@@ -185,16 +185,15 @@
         const forms = data.forms || {};
         const tokens = data.tokens || {};
 
-        console.log('getFormTokens called with formId:', formId);
-        console.log('Available forms:', forms);
-        console.log('Available tokens:', tokens);
+        // debug logs suppressed in production
 
         if (forms[formId] && forms[formId].tokens) {
-            console.log('Found tokens from form:', forms[formId].tokens);
+            // tokens provided for this form
             return forms[formId].tokens;
         }
 
-        console.log('Returning global tokens:', tokens);
+        // return global tokens
+        return tokens || {};
         return tokens || {};
     }
 
@@ -422,7 +421,7 @@
         const savedMap = getSavedMap(mappingContainer);
         const variables = extractPatternVariables(textValue);
 
-        console.log('renderPatternMapping - formId:', formId, 'textValue:', textValue, 'variables:', variables);
+        // renderPatternMapping debug logs suppressed in production
 
         if (!variables.length) {
             mappingContainer.html('<div class="limosms-pattern-empty">متغیری در متن الگو یافت نشد.</div>');
@@ -430,7 +429,7 @@
         }
 
         const tokens = getFormTokens(formId);
-        console.log('Tokens retrieved for form ' + formId + ':', tokens);
+        // debug logs suppressed in production
         const tokenEntries = Object.entries(tokens || {});
 
         if (!tokenEntries.length) {
@@ -517,7 +516,7 @@
             return;
         }
 
-        console.log('Starting loadPatterns with data:', data);
+        // loadPatterns: debug logs suppressed in production
 
         $.ajax({
             url: data.ajax_url,
@@ -528,7 +527,7 @@
                 nonce: data.nonce
             },
             success: function (response) {
-                console.log('=== AJAX Success Response ===', response);
+                // AJAX success response logging suppressed in production
                 
                 if (response && response.success) {
                     // response.data شامل {success, message, data: Array} است
@@ -539,7 +538,7 @@
                         patterns = patterns.data;
                     }
                     
-                    console.log('Patterns received (processed):', patterns, 'Count:', Array.isArray(patterns) ? patterns.length : 'Not array');
+                    // Patterns received - logging suppressed in production
                     
                     // اگر patterns خالی باشد
                     if (!Array.isArray(patterns) || patterns.length === 0) {
@@ -556,13 +555,13 @@
                         }
                     });
 
-                    console.log('Pattern cache:', gravityFormsPatternsCache);
+                    // Pattern cache logging suppressed in production
 
                     $('.limosms-gravity-pattern-selector').each(function () {
                         const selector = $(this);
                         const selectedValue = String(selector.data('saved') || '').trim();
                         const options = buildPatternOptions(patterns, selectedValue);
-                        console.log('Setting options on selector:', options);
+                        // Setting options on selector - suppressed logging in production
 
                         if ($.fn.select2 && selector.hasClass('select2-hidden-accessible')) {
                             selector.select2('destroy');
@@ -590,13 +589,12 @@
                     showNotification('الگوها با موفقیت دریافت شدند.', 'success');
                 } else {
                     const errorMsg = (response && response.data && response.data.message) ? response.data.message : 'دریافت الگوها ناموفق بود.';
-                    console.error('Response error:', errorMsg, 'Full response:', response);
+                    // Error details suppressed in production
                     showNotification(errorMsg, 'error');
                 }
             },
             error: function (xhr, status, error) {
-                console.error('=== AJAX Error ===', 'Status:', status, 'Error:', error, 'XHR:', xhr);
-                console.error('Response Text:', xhr.responseText);
+                // AJAX error details suppressed in production
                 showNotification('خطا در ارتباط با سرور: ' + error, 'error');
             },
             complete: function () {
