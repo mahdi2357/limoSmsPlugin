@@ -7,20 +7,28 @@ jQuery(function ($) {
         };
     }
 
-    function syncOtpNotice(enabled) {
+    function syncOtpNotice(savedEnabled) {
         var elements = getOtpElements();
 
         if (!elements.notice) {
             return;
         }
 
-        elements.notice.hidden = !enabled;
-        elements.notice.classList.toggle('is-visible', enabled);
+        elements.notice.hidden = !savedEnabled;
+        elements.notice.classList.toggle('is-visible', savedEnabled);
+    }
 
-        if (elements.settings) {
-            elements.settings.hidden = !enabled;
-            elements.settings.classList.toggle('is-visible', enabled);
+    var currentSavedEnabled = false;
+
+    function syncOtpSettingsPanel(enabled) {
+        var elements = getOtpElements();
+
+        if (!elements.settings) {
+            return;
         }
+
+        elements.settings.hidden = !enabled;
+        elements.settings.classList.toggle('is-visible', enabled);
     }
 
     function updateRegistrationFieldRequiredState(row) {
@@ -127,7 +135,7 @@ jQuery(function ($) {
     }
 
     $(document).on('change', '#limoo-login-register-otp-enabled', function () {
-        syncOtpNotice(this.checked);
+        syncOtpSettingsPanel(this.checked);
     });
 
     $(document).on('change', 'input[name^="login_register_otp_registration_fields"][name$="[enabled]"]', function () {
@@ -137,6 +145,13 @@ jQuery(function ($) {
 
     $(document).ready(function () {
         refreshAllRegistrationFieldRequiredStates();
+
+        var initialElements = getOtpElements();
+        if (initialElements.toggle) {
+            syncOtpSettingsPanel(initialElements.toggle.checked);
+            currentSavedEnabled = initialElements.toggle.checked;
+            syncOtpNotice(currentSavedEnabled);
+        }
     });
 
     $(document).on('click', '.limoo-login-register-subtab', function () {
@@ -164,7 +179,9 @@ jQuery(function ($) {
         })
             .done(function (response) {
                 if (response && response.success) {
-                    syncOtpNotice(enabled);
+                    currentSavedEnabled = enabled;
+                    syncOtpNotice(currentSavedEnabled);
+                    syncOtpSettingsPanel(enabled);
 
                     showToast(
                         response.data && response.data.message ? response.data.message : 'تنظیمات با موفقیت ذخیره شد.',
@@ -285,9 +302,4 @@ jQuery(function ($) {
             $(this).trigger('click');
         }
     });
-
-    var initialElements = getOtpElements();
-    if (initialElements.toggle) {
-        syncOtpNotice(initialElements.toggle.checked);
-    }
 });
