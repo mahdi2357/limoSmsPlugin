@@ -58,9 +58,10 @@ class LimoSMS_Login_Register_Tab {
                     continue;
                 }
 
+                $is_enabled = isset( $field_settings['enabled'] ) && '1' === sanitize_text_field( (string) $field_settings['enabled'] );
                 $registration_fields[ $field_key ] = array(
-                    'enabled' => isset( $field_settings['enabled'] ) && '1' === sanitize_text_field( (string) $field_settings['enabled'] ) ? '1' : '0',
-                    'required' => isset( $field_settings['required'] ) && '1' === sanitize_text_field( (string) $field_settings['required'] ) ? '1' : '0',
+                    'enabled' => $is_enabled ? '1' : '0',
+                    'required' => $is_enabled && isset( $field_settings['required'] ) && '1' === sanitize_text_field( (string) $field_settings['required'] ) ? '1' : '0',
                 );
             }
         }

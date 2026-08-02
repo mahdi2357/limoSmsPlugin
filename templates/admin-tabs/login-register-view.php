@@ -165,7 +165,7 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                 <?php foreach ( $registration_field_options as $field_key => $field_option ) : ?>
                     <?php $field_config = isset( $registration_fields_config[ $field_key ] ) && is_array( $registration_fields_config[ $field_key ] ) ? $registration_fields_config[ $field_key ] : array(); ?>
                     <?php $is_enabled = ! empty( $field_config['enabled'] ) && '1' === (string) $field_config['enabled']; ?>
-                    <?php $is_required = ! empty( $field_config['required'] ) && '1' === (string) $field_config['required']; ?>
+                    <?php $is_required = $is_enabled && ! empty( $field_config['required'] ) && '1' === (string) $field_config['required']; ?>
                     <div class="limoo-setting-row">
                         <div class="limoo-setting-row__content">
                             <label class="limoo-setting-row__label" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-enabled"><?php echo esc_html( $field_option['label'] ); ?></label>
@@ -176,8 +176,8 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                                 <input type="checkbox" id="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-enabled" name="login_register_otp_registration_fields[<?php echo esc_attr( $field_key ); ?>][enabled]" value="1" <?php checked( $is_enabled ); ?> />
                                 <span class="limoo-switch__slider"></span>
                             </label>
-                            <label class="limoo-setting-row__inline-checkbox" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required">
-                                <input type="checkbox" id="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required" name="login_register_otp_registration_fields[<?php echo esc_attr( $field_key ); ?>][required]" value="1" <?php checked( $is_required ); ?> />
+                            <label class="limoo-setting-row__inline-checkbox<?php echo ! $is_enabled ? ' is-disabled' : ''; ?>" for="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required">
+                                <input type="checkbox" id="limoo-registration-field-<?php echo esc_attr( $field_key ); ?>-required" name="login_register_otp_registration_fields[<?php echo esc_attr( $field_key ); ?>][required]" value="1" <?php checked( $is_required ); ?> <?php disabled( ! $is_enabled ); ?> />
                                 <?php esc_html_e( 'اجباری', 'limoo-sms' ); ?>
                             </label>
                         </div>

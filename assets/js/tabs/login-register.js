@@ -23,6 +23,30 @@ jQuery(function ($) {
         }
     }
 
+    function updateRegistrationFieldRequiredState(row) {
+        var $enabled = row.find('input[name^="login_register_otp_registration_fields"][name$="[enabled]"]');
+        var $required = row.find('input[name^="login_register_otp_registration_fields"][name$="[required]"]');
+
+        if (!$enabled.length || !$required.length) {
+            return;
+        }
+
+        var isEnabled = $enabled.is(':checked');
+        $required.prop('disabled', !isEnabled);
+        if (!isEnabled) {
+            $required.prop('checked', false);
+        }
+
+        row.find('.limoo-setting-row__inline-checkbox').toggleClass('is-disabled', !isEnabled);
+    }
+
+    function refreshAllRegistrationFieldRequiredStates() {
+        $('.limoo-setting-row').has('input[name^="login_register_otp_registration_fields"][name$="[required]"]')
+            .each(function () {
+                updateRegistrationFieldRequiredState($(this));
+            });
+    }
+
     function openMediaUploader(button) {
         var target = button.getAttribute('data-target');
         if ( ! target ) {
@@ -104,6 +128,15 @@ jQuery(function ($) {
 
     $(document).on('change', '#limoo-login-register-otp-enabled', function () {
         syncOtpNotice(this.checked);
+    });
+
+    $(document).on('change', 'input[name^="login_register_otp_registration_fields"][name$="[enabled]"]', function () {
+        var row = $(this).closest('.limoo-setting-row');
+        updateRegistrationFieldRequiredState(row);
+    });
+
+    $(document).ready(function () {
+        refreshAllRegistrationFieldRequiredStates();
     });
 
     $(document).on('click', '.limoo-login-register-subtab', function () {
