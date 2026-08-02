@@ -64,6 +64,15 @@ class LimoSMS_Gravity_Forms_SMS_Tab
 
         $clean_admin_phones = array_values(array_unique($clean_admin_phones));
 
+        if (count($clean_admin_phones) > 10) {
+            wp_send_json_error(
+                array(
+                    'message' => 'حداکثر ۱۰ شماره موبایل برای Gravity Forms SMS قابل ذخیره است.',
+                ),
+                400
+            );
+        }
+
         $forms_settings = array();
 
         foreach ($sms_forms as $form_id => $form_data) {

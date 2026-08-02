@@ -52,6 +52,7 @@ $admin_numbers_value = implode(',', $admin_numbers);
             >
 
             <div id="limosms-gravity-forms-admin-phones-tags" class="limosms-admin-phones-tags"></div>
+            <div id="limosms-gravity-forms-admin-phones-error" class="limosms-admin-phones-error" style="color:#ef4444;font-size:12px;margin-top:5px;display:none;"></div>
 
             <p class="description">شماره‌های دریافت‌کننده را اضافه کنید؛ برای حذف از ضربدر کنار هر شماره استفاده کنید.</p>
         </div>
@@ -173,9 +174,89 @@ $admin_numbers_value = implode(',', $admin_numbers);
         });
     }
 
+    const MAX_GRAVITY_FORMS_ADMIN_PHONES = 10;
+
     function updateHidden($hidden, phones) {
         $hidden.val(phones.join(','));
         $hidden.trigger('input');
+    }
+
+    function setGravityFormsAdminPhonesError(message) {
+        const $error = $('#limosms-gravity-forms-admin-phones-error');
+
+        if (!$error.length) {
+            return;
+        }
+
+        if (message) {
+            $error.text(message).show();
+        } else {
+            $error.text('').hide();
+        }
+    }
+
+    function validateGravityFormsAdminPhones(value) {
+        const cleanValue = String(value || '').trim().replace(/^,+|,+$/g, '');
+
+        if (!cleanValue) {
+            return {
+                valid: true,
+                message: ''
+            };
+        }
+
+        const normalized = cleanValue
+            .replace(/[۰-۹]/g, function (digit) {
+                return '۰۱۲۳۴۵۶۷۸۹'.indexOf(digit);
+            })
+            .replace(/[٠-٩]/g, function (digit) {
+                return '٠١٢٣٤٥٦٧٨٩'.indexOf(digit);
+            });
+
+        if (/[^0-9,]/.test(normalized)) {
+            return {
+                valid: false,
+                message: 'فقط وارد کردن اعداد انگلیسی و کاما (,) مجاز است.'
+            };
+        }
+
+        if (normalized.startsWith(',') || normalized.endsWith(',')) {
+            return {
+                valid: false,
+                message: 'شماره تلفن نباید با کاما شروع یا تمام شود.'
+            };
+        }
+
+        if (/,{2,}/.test(normalized)) {
+            return {
+                valid: false,
+                message: 'لطفاً از وارد کردن کامای پشت سر هم خودداری کنید.'
+            };
+        }
+
+        const phones = normalized.split(',');
+        if (phones.length > MAX_GRAVITY_FORMS_ADMIN_PHONES) {
+            return {
+                valid: false,
+                message: 'حداکثر ۱۰ شماره موبایل قابل ذخیره است.'
+            };
+        }
+
+        for (let index = 0; index < phones.length; index++) {
+            const phone = phones[index];
+
+            if (phone && !/^09\d{9}$/.test(phone)) {
+                return {
+                    valid: false,
+                    message: 'هر شماره موبایل وارد شده باید با 09 شروع شده و ۱۱ رقم باشد.'
+                };
+            }
+        }
+
+        return {
+            valid: true,
+            message: ''
+        };
     }
 
     $(document).ready(function () {
@@ -201,9 +282,17 @@ $admin_numbers_value = implode(',', $admin_numbers);
             }
 
             if (phones.indexOf(normalized) === -1) {
+                if (phones.length >= MAX_GRAVITY_FORMS_ADMIN_PHONES) {
+                    $entry.addClass('limosms-input-error');
+                    setGravityFormsAdminPhonesError('حداکثر ۱۰ شماره موبایل قابل اضافه شدن است.');
+                    setTimeout(function () { $entry.removeClass('limosms-input-error'); }, 1200);
+                    return;
+                }
+
                 phones.push(normalized);
                 renderTags($tags, phones);
                 updateHidden($hidden, phones);
+                setGravityFormsAdminPhonesError('');
             }
             if (window.limosmsGravityFormsSmsData && typeof window.limosmsGravityFormsSmsData === 'object') {
                 $('#limosms-save-gravity-forms-settings').prop('disabled', false);
@@ -230,10 +319,13 @@ $admin_numbers_value = implode(',', $admin_numbers);
             phones = phones.filter(function (p) { return p !== val; });
             renderTags($tags, phones);
             updateHidden($hidden, phones);
+            setGravityFormsAdminPhonesError('');
             $('#limosms-save-gravity-forms-settings').prop('disabled', false);
         });
 
         $hidden.on('input', function () {
+            const validation = validateGravityFormsAdminPhones($hidden.val());
+            setGravityFormsAdminPhonesError(validation.message);
             $('#limosms-save-gravity-forms-settings').prop('disabled', false);
         });
     });

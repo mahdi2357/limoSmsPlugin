@@ -41,6 +41,7 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
             >
 
             <div id="limosms-admin-phones-tags" class="limosms-admin-phones-tags"></div>
+            <div id="limosms-admin-phones-error" class="limosms-admin-phones-error" style="color:#ef4444;font-size:12px;margin-top:5px;display:none;"></div>
 
             <p class="description">شماره‌ها را اضافه کنید؛ برای حذف از ضربدر کنار هر شماره استفاده کنید.</p>
         </div>
@@ -178,9 +179,25 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
         });
     }
 
+    const MAX_ADMIN_PHONES = 10;
+
     function updateHidden($hidden, phones) {
         $hidden.val(phones.join(','));
         $hidden.trigger('input');
+    }
+
+    function setAdminPhonesInlineError(message) {
+        var $error = $('#limosms-admin-phones-error');
+
+        if (!$error.length) {
+            return;
+        }
+
+        if (message) {
+            $error.text(message).show();
+        } else {
+            $error.text('').hide();
+        }
     }
 
     $(document).ready(function () {
@@ -205,10 +222,18 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
             }
 
             if (phones.indexOf(normalized) === -1) {
+                if (phones.length >= MAX_ADMIN_PHONES) {
+                    $entry.addClass('limosms-input-error');
+                    setAdminPhonesInlineError('حداکثر ۱۰ شماره موبایل قابل اضافه شدن است.');
+                    setTimeout(function () { $entry.removeClass('limosms-input-error'); }, 1200);
+                    return;
+                }
+
                 phones.push(normalized);
                 renderTags($tags, phones);
                 updateHidden($hidden, phones);
             }
+            setAdminPhonesInlineError('');
             $entry.val('');
         }
 
@@ -231,6 +256,7 @@ $settings = LimoSMS_Admin_SMS_Settings::get_events_settings();
             phones = phones.filter(function (p) { return p !== val; });
             renderTags($tags, phones);
             updateHidden($hidden, phones);
+            setAdminPhonesInlineError('');
         });
     });
 

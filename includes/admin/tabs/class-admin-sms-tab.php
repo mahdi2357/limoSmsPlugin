@@ -183,6 +183,15 @@ class LimoSMS_Admin_SMS
         // حذف شماره‌های تکراری
         $valid_phones = array_values(array_unique($valid_phones));
 
+        if (count($valid_phones) > 10) {
+            wp_send_json_error(
+                array(
+                    'message' => 'حداکثر ۱۰ شماره موبایل برای پیامک مدیران قابل ذخیره است.',
+                ),
+                400
+            );
+        }
+
         /*
          * ==========================================
          * ذخیره نهایی

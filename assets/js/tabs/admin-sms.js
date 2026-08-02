@@ -158,6 +158,13 @@
 
         const phones = normalized.split(',');
 
+        if (phones.length > 10) {
+            return {
+                valid: false,
+                message: 'حداکثر ۱۰ شماره موبایل قابل ذخیره است.'
+            };
+        }
+
         for (let index = 0; index < phones.length; index++) {
             const phone = phones[index];
 
