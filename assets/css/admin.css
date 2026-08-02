@@ -603,6 +603,35 @@
   height: auto !important;
 }
 
+.limosms-unsaved-warning {
+  display: none;
+  background: #fef3c7;
+  border-left: 4px solid #facc15;
+  color: #92400e;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.limosms-unsaved-warning-fixed {
+  position: sticky;
+  top: 18px;
+  z-index: 5;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 16px;
+}
+
+@media (max-width: 782px) {
+  .limosms-unsaved-warning-fixed {
+    width: auto;
+    left: 0;
+    right: 0;
+  }
+}
+
 /* دکمه‌های کنترل نمایش */
 .limosms-toggle-tokens-btn {
   background: none;

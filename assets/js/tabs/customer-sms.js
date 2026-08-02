@@ -62,6 +62,15 @@
         return JSON.stringify(normalized);
     }
 
+    function toggleCustomerSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limosms-customer-save-warning').toggle(isVisible);
+    }
+
     function updateCustomerSaveButtonState() {
         const isDirty = customerInitialState && serializeCustomerState(getCustomerCurrentState()) !== serializeCustomerState(customerInitialState);
         if (isDirty) {
@@ -69,6 +78,7 @@
         } else {
             disableSaveButton();
         }
+        toggleCustomerSaveWarning(isDirty);
         return isDirty;
     }
 

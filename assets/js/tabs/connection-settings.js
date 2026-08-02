@@ -1,6 +1,15 @@
 (function ($) {
     "use strict";
 
+    function toggleConnectionSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limosms-connection-save-warning').toggle(isVisible);
+    }
+
     function checkChanges($form, $button) {
         const $apiKey = $form.find("#limosms_api_key");
         const $woocommerceToggle = $form.find("#limosms_woocommerce_sms_enabled");
@@ -18,6 +27,7 @@
 
         const changed = currentApiKey !== initialApiKey || initialWooCommerce !== currentWooCommerce || initialDigits !== currentDigits || initialGravityForms !== currentGravityForms;
         $button.prop("disabled", !(currentApiKey && changed));
+        toggleConnectionSaveWarning(changed);
     }
 
     // کنترل ورودی کاربر بر روی فیلد کلید API

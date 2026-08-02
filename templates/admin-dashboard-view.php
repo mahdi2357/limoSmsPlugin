@@ -116,6 +116,10 @@ $is_connected = !empty($connection_status['success']);
             </h1>
         </div>
 
+        <div id="limosms-unsaved-warning-fixed" class="limosms-unsaved-warning limosms-unsaved-warning-fixed" style="display:none;">
+            تغییرات نیاز به ذخیره شدن دارند. لطفا ذخیره کنید.
+        </div>
+
         <div class="limosms-content-box">
             <div id="limosms-tab-loading" style="display: none;">
                 <div class="limosms-spinner"></div>

@@ -19,6 +19,36 @@ jQuery(function ($) {
     }
 
     var currentSavedEnabled = false;
+    var loginRegisterInitialState = '';
+
+    function getLoginRegisterState() {
+        var $form = $('#limoo-login-register-form');
+        if (!$form.length) {
+            return '';
+        }
+
+        return $form.serializeArray()
+            .map(function (item) {
+                return item.name + '=' + item.value;
+            })
+            .sort()
+            .join('&');
+    }
+
+    function toggleLoginRegisterSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limoo-login-register-save-warning').toggle(isVisible);
+    }
+
+    function updateLoginRegisterSaveWarningState() {
+        var isDirty = loginRegisterInitialState !== getLoginRegisterState();
+        toggleLoginRegisterSaveWarning(isDirty);
+        return isDirty;
+    }
 
     function syncOtpSettingsPanel(enabled) {
         var elements = getOtpElements();
@@ -152,6 +182,12 @@ jQuery(function ($) {
             currentSavedEnabled = initialElements.toggle.checked;
             syncOtpNotice(currentSavedEnabled);
         }
+
+        loginRegisterInitialState = getLoginRegisterState();
+    });
+
+    $(document).on('input change', '#limoo-login-register-form :input', function () {
+        updateLoginRegisterSaveWarningState();
     });
 
     $(document).on('click', '.limoo-login-register-subtab', function () {
@@ -182,6 +218,8 @@ jQuery(function ($) {
                     currentSavedEnabled = enabled;
                     syncOtpNotice(currentSavedEnabled);
                     syncOtpSettingsPanel(enabled);
+                    loginRegisterInitialState = getLoginRegisterState();
+                    toggleLoginRegisterSaveWarning(false);
 
                     showToast(
                         response.data && response.data.message ? response.data.message : 'تنظیمات با موفقیت ذخیره شد.',

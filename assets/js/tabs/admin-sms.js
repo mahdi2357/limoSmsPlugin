@@ -83,9 +83,19 @@
         $('#limosms-save-otp-settings').prop('disabled', !isDirty);
     }
 
+    function toggleAdminSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limosms-admin-save-warning').toggle(isVisible);
+    }
+
     function updateAdminSaveButtonState() {
         const dirty = isAdminDirty();
         setAdminSaveButtonState(dirty);
+        toggleAdminSaveWarning(dirty);
         return dirty;
     }
 

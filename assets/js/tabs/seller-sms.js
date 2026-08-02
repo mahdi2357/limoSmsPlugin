@@ -47,6 +47,15 @@
         window.alert(message);
     }
 
+    function toggleSellerSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limosms-seller-save-warning').toggle(isVisible);
+    }
+
     function setSellerDirty(state) {
         sellerDirty = !!state;
 
@@ -54,6 +63,7 @@
         if (button.length) {
             button.prop('disabled', !sellerDirty);
         }
+        toggleSellerSaveWarning(sellerDirty);
     }
 
     function normalizeSellerPatternMap(patternMap) {

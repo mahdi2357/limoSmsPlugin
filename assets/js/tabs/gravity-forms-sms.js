@@ -68,6 +68,15 @@
         return JSON.stringify(normalized);
     }
 
+    function toggleGravityFormsSaveWarning(isVisible) {
+        if (window.LimoSMS && typeof window.LimoSMS.toggleSaveWarning === 'function') {
+            window.LimoSMS.toggleSaveWarning(isVisible);
+            return;
+        }
+
+        $('#limosms-gravity-forms-save-warning').toggle(isVisible);
+    }
+
     function updateGravityFormsSaveButtonState() {
         const isDirty = gravityFormsInitialState && serializeGravityFormsState(getGravityFormsCurrentState()) !== serializeGravityFormsState(gravityFormsInitialState);
         if (isDirty) {
@@ -75,6 +84,7 @@
         } else {
             disableSaveButton();
         }
+        toggleGravityFormsSaveWarning(isDirty);
         return isDirty;
     }
 

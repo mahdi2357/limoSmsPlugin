@@ -21,6 +21,10 @@ jQuery(document).ready(function ($) {
         }, 30);
     };
 
+    window.LimoSMS.toggleSaveWarning = function (isVisible) {
+        $('#limosms-unsaved-warning-fixed').toggle(isVisible);
+    };
+
     function normalizeToastMessage(message, fallback) {
         if (message === null || message === undefined || message === '') {
             return fallback;
