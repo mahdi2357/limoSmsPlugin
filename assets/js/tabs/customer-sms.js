@@ -170,13 +170,51 @@
 
     function getSavedMap(mappingContainer) {
         let savedMap = {};
+
         try {
-            savedMap = JSON.parse(mappingContainer.attr('data-saved-map') || '{}');
+            const attrMap = JSON.parse(mappingContainer.attr('data-saved-map') || '{}');
+            if (attrMap && typeof attrMap === 'object') {
+                savedMap = attrMap;
+            }
         } catch (error) {
             debugError('Failed to parse saved map JSON', error);
             savedMap = {};
         }
-        return savedMap && typeof savedMap === 'object' ? savedMap : {};
+
+        mappingContainer.find('.limosms-pattern-select').each(function () {
+            const input = $(this);
+            let param = input.data('param');
+            const value = String(input.val() || '').trim();
+            if (param !== undefined && param !== null) {
+                param = String(param).trim();
+            }
+            if (param !== '' && value !== '') {
+                savedMap[param] = value;
+            }
+        });
+
+        return savedMap;
+    }
+
+    function syncMappingSavedState(mappingContainer) {
+        if (!mappingContainer || !mappingContainer.length) {
+            return;
+        }
+
+        const patternMap = {};
+        mappingContainer.find('.limosms-pattern-select').each(function () {
+            const input = $(this);
+            let param = input.data('param');
+            const value = String(input.val() || '').trim();
+            if (param !== undefined && param !== null) {
+                param = String(param).trim();
+            }
+            if (param !== '' && value !== '') {
+                patternMap[param] = value;
+            }
+        });
+
+        mappingContainer.attr('data-saved-map', JSON.stringify(patternMap));
     }
 
     function getSavedToken(savedMap, index) {
@@ -336,39 +374,62 @@
         return getFallbackOrderTokens();
     }
 
-    function updateSelectedBadge(row) {
-        const badge = row.find('.limosms-selected-badge');
-        const activeChip = row.find('.limosms-token-chip.is-active');
-
-        if (activeChip.length) {
-            badge
-                .removeClass('is-empty')
-                .addClass('is-selected')
-                .html('<span class="dashicons dashicons-yes-alt"></span> ' + activeChip.text().trim());
-        } else {
-            badge
-                .removeClass('is-selected')
-                .addClass('is-empty')
-                .text('انتخاب نشده');
+    function getTokenLabel(tokens, tokenKey) {
+        if (!tokenKey) {
+            return '';
         }
+
+        if (tokens && typeof tokens[tokenKey] !== 'undefined') {
+            return String(tokens[tokenKey] || '');
+        }
+
+        return String(tokenKey || '');
     }
 
-    function refreshUI(card) {
-        const selectedTokens = card.find('.limosms-pattern-select').map(function () {
-            return $(this).val();
+    function updateTokenBadge(row, tokens) {
+        const selectedValue = String(row.find('.limosms-pattern-select').val() || '');
+        const badge = row.find('.limosms-selected-badge');
+
+        if (!badge.length) {
+            return;
+        }
+
+        badge.removeClass('is-empty is-selected');
+
+        if (!selectedValue) {
+            badge.addClass('is-empty').text('انتخاب نشده');
+            return;
+        }
+
+        badge.addClass('is-selected').text(getTokenLabel(tokens, selectedValue));
+    }
+
+    function refreshTokenChipState(card) {
+        const selectedValues = card.find('.limosms-pattern-select').map(function () {
+            return String($(this).val() || '');
         }).get().filter(Boolean);
 
-        card.find('.limosms-token-chip').each(function () {
-            const chip = $(this);
-            const chipToken = chip.data('token');
-            const usedElsewhere = selectedTokens.some(function (token) {
-                return isSameToken(token, chipToken);
-            });
-            chip.toggleClass('is-disabled', usedElsewhere && !chip.hasClass('is-active'));
-        });
+        const tokens = getEventTokens(card.data('event'));
 
         card.find('.limosms-mapping-row').each(function () {
-            updateSelectedBadge($(this));
+            const row = $(this);
+            const currentValue = String(row.find('.limosms-pattern-select').val() || '');
+
+            row.find('.limosms-token-chip').each(function () {
+                const chip = $(this);
+                const tokenValue = String(chip.data('token') || '');
+                const isActive = isSameToken(currentValue, tokenValue);
+                const isSelectedElsewhere = selectedValues.some(function (selectedValue) {
+                    return isSameToken(selectedValue, tokenValue);
+                });
+
+                chip.toggleClass('is-active', isActive);
+                chip.toggleClass('is-disabled', isSelectedElsewhere && !isActive);
+                chip.prop('disabled', isSelectedElsewhere && !isActive);
+                chip.attr('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            updateTokenBadge(row, tokens);
         });
     }
 
@@ -409,10 +470,15 @@
     function renderPatternMapping(card) {
         const textBox = card.find('.limosms-pattern-text');
         const eventKey = card.data('event') || textBox.data('event') || '';
-        const textValue = textBox.text() || '';
+        const textValue = String(textBox.text() || '').trim();
         const mappingContainer = card.find('.limosms-customer-pattern-mapping-wrap');
         const savedMap = getSavedMap(mappingContainer);
         const variables = extractPatternVariables(textValue);
+
+        if (!textValue) {
+            mappingContainer.html('');
+            return;
+        }
 
         if (!variables.length) {
             mappingContainer.html('<div class="limosms-pattern-empty">متغیری در متن الگو یافت نشد.</div>');
@@ -462,7 +528,9 @@
         });
 
         mappingContainer.html(html);
-        refreshUI(card);
+        syncMappingSavedState(mappingContainer);
+        refreshTokenChipState(card);
+
     }
 
     function rebuildAllPatternMappings() {
@@ -683,7 +751,7 @@
                     const card = $(this);
                     const select = card.find('.limosms-customer-pattern-selector');
                     const savedPatternCode = String(
-                        card.find('.limosms-customer-otp-id').val() || select.data('selected') || ''
+                        card.find('.limosms-customer-otp-id').val() || select.data('saved') || select.data('selected') || ''
                     ).trim();
                     const optionsHtml = buildPatternOptions(response.data || [], savedPatternCode);
 
@@ -694,13 +762,11 @@
                     select.html(optionsHtml).val(savedPatternCode);
                     maybeInitSelect2(select);
 
-                    select.trigger('change');
-
                     const selectedOption = select.find('option:selected');
                     const selectedText = selectedOption.length ? decodeURIComponent(selectedOption.data('text') || '') : '';
                     card.find('.limosms-pattern-text').text(selectedText);
 
-                    if (selectedText) {
+                    if (savedPatternCode && selectedText) {
                         renderPatternMapping(card);
                     } else {
                         card.find('.limosms-customer-pattern-mapping-wrap').html('');
@@ -887,7 +953,7 @@
             const checkbox = $(this);
             const card = checkbox.closest('.limosms-event-card');
             toggleEventFields(card, checkbox.is(':checked'));
-            refreshUI(card);
+            refreshTokenChipState(card);
             updateCustomerSaveButtonState();
         });
 
@@ -920,12 +986,21 @@
             chip.addClass('is-active');
 
             hiddenInput.val(chip.data('token')).trigger('change');
+
+            const mappingContainer = row.closest('.limosms-customer-pattern-mapping-wrap');
+            if (mappingContainer.length) {
+                syncMappingSavedState(mappingContainer);
+            }
         });
 
         $(document).on('change', '.limosms-pattern-select', function () {
             const input = $(this);
             const card = input.closest('.limosms-event-card');
-            refreshUI(card);
+            const mappingContainer = input.closest('.limosms-customer-pattern-mapping-wrap');
+            if (mappingContainer.length) {
+                syncMappingSavedState(mappingContainer);
+            }
+            refreshTokenChipState(card);
             updateCustomerSaveButtonState();
         });
 
@@ -938,6 +1013,8 @@
     function initCustomerSmsTab() {
         bindEvents();
         syncVisibleCustomerCards(true);
+        rebuildAllPatternMappings();
+
         loadAllPatterns(function () {
             customerInitialState = getCustomerCurrentState();
             updateCustomerSaveButtonState();
@@ -945,16 +1022,20 @@
     }
 
     // اتصال به رویداد سراسری تغییر تب Ajax افزونه LimoSMS
-    $(document).on('limosms:tab-loaded', function (event, activeTab) {
-        if (activeTab === 'customer-sms') {
-            initCustomerSmsTab();
+    $(document).on('limosms:tab-loaded limosms_tab_loaded', function (event, activeTab) {
+        if (!activeTab || activeTab === 'customer-sms') {
+            window.setTimeout(function () {
+                initCustomerSmsTab();
+            }, 0);
         }
     });
 
     // لود اولیه در صورت حضور مستقیم در تب مشتری هنگام رندر صفحه
     $(document).ready(function () {
         if ($('#limosms-save-customer-settings').length) {
-            initCustomerSmsTab();
+            window.setTimeout(function () {
+                initCustomerSmsTab();
+            }, 0);
         }
     });
 
