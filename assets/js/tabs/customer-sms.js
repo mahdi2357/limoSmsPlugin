@@ -813,9 +813,15 @@
         let hasError = false;
         let errorMessage = '';
 
+        function getEventLabel(card) {
+            const label = String(card.find('.limosms-event-title').text() || '').trim();
+            return label || String(card.data('event') || '');
+        }
+
         $('.limosms-event-card').each(function () {
             const card = $(this);
             const eventKey = String(card.data('event') || '');
+            const eventLabel = getEventLabel(card);
             const enabled = card.find('.limosms-customer-event-enabled').is(':checked');
             const otpId = String(card.find('.limosms-customer-otp-id').val() || '');
             const patternText = String(card.find('.limosms-pattern-text').text() || '');
@@ -828,13 +834,13 @@
 
             if (!otpId) {
                 hasError = true;
-                errorMessage = 'لطفاً برای رویداد "' + eventKey + '" یک پترن انتخاب کنید.';
+                errorMessage = 'لطفاً برای رویداد "' + eventLabel + '" یک پترن انتخاب کنید.';
                 return false;
             }
 
             if (hasVariables && !patternInputs.length) {
                 hasError = true;
-                errorMessage = 'برای رویداد "' + eventKey + '" هیچ پارامتری پیدا نشد.';
+                errorMessage = 'برای رویداد "' + eventLabel + '" هیچ پارامتری پیدا نشد.';
                 return false;
             }
 
@@ -848,7 +854,7 @@
 
             if (hasVariables && hasEmptyToken) {
                 hasError = true;
-                errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventKey + '" تکمیل کنید.';
+                errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventLabel + '" تکمیل کنید.';
                 return false;
             }
         });

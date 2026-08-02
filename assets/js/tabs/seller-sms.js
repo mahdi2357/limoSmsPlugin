@@ -744,9 +744,15 @@
         let hasError = false;
         let errorMessage = '';
 
+        function getEventLabel(card) {
+            const label = String(card.find('.limosms-event-title').text() || '').trim();
+            return label || String(card.data('event') || '');
+        }
+
         getSellerCards().each(function () {
             const card = $(this);
             const eventKey = String(card.data('event') || '');
+            const eventLabel = getEventLabel(card);
 
             if (!eventKey) {
                 return;
@@ -764,13 +770,13 @@
 
             if (!otpId) {
                 hasError = true;
-                errorMessage = 'لطفاً برای رویداد "' + eventKey + '" یک پترن انتخاب کنید.';
+                errorMessage = 'لطفاً برای رویداد "' + eventLabel + '" یک پترن انتخاب کنید.';
                 return false;
             }
 
             if (hasVariables && !patternInputs.length) {
                 hasError = true;
-                errorMessage = 'برای رویداد "' + eventKey + '" هیچ پارامتری پیدا نشد.';
+                errorMessage = 'برای رویداد "' + eventLabel + '" هیچ پارامتری پیدا نشد.';
                 return false;
             }
 
@@ -785,7 +791,7 @@
 
             if (hasVariables && hasEmptyToken) {
                 hasError = true;
-                errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventKey + '" تکمیل کنید.';
+                errorMessage = 'لطفاً تمام توکن‌های پترن را برای رویداد "' + eventLabel + '" تکمیل کنید.';
                 return false;
             }
         });
