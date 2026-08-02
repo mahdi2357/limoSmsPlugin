@@ -430,6 +430,16 @@
                 mode: currentMode
             };
 
+            if ( currentMode === "register" ) {
+                registrationFieldInputs.forEach(function (fieldInput) {
+                    if (!fieldInput || !fieldInput.name) {
+                        return;
+                    }
+
+                    requestData[fieldInput.name] = fieldInput.value;
+                });
+            }
+
             if ( captchaEnabled ) {
                 requestData.captcha_answer = captchaAnswer;
                 requestData.captcha_token = captchaToken;
