@@ -749,19 +749,24 @@
         
         // دکمه مشاهده همه
         $(document)
-            .off('click.limosmToggleTokens', '.limosms-toggle-tokens-btn')
-            .on('click.limosmToggleTokens', '.limosms-toggle-tokens-btn', function (e) {
+            .off('click.limosmsToggleTokens', '.limosms-toggle-tokens-btn')
+            .on('click.limosmsToggleTokens', '.limosms-toggle-tokens-btn', function (e) {
                 e.preventDefault();
 
                 const button = $(this);
-                const container = button.siblings('.limosms-tokens-container');
+                const container = button.closest('.limosms-mapping-row').find('.limosms-tokens-container').first();
 
                 if (!container.length) {
                     return;
                 }
 
-                container.toggleClass('expanded');
-                button.text(container.hasClass('expanded') ? 'بستن لیست' : 'مشاهده همه');
+                const expanded = !container.hasClass('expanded');
+                container.toggleClass('expanded', expanded);
+                container.css({
+                    'max-height': expanded ? 'none' : '120px',
+                    'overflow-y': expanded ? 'visible' : 'auto'
+                });
+                button.text(expanded ? 'بستن لیست' : 'مشاهده همه');
             });
 
         $(document).on('change', '.limosms-gravity-form-enabled', function () {

@@ -838,14 +838,19 @@
             event.preventDefault();
 
             const button = $(this);
-            const container = button.siblings('.limosms-tokens-container');
+            const container = button.closest('.limosms-mapping-row').find('.limosms-tokens-container').first();
 
             if (!container.length) {
                 return;
             }
 
-            container.toggleClass('expanded');
-            button.text(container.hasClass('expanded') ? 'بستن لیست' : 'مشاهده همه');
+            const expanded = !container.hasClass('expanded');
+            container.toggleClass('expanded', expanded);
+            container.css({
+                'max-height': expanded ? 'none' : '120px',
+                'overflow-y': expanded ? 'visible' : 'auto'
+            });
+            button.text(expanded ? 'بستن لیست' : 'مشاهده همه');
         });
 
     $(document).on('input', '#limosms_admin_phones', function () {

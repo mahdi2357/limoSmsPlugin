@@ -598,7 +598,9 @@
 
 /* حالت باز شده کامل با کلیک روی دکمه نمایش بیشتر */
 .limosms-tokens-container.expanded {
-  max-height: 400px;
+  max-height: none !important;
+  overflow-y: visible !important;
+  height: auto !important;
 }
 
 /* دکمه‌های کنترل نمایش */
