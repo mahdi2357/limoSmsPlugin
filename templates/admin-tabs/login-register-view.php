@@ -562,7 +562,7 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                                 </div>
                             </div>
                             <textarea id="limoo-login-register-custom-css" name="login_register_otp_custom_css" class="limoo-custom-css-editor__textarea" rows="12" placeholder=".limosms-mobile-auth { ... }\n.limosms-mobile-auth__button { ... }"><?php echo esc_textarea( $custom_css ); ?></textarea>
-                            <div class="limoo-custom-css-editor__hint"><?php esc_html_e( 'مثال: .limosms-mobile-auth { border-radius: 24px; }', 'limosms' ); ?></div>
+                            <div class="limoo-custom-css-editor__hint"><?php esc_html_e( 'مثال: .limosms-mobile-auth { border-radius: 24px; } یا .limosms-mobile-auth__button { background: #2563eb; }', 'limosms' ); ?> <?php esc_html_e( 'کد CSS فقط برای فرم ورود/ثبت‌نام اعمال می‌شود و اگر نامعتبر باشد ذخیره نخواهد شد.', 'limosms' ); ?></div>
                         </div>
                     </div>
                 </div>

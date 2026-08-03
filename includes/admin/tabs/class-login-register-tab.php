@@ -104,9 +104,19 @@ class LimoSMS_Login_Register_Tab {
         $settings['login_register_otp_background_image_url'] = esc_url_raw( wp_unslash( $_POST['login_register_otp_background_image_url'] ?? '' ) );
         $settings['login_register_otp_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_background_color'] ?? '#ffffff' ) );
         $settings['login_register_otp_form_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_form_background_color'] ?? '#ffffff' ) );
+        $custom_css = wp_unslash( $_POST['login_register_otp_custom_css'] ?? '' );
+        if ( ! $this->is_valid_custom_css( $custom_css ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'کد CSS معتبر نیست. فقط قواعد CSS مجاز است و تگ‌های HTML پذیرفته نمی‌شوند.', 'limosms' ),
+                ),
+                400
+            );
+        }
+
         $settings['login_register_otp_accent_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_accent_color'] ?? '#2563eb' ) );
         $settings['login_register_otp_accent_secondary_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_accent_secondary_color'] ?? $settings['login_register_otp_accent_color'] ?? '#2563eb' ) );
-        $settings['login_register_otp_custom_css'] = sanitize_textarea_field( wp_unslash( $_POST['login_register_otp_custom_css'] ?? '' ) );
+        $settings['login_register_otp_custom_css'] = sanitize_textarea_field( $custom_css );
 
         $updated = update_option( 'limoo_sms_settings', $settings );
 
@@ -118,5 +128,35 @@ class LimoSMS_Login_Register_Tab {
                 'settings' => $settings,
             )
         );
+    }
+
+    private function is_valid_custom_css( $css ) {
+        $css = trim( (string) $css );
+        if ( '' === $css ) {
+            return true;
+        }
+
+        if ( preg_match( '/<\s*\/??\s*\w+/i', $css ) ) {
+            return false;
+        }
+
+        if ( preg_match( '/@(?:import|charset|namespace)\b/i', $css ) ) {
+            return false;
+        }
+
+        $balance = 0;
+        $length = strlen( $css );
+        for ( $i = 0; $i < $length; $i++ ) {
+            if ( '{' === $css[ $i ] ) {
+                $balance++;
+            } elseif ( '}' === $css[ $i ] ) {
+                $balance--;
+                if ( $balance < 0 ) {
+                    return false;
+                }
+            }
+        }
+
+        return 0 === $balance;
     }
 }

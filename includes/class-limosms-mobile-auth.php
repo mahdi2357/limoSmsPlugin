@@ -359,7 +359,45 @@ class LimoSMS_Mobile_Auth {
     }
 
     private function get_custom_css() {
-        return sanitize_textarea_field( (string) $this->get_setting( 'login_register_otp_custom_css', '' ) );
+        $custom_css = sanitize_textarea_field( (string) $this->get_setting( 'login_register_otp_custom_css', '' ) );
+        return $this->scope_custom_css( $custom_css );
+    }
+
+    private function scope_custom_css( $css ) {
+        $css = trim( (string) $css );
+        if ( '' === $css ) {
+            return '';
+        }
+
+        return preg_replace_callback(
+            '/([^{}]+)\{/',
+            function ( $matches ) {
+                $selector = trim( $matches[1] );
+                if ( '' === $selector || preg_match( '/^\s*@/i', $selector ) ) {
+                    return $matches[0];
+                }
+
+                $parts = preg_split( '/\s*,\s*/', $selector );
+                $parts = array_map(
+                    function ( $part ) {
+                        $part = trim( $part );
+                        if ( '' === $part ) {
+                            return $part;
+                        }
+
+                        if ( preg_match( '/^\.limosms-mobile-auth\b/i', $part ) ) {
+                            return $part;
+                        }
+
+                        return '.limosms-mobile-auth ' . $part;
+                    },
+                    $parts
+                );
+
+                return implode( ', ', $parts ) . '{';
+            },
+            $css
+        );
     }
 
     private function get_form_font_family() {

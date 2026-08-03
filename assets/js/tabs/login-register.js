@@ -200,6 +200,13 @@ jQuery(function ($) {
         var $form = $(this);
         var $button = $form.find('#limoo-login-register-save');
         var enabled = $form.find('#limoo-login-register-otp-enabled').is(':checked');
+        var customCss = $form.find('#limoo-login-register-custom-css').val();
+        if ( ! isLoginRegisterCustomCssValid( customCss ) ) {
+            showToast('کد CSS وارد شده معتبر نیست. فقط قوانین CSS معتبر و بدون تگ HTML مجاز است.', 'error');
+            $button.prop('disabled', false).removeClass('is-busy');
+            return;
+        }
+
         var data = $form.serializeArray();
 
         data.push({ name: 'action', value: 'limosms_save_login_register_settings' });
@@ -240,6 +247,35 @@ jQuery(function ($) {
                 $button.prop('disabled', false).removeClass('is-busy');
             });
     });
+
+    function isLoginRegisterCustomCssValid(css) {
+        if (!css || !css.trim) {
+            return true;
+        }
+
+        if (/<\s*\/??\s*\w+/i.test(css)) {
+            return false;
+        }
+
+        if (/@(import|charset|namespace)\b/i.test(css)) {
+            return false;
+        }
+
+        var balance = 0;
+        for (var i = 0; i < css.length; i++) {
+            var ch = css[i];
+            if (ch === '{') {
+                balance++;
+            } else if (ch === '}') {
+                balance--;
+                if (balance < 0) {
+                    return false;
+                }
+            }
+        }
+
+        return balance === 0;
+    }
 
     function showToast(message, type) {
         $('.limosms-toast').remove();
