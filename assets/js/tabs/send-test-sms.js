@@ -295,8 +295,8 @@
                 });
 
                 const $selectedOption = $select.find('option:selected');
-                const selectedLabel = $selectedOption.length ? $selectedOption.text() : $select.attr('placeholder') || 'انتخاب پترن';
-                $button.text(selectedLabel);
+                const selectedText = $selectedOption.length ? ($selectedOption.attr('data-text') ? decodeURIComponent($selectedOption.attr('data-text')) : $selectedOption.text()) : $select.attr('placeholder') || 'انتخاب پترن';
+                $button.text(selectedText);
 
                 $wrapper.append($button).append($list);
                 $select.after($wrapper);
@@ -315,7 +315,9 @@
                     }
                     const value = $item.data('value') || '';
                     $select.val(value).trigger('change');
-                    $button.text($item.text());
+                    const subtitleText = $item.find('.limosms-custom-select__item-subtitle').text();
+                    const displayText = subtitleText || $item.find('.limosms-custom-select__item-label').text();
+                    $button.text(displayText);
                     $list.hide();
                     $list.find('.limosms-custom-select__item').removeClass('is-active');
                     $item.addClass('is-active');
