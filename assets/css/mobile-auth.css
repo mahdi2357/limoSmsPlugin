@@ -136,11 +136,7 @@
 }
 
 .limosms-mobile-auth__tab-button.is-active {
-  background: linear-gradient(
-    135deg,
-    var(--limosms-accent-color, #2563eb),
-    #3b82f6
-  );
+  background: var(--limosms-accent-background, #2563eb);
   color: #ffffff;
 }
 
@@ -272,11 +268,7 @@
 }
 
 .limosms-mobile-auth__button--primary {
-  background: linear-gradient(
-    135deg,
-    var(--limosms-accent-color, #2563eb),
-    #3b82f6
-  );
+  background: var(--limosms-accent-background, #2563eb);
   color: #ffffff;
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
 }
@@ -327,11 +319,7 @@
 }
 
 .limosms-mobile-auth__mode-button.is-active {
-  background: linear-gradient(
-    135deg,
-    var(--limosms-accent-color, #2563eb),
-    #3b82f6
-  );
+  background: var(--limosms-accent-background, #2563eb);
   color: #ffffff;
   box-shadow: 0 8px 16px rgba(37, 99, 235, 0.16);
 }

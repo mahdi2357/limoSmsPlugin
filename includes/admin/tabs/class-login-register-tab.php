@@ -105,6 +105,7 @@ class LimoSMS_Login_Register_Tab {
         $settings['login_register_otp_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_background_color'] ?? '#ffffff' ) );
         $settings['login_register_otp_form_background_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_form_background_color'] ?? '#ffffff' ) );
         $settings['login_register_otp_accent_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_accent_color'] ?? '#2563eb' ) );
+        $settings['login_register_otp_accent_secondary_color'] = sanitize_hex_color( wp_unslash( $_POST['login_register_otp_accent_secondary_color'] ?? $settings['login_register_otp_accent_color'] ?? '#2563eb' ) );
         $settings['login_register_otp_custom_css'] = sanitize_textarea_field( wp_unslash( $_POST['login_register_otp_custom_css'] ?? '' ) );
 
         $updated = update_option( 'limoo_sms_settings', $settings );

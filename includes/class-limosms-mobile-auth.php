@@ -397,6 +397,12 @@ class LimoSMS_Mobile_Auth {
         return sanitize_hex_color( $this->get_setting( 'login_register_otp_accent_color', '#2563eb' ) );
     }
 
+    private function get_accent_secondary_color() {
+        $primary = $this->get_accent_color();
+        $secondary = sanitize_hex_color( $this->get_setting( 'login_register_otp_accent_secondary_color', $primary ) );
+        return $secondary ? $secondary : $primary;
+    }
+
     private function get_new_user_role() {
         $role = sanitize_text_field( (string) $this->get_setting( 'login_register_otp_role', get_option( 'default_role', 'subscriber' ) ) );
         $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
@@ -619,6 +625,7 @@ class LimoSMS_Mobile_Auth {
                 'backgroundColor' => $this->get_background_color(),
                 'formBackgroundColor' => $this->get_form_background_color(),
                 'accentColor'     => $this->get_accent_color(),
+                'accentSecondaryColor' => $this->get_accent_secondary_color(),
                 'captchaEnabled'  => $this->is_captcha_enabled(),
             )
         );
@@ -656,6 +663,7 @@ class LimoSMS_Mobile_Auth {
             'background_color'     => $this->get_background_color(),
             'form_background_color'=> $this->get_form_background_color(),
             'accent_color'         => $this->get_accent_color(),
+            'accent_secondary_color' => $this->get_accent_secondary_color(),
             'form_align'           => $this->get_form_align(),
             'form_direction'       => $this->get_form_direction(),
             'font_family'          => $this->get_form_font_family(),

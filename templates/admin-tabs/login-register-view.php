@@ -74,6 +74,7 @@ $background_image_url = isset( $settings['login_register_otp_background_image_ur
 $background_color = isset( $settings['login_register_otp_background_color'] ) ? $settings['login_register_otp_background_color'] : '#ffffff';
 $form_background_color = isset( $settings['login_register_otp_form_background_color'] ) ? $settings['login_register_otp_form_background_color'] : '#ffffff';
 $accent_color = isset( $settings['login_register_otp_accent_color'] ) ? $settings['login_register_otp_accent_color'] : '#2563eb';
+$accent_secondary_color = isset( $settings['login_register_otp_accent_secondary_color'] ) ? $settings['login_register_otp_accent_secondary_color'] : $accent_color;
 $custom_css = isset( $settings['login_register_otp_custom_css'] ) ? $settings['login_register_otp_custom_css'] : '';
 $selected_allowed_country_codes = isset( $settings['login_register_otp_allowed_country_codes'] ) && is_array( $settings['login_register_otp_allowed_country_codes'] ) ? $settings['login_register_otp_allowed_country_codes'] : array();
 if ( empty( $selected_allowed_country_codes ) ) {
@@ -535,6 +536,14 @@ $roles = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array(
                         <label for="limoo-login-register-accent-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ تاکید', 'limosms' ); ?></label>
                     </div>
                     <input type="color" id="limoo-login-register-accent-color" name="login_register_otp_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="limoo-setting-row__input" />
+                </div>
+
+                <div class="limoo-setting-row">
+                    <div class="limoo-setting-row__content">
+                        <label for="limoo-login-register-accent-secondary-color" class="limoo-setting-row__label"><?php esc_html_e( 'رنگ پس‌زمینه دکمه', 'limosms' ); ?></label>
+                        <p class="limoo-setting-row__description"><?php esc_html_e( 'برای ایجاد گرادیانت، رنگ دوم را انتخاب کنید. اگر رنگ دوم برابر با رنگ اول باشد، رنگ ثابت استفاده می‌شود.', 'limosms' ); ?></p>
+                    </div>
+                    <input type="color" id="limoo-login-register-accent-secondary-color" name="login_register_otp_accent_secondary_color" value="<?php echo esc_attr( $accent_secondary_color ); ?>" class="limoo-setting-row__input" />
                 </div>
 
                 <div class="limoo-setting-row">

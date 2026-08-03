@@ -7,8 +7,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="limosms-mobile-auth limosms-mobile-auth--align-<?php echo esc_attr( $form_style['form_align'] ); ?> limosms-mobile-auth--dir-<?php echo esc_attr( $form_style['form_direction'] ); ?>"
     dir="<?php echo esc_attr( $form_style['form_direction'] ); ?>"
     style="background-color:<?php echo esc_attr( $form_style['background_color'] ); ?>;font-family:<?php echo esc_attr( $form_style['font_family'] ); ?>;<?php echo ! empty( $form_style['background_image_url'] ) ? 'background-image:url(' . esc_url( $form_style['background_image_url'] ) . ');' : ''; ?>">
-    <div class="limosms-mobile-auth__wrap"
-        style="background-color:<?php echo esc_attr( $form_style['form_background_color'] ); ?>;--limosms-accent-color:<?php echo esc_attr( $form_style['accent_color'] ); ?>;">
+    <?php
+    $accent_background = $form_style['accent_color'];
+    if ( ! empty( $form_style['accent_secondary_color'] ) && $form_style['accent_secondary_color'] !== $form_style['accent_color'] ) {
+        $accent_background = 'linear-gradient(135deg, ' . esc_attr( $form_style['accent_color'] ) . ', ' . esc_attr( $form_style['accent_secondary_color'] ) . ')';
+    }
+?>
+<div class="limosms-mobile-auth__wrap"
+        style="background-color:<?php echo esc_attr( $form_style['form_background_color'] ); ?>;--limosms-accent-color:<?php echo esc_attr( $form_style['accent_color'] ); ?>;--limosms-accent-background:<?php echo esc_attr( $accent_background ); ?>;">
         <?php if ( ! empty( $form_style['logo_url'] ) ) : ?>
         <div class="limosms-mobile-auth__logo">
             <img class="logo-size" src="<?php echo esc_url( $form_style['logo_url'] ); ?>"
