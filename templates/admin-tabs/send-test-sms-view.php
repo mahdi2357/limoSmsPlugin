@@ -20,14 +20,14 @@
                 <div class="limosms-field-error" data-for="reciverNumber"></div>
             </div>
 
-            <div class="limosms-form-group">
+            <div class="limosms-form-group limosms-form-group-full">
                 <label for="limosms-pattern-id" class="limosms-label">
                     انتخاب پترن
                 </label>
                 <select
                         id="limosms-pattern-id"
                         name="patternId"
-                        class="limosms-select"
+                        class="limosms-select limosms-pattern-selector"
                         required
                 >
                     <option value="">در حال بارگذاری الگوها...</option>
@@ -36,7 +36,7 @@
                 <div class="limosms-field-error" data-for="patternId"></div>
             </div>
 
-            <div class="limosms-form-group">
+            <div class="limosms-form-group limosms-form-group-full">
                 <label for="limosms-message" class="limosms-label">
                     متن پیام / توکن‌ها
                 </label>

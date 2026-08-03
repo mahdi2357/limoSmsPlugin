@@ -24,7 +24,7 @@
 
 .limosms-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     align-items: start;
 }
@@ -32,10 +32,13 @@
 .limosms-form-group {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
 }
 
 .limosms-form-group-full {
     grid-column: 1 / -1;
+    width: 100%;
 }
 
 .limosms-label {
@@ -72,6 +75,114 @@
     color: #646970;
     font-size: 12px;
     line-height: 1.5;
+}
+
+.limosms-test-sms-form .limosms-custom-select {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.limosms-test-sms-form .limosms-custom-select__button,
+.limosms-test-sms-form .limosms-custom-select__list,
+.limosms-test-sms-form .limosms-custom-select__search {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+.limosms-test-sms-form .limosms-form-group {
+    width: 100%;
+}
+
+.limosms-test-sms-form .limosms-form-group.limosms-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.limosms-test-sms-form .limosms-custom-select__button {
+    min-height: 40px;
+    height: auto;
+    padding: 10px 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 6px;
+    background: #fff;
+    color: #2c3338;
+    font-size: 14px;
+    text-align: right;
+    cursor: pointer;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.limosms-content form {
+    display: block;}
+
+.limosms-test-sms-form .limosms-custom-select__button:focus {
+    border-color: #5557d9;
+    box-shadow: 0 0 0 1px #5557d9;
+    outline: none;
+}
+
+.limosms-test-sms-form .limosms-custom-select__list {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.limosms-test-sms-form .limosms-custom-select__search {
+    width: calc(100% - 24px);
+    margin: 8px 12px;
+    padding: 8px 10px;
+    border: 1px solid #e6defc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+}
+
+.limosms-test-sms-form .limosms-custom-select__item {
+    padding: 10px 12px;
+    cursor: pointer;
+    color: #1f2937;
+    font-size: 13px;
+    border-bottom: 1px solid #f3f4f6;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.limosms-test-sms-form .limosms-custom-select__item-label {
+    font-weight: 400;
+    color: #111827;
+    word-break: break-word;
+}
+
+.limosms-test-sms-form .limosms-custom-select__item-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.limosms-test-sms-form .limosms-custom-select__item:hover,
+.limosms-test-sms-form .limosms-custom-select__item.is-active {
+    background: rgba(124, 58, 237, 0.12);
+    color: #07122a;
+}
+
+.limosms-test-sms-form .limosms-custom-select__noresults {
+    padding: 10px 12px;
+    color: #94a3b8;
 }
 
 .limosms-field-error {

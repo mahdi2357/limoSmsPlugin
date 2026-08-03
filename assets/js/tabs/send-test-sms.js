@@ -227,6 +227,108 @@
             return isValid;
         },
 
+        initCustomPatternSelect: function ($context) {
+            const $container = $context && $context.length ? $context : $(document);
+
+            $container.find('.limosms-pattern-selector').each(function () {
+                const $select = $(this);
+
+                if ($select.hasClass('select2-hidden-accessible') || $select.data('customized')) {
+                    return;
+                }
+
+                const options = [];
+                $select.find('option').each(function () {
+                    const $opt = $(this);
+                    const subtitle = $opt.attr('data-text') ? decodeURIComponent($opt.attr('data-text') || '') : '';
+                    options.push({
+                        value: $opt.attr('value') || '',
+                        label: $opt.text() || '',
+                        subtitle: subtitle,
+                        disabled: $opt.prop('disabled')
+                    });
+                });
+
+                const $wrapper = $('<div class="limosms-custom-select" aria-hidden="false"></div>');
+                const $button = $('<button type="button" class="limosms-custom-select__button" aria-haspopup="listbox"></button>');
+                const $list = $('<div class="limosms-custom-select__list" role="listbox"></div>');
+                const $searchInput = $('<input type="text" class="limosms-custom-select__search" placeholder="جستجو...">');
+
+                $list.append($searchInput);
+
+                if (options.length === 0) {
+                    $list.append('<div class="limosms-custom-select__noresults">هیچ گزینه‌ای نیست</div>');
+                } else {
+                    options.forEach(function (opt) {
+                        const $item = $('<div class="limosms-custom-select__item" data-value="' + String(opt.value).replace(/"/g, '&quot;') + '"></div>');
+                        const $label = $('<div class="limosms-custom-select__item-label"></div>').text(opt.label);
+                        $item.append($label);
+
+                        if (opt.subtitle) {
+                            const $subtitle = $('<div class="limosms-custom-select__item-subtitle"></div>').text(opt.subtitle);
+                            $item.append($subtitle);
+                        }
+
+                        if (opt.disabled) {
+                            $item.attr('aria-disabled', 'true').addClass('is-disabled');
+                        }
+                        $list.append($item);
+                    });
+                }
+
+                $searchInput.on('input', function () {
+                    const query = String(this.value || '').toLowerCase().trim();
+                    let visibleCount = 0;
+
+                    $list.find('.limosms-custom-select__item').each(function () {
+                        const $item = $(this);
+                        const text = ($item.text() || '').toLowerCase();
+                        if (!query || text.indexOf(query) !== -1) {
+                            $item.show();
+                            visibleCount++;
+                        } else {
+                            $item.hide();
+                        }
+                    });
+
+                    $list.find('.limosms-custom-select__noresults').toggle(visibleCount === 0);
+                });
+
+                const $selectedOption = $select.find('option:selected');
+                const selectedLabel = $selectedOption.length ? $selectedOption.text() : $select.attr('placeholder') || 'انتخاب پترن';
+                $button.text(selectedLabel);
+
+                $wrapper.append($button).append($list);
+                $select.after($wrapper);
+                $select.addClass('limosms-native-hidden');
+                $select.data('customized', true);
+
+                $button.on('click', function (e) {
+                    e.preventDefault();
+                    $list.toggle();
+                });
+
+                $list.on('click', '.limosms-custom-select__item', function () {
+                    const $item = $(this);
+                    if ($item.is('.is-disabled')) {
+                        return;
+                    }
+                    const value = $item.data('value') || '';
+                    $select.val(value).trigger('change');
+                    $button.text($item.text());
+                    $list.hide();
+                    $list.find('.limosms-custom-select__item').removeClass('is-active');
+                    $item.addClass('is-active');
+                });
+
+                $(document).on('click.limosmsTestPatternSelect', function (e) {
+                    if (!$wrapper.is(e.target) && $wrapper.has(e.target).length === 0) {
+                        $list.hide();
+                    }
+                });
+            });
+        },
+
         loadPatternOptions: function (selectedValue = "") {
             const $form = $("#limosms-send-form");
             if (!$form.length) {
@@ -234,6 +336,7 @@
             }
 
             const $select = $form.find('[name="patternId"]');
+            const currentValue = $.trim($select.val() || selectedValue || "");
             $select.html('<option value="">در حال بارگذاری الگوها...</option>');
             // $select.prop("disabled", true);
 
@@ -256,21 +359,29 @@
                         let html = '<option value="">انتخاب پترن</option>';
 
                         response.data.data.forEach(function (pattern) {
-                            const patternId = String(pattern.id || "");
-                            const patternText = String(pattern.message || "");
-                            const isSelected = String(selectedValue) === patternId ? " selected" : "";
+                            const rawId = String(pattern.id || pattern.pattern_id || pattern.patternCode || pattern.pattern_code || pattern.code || "").trim();
+                            const patternId = rawId;
+                            const patternText = String(pattern.message || pattern.pattern_text || pattern.text || "");
+                            const title = String(pattern.title || pattern.patternTitle || pattern.name || "");
+                            const label = patternId ? (title ? patternId + ' | ' + title : patternId) : 'بدون عنوان';
+                            const isSelected = String(currentValue || selectedValue) === patternId ? " selected" : "";
 
-                            html += '<option value="' + this.escapeHtml(patternId) + '"' + isSelected + '>';
-                            html += this.escapeHtml(patternId);
-
-                            if (patternText) {
-                                html += " - " + this.escapeHtml(patternText);
-                            }
-
+                            html += '<option value="' + this.escapeHtml(patternId) + '" data-text="' + encodeURIComponent(patternText) + '" data-title="' + this.escapeHtml(title) + '"' + isSelected + '>';
+                            html += this.escapeHtml(label);
                             html += "</option>";
                         }, this);
 
                         $select.html(html);
+
+                        if ($.fn.select2 && $select.hasClass('select2-hidden-accessible')) {
+                            $select.select2('destroy');
+                        }
+
+                        if (currentValue) {
+                            $select.val(currentValue);
+                        }
+
+                        this.initCustomPatternSelect($form);
                     } else {
                         $select.html('<option value="">پترنی یافت نشد</option>');
                     }
