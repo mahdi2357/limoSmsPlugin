@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 } 
 
+
 define('LIMOSMS_VERSION', '2.0.1');
 define('LIMOSMS_PATH', plugin_dir_path(__FILE__));
 define('LIMOSMS_URL', plugin_dir_url(__FILE__));
