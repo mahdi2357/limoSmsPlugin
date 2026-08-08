@@ -73,14 +73,14 @@
   flex: 0 0 300px;
   width: 300px;
   max-width: 100%;
-  background: linear-gradient(180deg, #fde68a 0%, #f59e0b 100%);
+  background: linear-gradient(180deg, #f59e0b 0%, #fdcb00 100%);
   border-radius: 34px;
   padding: 30px 24px;
   box-shadow: 0 28px 90px rgba(245, 158, 11, 0.18);
   position: sticky;
   top: 24px;
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* border: 1px solid #FDE588; */
 }
 
 .limosms-sidebar h2 {
@@ -108,8 +108,8 @@
   color: #ffffff;
   padding: 14px 18px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fdb938;
+  /* border: 1px solid #fdb938; */
   transition:
     background 0.18s ease,
     color 0.18s ease;
@@ -122,7 +122,7 @@
 
 .limosms-sidebar li.active a,
 .limosms-sidebar a:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: #feac14;
   color: #ffffff;
 }
 
