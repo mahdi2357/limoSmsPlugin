@@ -1,8 +1,8 @@
 :root {
-    --limosms-primary: #5557d9;
-    --limosms-primary-dark: #4345c4;
-    --limosms-primary-soft: #f3f3ff;
-    --limosms-primary-border: #e3e4ff;
+    --limosms-primary: #f59e0b;
+    --limosms-primary-dark: #b45309;
+    --limosms-primary-soft: #fef3c7;
+    --limosms-primary-border: #fde68a;
     --limosms-text: #2f3142;
     --limosms-muted: #6b7280;
     --limosms-success-bg: #ecfdf3;
@@ -12,7 +12,7 @@
     --limosms-warning-bg: #fffaeb;
     --limosms-warning-text: #b54708;
     --limosms-info-bg: #eef2ff;
-    --limosms-info-text: #5557d9;
+    --limosms-info-text: #b45309;
     --limosms-surface: #ffffff;
     --limosms-surface-soft: #fafaff;
     --limosms-border: #ececff;
@@ -27,7 +27,7 @@
     background: var(--limosms-surface);
     border: 1px solid var(--limosms-border);
     border-radius: 18px;
-    box-shadow: 0 12px 32px rgba(85, 87, 217, 0.08);
+    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.08);
     overflow: hidden;
 }
 
@@ -216,7 +216,7 @@
     background: var(--limosms-primary);
     border-color: var(--limosms-primary);
     color: #fff;
-    box-shadow: 0 8px 18px rgba(85, 87, 217, 0.22);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.22);
 }
 
 .limosms-sent-sms-page-btn:hover,

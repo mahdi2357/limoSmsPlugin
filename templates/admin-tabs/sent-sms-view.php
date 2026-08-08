@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
     <h4 style="text-align: center;">
         <?php esc_html_e( 'جهت مشاهده تمامی پیامک های ارسال شده به', 'limosms' ); ?>
-        <a style="color: rebeccapurple; text-decoration: none;" target="_blank" rel="noopener noreferrer" href="https://panel.limosms.com/sms/getuseronemessage">
+        <a style="color: #b45309; text-decoration: none;" target="_blank" rel="noopener noreferrer" href="https://panel.limosms.com/sms/getuseronemessage">
             <?php esc_html_e( 'پنل لیمو اس ام اس', 'limosms' ); ?>
         </a>
         <?php esc_html_e( 'مراجعه بفرمایید', 'limosms' ); ?>

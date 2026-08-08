@@ -1,16 +1,18 @@
 :root {
-  --limosms-primary: #5557d9;
-  --limosms-primary-dark: #4345c4;
-  --limosms-primary-soft: #f3f3ff;
-  --limosms-primary-border: #e3e4ff;
-  --limosms-text: #2f3142;
+  --limosms-primary: #f59e0b;
+  --limosms-primary-dark: #b45309;
+  --limosms-primary-soft: #fef3c7;
+  --limosms-primary-border: #fde68a;
+  --limosms-text: #2f2937;
   --limosms-muted: #6b7280;
   --limosms-success-bg: #ecfdf3;
   --limosms-success-text: #027a48;
   --limosms-danger-bg: #fef3f2;
   --limosms-danger-text: #d92d20;
+  --limosms-warning-bg: #fffaeb;
+  --limosms-warning-text: #b54708;
   --limosms-info-bg: #eef2ff;
-  --limosms-info-text: #5557d9;
+  --limosms-info-text: #b45309;
   --limosms-surface: #ffffff;
   --limosms-surface-soft: #fafaff;
   --limosms-border: #ececff;
@@ -51,7 +53,7 @@
   background: var(--limosms-surface);
   border: 1px solid var(--limosms-border);
   border-radius: 18px;
-  box-shadow: 0 12px 32px rgba(85, 87, 217, 0.08);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.08);
   overflow: hidden;
 }
 
@@ -223,7 +225,7 @@
 
 .limosms-action-btn.edit {
   background: #eef2ff;
-  color: #4f46e5;
+  color: #b45309;
 }
 
 .limosms-action-btn.delete {
@@ -233,7 +235,7 @@
 
 .limosms-action-btn.copy {
   background: #f3f4f6;
-  color: #5557d9;
+  color: var(--limosms-primary);
 }
 
 .limosms-action-btn:hover {
@@ -312,7 +314,7 @@
 .page-number:hover {
   border-color: var(--limosms-primary);
   background: var(--limosms-primary-soft);
-  color: #5557d9 !important;
+  color: var(--limosms-primary-dark) !important;
 
 }
 
@@ -364,11 +366,11 @@
 }
 
 .limosms-pattern-toast.success {
-  background: #16a34a;
+  background: var(--limosms-primary);
 }
 
 .limosms-pattern-toast.error {
-  background: #5557d9;
+  background: var(--limosms-primary);
 }
 
 body.rtl .limosms-pattern-header {

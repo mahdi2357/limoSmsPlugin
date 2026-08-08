@@ -65,8 +65,8 @@
 
 .limosms-test-sms-form input[type="text"]:focus,
 .limosms-test-sms-form select:focus {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
     outline: none;
 }
 
@@ -118,8 +118,8 @@
     display: block;}
 
 .limosms-test-sms-form .limosms-custom-select__button:focus {
-    border-color: #5557d9;
-    box-shadow: 0 0 0 1px #5557d9;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
     outline: none;
 }
 
@@ -176,7 +176,7 @@
 
 .limosms-test-sms-form .limosms-custom-select__item:hover,
 .limosms-test-sms-form .limosms-custom-select__item.is-active {
-    background: rgba(124, 58, 237, 0.12);
+    background: rgba(245, 158, 11, 0.12);
     color: #07122a;
 }
 

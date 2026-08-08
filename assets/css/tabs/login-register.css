@@ -226,8 +226,8 @@
 
 .limoo-custom-css-editor__textarea:focus {
     outline: none;
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .limoo-custom-css-editor__hint {
@@ -261,13 +261,13 @@
 }
 
 .limoo-login-register-subtab:hover {
-    border-color: #2271b1;
-    color: #2271b1;
+    border-color: #f59e0b;
+    color: #b45309;
 }
 
 .limoo-login-register-subtab.is-active {
-    background: #2271b1;
-    border-color: #2271b1;
+    background: #f59e0b;
+    border-color: #f59e0b;
     color: #fff;
 }
 
@@ -327,8 +327,8 @@
 }
 
 .limoo-activity-log-pill--success {
-    background: #dcfce7;
-    color: #166534;
+    background: #fff7cc;
+    color: #92400e;
 }
 
 .limoo-activity-log-pill--danger {
@@ -399,7 +399,7 @@
 }
 
 .limoo-switch input:checked + .limoo-switch__slider {
-    background: #2271b1;
+    background: #f59e0b;
 }
 
 .limoo-switch input:checked + .limoo-switch__slider::before {
@@ -434,7 +434,7 @@
 }
 
 .limosms-toast-success {
-    background: #1d7f4e;
+    background: #f59e0b;
 }
 
 .limosms-toast-error {
@@ -447,11 +447,11 @@
     gap: 12px;
     margin-top: 16px;
     padding: 16px 18px;
-    border: 1px solid #b7ebc6;
+    border: 1px solid #fde68a;
     border-radius: 14px;
-    background: linear-gradient(135deg, #ecfdf3 0%, #dff7e8 100%);
-    color: #166534;
-    box-shadow: 0 8px 24px rgba(22, 101, 52, 0.08);
+    background: linear-gradient(135deg, #fff7cc 0%, #fbe8a6 100%);
+    color: #92400e;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.08);
 }
 
 .limoo-otp-shortcode-notice.is-visible {
@@ -466,7 +466,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #16a34a;
+    background: #f59e0b;
     color: #fff;
     font-size: 16px;
     font-weight: 700;
@@ -522,22 +522,22 @@
 .limoo-otp-shortcode-notice__shortcode:hover,
 .limoo-otp-shortcode-notice__shortcode:focus {
     background: #fff;
-    border-color: #16a34a;
-    color: #166534;
+    border-color: #f59e0b;
+    color: #92400e;
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(21, 128, 61, 0.12);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.12);
     outline: none;
 }
 
 .limoo-otp-shortcode-notice__shortcode:active {
     transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(21, 128, 61, 0.10);
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.10);
 }
 
 .limoo-otp-shortcode-notice__shortcode.is-copied {
-    background: #dcfce7;
-    border-color: #16a34a;
-    color: #166534;
+    background: #fff7cc;
+    border-color: #f59e0b;
+    color: #92400e;
 }
 
 @media (max-width: 782px) {

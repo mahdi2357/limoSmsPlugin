@@ -9,8 +9,8 @@
 }
 
 .limosms-pattern-box:focus-within {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
 }
 
 .limosms-pattern-box {
@@ -24,7 +24,7 @@
     /*border: 1px solid #c3c4c7;*/
     border-radius: 4px;
     background: #f6f7f7;
-    color: #1d2327;
+    color: #27271d;
     line-height: 1.7;
     direction: rtl;
     white-space: pre-wrap;
@@ -67,9 +67,9 @@
     border-radius: 999px;
     font-weight: 600;
     /* color: #1f2937; */
-    background-color: #814DD5;
+    background-color: #f59e0b;
     color: white;
-    border: #814DD5;
+    border: #f59e0b;
 }
 
 .limosms-admin-phone-chip .limosms-remove-admin-phone {
@@ -122,7 +122,7 @@
 .limosms-mapping-table td:first-child {
     width: 140px;
     font-weight: 600;
-    color: #1d2327;
+    color: #1d2721;
     padding: 0 0 0 10px;
     white-space: nowrap;
 }
@@ -142,7 +142,7 @@
 
 .limosms-mapping-row:hover {
     border-color: #cbd5e1;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 14px rgba(15, 42, 15, 0.05);
 }
 
 .limosms-mapping-header {
@@ -175,9 +175,9 @@
 }
 
 .limosms-selected-badge.is-selected {
-    background: rgba(124, 58, 237, 0.12) !important;
-    color: #7c3aed !important;
-    border-color: #d8c5ff !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #b45309 !important;
+    border-color: #fde68a !important;
 }
 
 .limosms-selected-badge .dashicons {
@@ -190,7 +190,7 @@
     width: 100%;
     min-height: 44px;
     border-radius: 10px !important;
-    border: 1px solid #d8c5ff !important;
+    border: 1px solid #fde68a !important;
     padding: 0 12px !important;
     box-shadow: none !important;
     appearance: none !important;
@@ -200,7 +200,7 @@
     direction: rtl !important;
     text-align: right !important;
     background-color: #fff !important;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path fill='%236d28d9' d='M5.5 7.5l4.5 4 4.5-4' stroke='%236d28d9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>") !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path fill='%23f59e0b' d='M5.5 7.5l4.5 4 4.5-4' stroke='%23f59e0b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>") !important;
     background-repeat: no-repeat !important;
     background-position: left 12px center !important;
     background-size: 18px !important;
@@ -209,28 +209,32 @@
 
 .limosms-pattern-select:focus,
 .limosms-pattern-select:focus-visible {
-    border-color: #7c3aed !important;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16) !important;
     outline: none !important;
 }
 /* Plugin-scoped select/option hover and selection overrides */
 .limosms-pattern-select,
 .limosms-pattern-select option {
-    accent-color: #7c3aed !important;
+    accent-color: #f59e0b !important;
 }
 
-/* Try to force option highlight to purple where supported */
+.limosms-pattern-select {
+    border: 1px solid #fde68a !important;
+}
+
+/* Try to force option highlight to yellow where supported */
 .limosms-pattern-select option:hover,
 .limosms-pattern-select option:checked,
 .limosms-pattern-select option:focus {
-    background-color: rgba(124, 58, 237, 0.12) !important;
+    background-color: rgba(245, 158, 11, 0.12) !important;
     color: #0f172a !important;
 }
 
 /* Fallback for admin modern color class (in case browser uses system accent color) */
 body.admin-color-modern .limosms-pattern-select,
 body.admin-color-modern .limosms-pattern-select option {
-    accent-color: #7c3aed !important;
+    accent-color: #f59e0b !important;
 }
 
 .limosms-pattern-select option:disabled {
@@ -255,7 +259,7 @@ body.admin-color-modern .limosms-pattern-select option {
 }
 
 .limosms-token-chip {
-    border: 1px solid #e9ddff !important;
+    border: 1px solid #edffef !important;
     background: #fff !important;
     color: #4b5563 !important;
     border-radius: 999px !important;
@@ -271,9 +275,9 @@ body.admin-color-modern .limosms-pattern-select option {
 .limosms-token-chip:hover,
 .limosms-token-chip:focus,
 .limosms-token-chip:focus-visible {
-    border-color: #7c3aed !important;
-    color: #7c3aed !important;
-    background: #f5edff !important;
+    border-color: #f59e0b !important;
+    color: #f59e0b !important;
+    background: #fffbeb !important;
     transform: translateY(-1px) !important;
     box-shadow: none !important;
     outline: none !important;
@@ -283,10 +287,10 @@ body.admin-color-modern .limosms-pattern-select option {
 .limosms-token-chip.is-active:hover,
 .limosms-token-chip.is-active:focus,
 .limosms-token-chip.is-active:focus-visible {
-    background: #7c3aed !important;
-    border-color: #7c3aed !important;
+    background: #f59e0b !important;
+    border-color: #f59e0b !important;
     color: #fff !important;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2) !important;
 }
 
 .limosms-token-chip.is-active::before {
@@ -298,15 +302,15 @@ body.admin-color-modern .limosms-pattern-select option {
 .limosms-token-chip.is-disabled {
     opacity: .45;
     cursor: not-allowed;
-    background: #f8f6ff;
-    color: #a78bfa;
+    background: #fffef6;
+    color: #fae98b;
 }
 
 .limosms-token-chip.is-disabled:hover {
     transform: none;
-    border-color: #e9ddff;
-    background: #f8f6ff;
-    color: #a78bfa;
+    border-color: #fffbdd;
+    background: #fffdf6;
+    color: #faf38b;
 }
 
 .limosms-event-card .limosms-field {
@@ -329,7 +333,7 @@ body.admin-color-modern .limosms-pattern-select option {
     width: 100%;
     text-align: right;
     background: #fff;
-    border: 1px solid #d8c5ff;
+    border: 1px solid #fff6c5;
     padding: 10px 12px;
     border-radius: 10px;
     cursor: pointer;
@@ -339,7 +343,7 @@ body.admin-color-modern .limosms-pattern-select option {
 }
 .limosms-custom-select__button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+    box-shadow: 0 0 0 3px rgba(237, 222, 58, 0.12);
 }
 .limosms-custom-select__list {
     position: absolute;
@@ -347,12 +351,12 @@ body.admin-color-modern .limosms-pattern-select option {
     right: 0;
     top: calc(100% + 8px);
     background: #fff;
-    border: 1px solid #e9ddff;
+    border: 1px solid #fffadd;
     border-radius: 8px;
     max-height: 260px;
     overflow: auto;
     z-index: 9999;
-    box-shadow: 0 12px 40px rgba(20,20,30,0.08);
+    box-shadow: 0 12px 40px rgba(30, 29, 20, 0.08);
     display: none;
 }
 .limosms-custom-select__item {
@@ -362,8 +366,8 @@ body.admin-color-modern .limosms-pattern-select option {
 }
 .limosms-custom-select__item:hover,
 .limosms-custom-select__item.is-active {
-    background: rgba(124,58,237,0.12);
-    color: #07122a;
+    background: rgba(234, 237, 58, 0.12);
+    color: #2a2607;
 }
 .limosms-custom-select__noresults {
     padding: 10px 12px;
@@ -375,7 +379,7 @@ body.admin-color-modern .limosms-pattern-select option {
     width: calc(100% - 24px);
     margin: 8px 12px;
     padding: 8px 10px;
-    border: 1px solid #e6defc;
+    border: 1px solid #defce6;
     border-radius: 8px;
     background: #fff;
     font-size: 13px;
@@ -392,18 +396,18 @@ body.admin-color-modern .limosms-pattern-select option {
 
 /* Select2 (if used) - force purple highlight for results */
 .select2-container .select2-results__option--highlighted {
-    background: rgba(124,58,237,0.12) !important;
-    color: #07122a !important;
+    background: rgba(237, 237, 58, 0.12) !important;
+    color: #2a2707 !important;
 }
 .select2-container--default .select2-results__option[aria-selected="true"] {
-    background: rgba(124,58,237,0.12) !important;
-    color: #07122a !important;
+    background: rgba(234, 237, 58, 0.12) !important;
+    color: #2a2707 !important;
 }
 
 /* scoped Select2 dropdown created by this plugin */
 .limosms-select2 .select2-results__option--highlighted {
-    background: rgba(124,58,237,0.12) !important;
-    color: #07122a !important;
+    background: rgba(237, 222, 58, 0.12) !important;
+    color: #2a2807 !important;
 }
 
 .limosms-event-card .limosms-event-title,
@@ -443,7 +447,7 @@ body.admin-color-modern .limosms-pattern-select option {
     min-width: 300px;
     max-width: 400px;
     background: #ffffff;
-    color: #111827;
+    color: #112714;
     padding: 16px 20px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.04);
@@ -466,7 +470,7 @@ body.admin-color-modern .limosms-pattern-select option {
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    color: #111827;
+    color: #112719;
     font-weight: 600;
 }
 
